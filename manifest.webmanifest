@@ -1,0 +1,19 @@
+{
+  "name": "TF Music — ভোকাল স্টুডিও",
+  "short_name": "TF Music",
+  "description": "গান রেকর্ড, মিউজিক ম্যাচিং ও মাস্টারিং স্টুডিও",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "lang": "bn",
+  "background_color": "#090d15",
+  "theme_color": "#0b111c",
+  "categories": ["music", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
