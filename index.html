@@ -511,6 +511,46 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
 .live-tips .note{color:#9fb3cc}
 #btnLiveRec.on{background:var(--rec);color:#fff;border-color:#ff8396}
 .dock .dlive.on{background:var(--rec);border-color:#ff8396;animation:pulse 1.1s infinite}
+
+.live-lat{font-size:11px;color:var(--muted);white-space:nowrap}
+.live-top{gap:8px}
+.live .meter{height:8px}
+.lrow{display:grid;grid-template-columns:56px 1fr;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.lrow select{font:inherit;font-size:13px;background:#0e1626;color:var(--text);border:1px solid var(--line2);border-radius:8px;height:34px;padding:0 8px;min-width:0}
+.lseg{width:100%}.lseg button{flex:1;height:30px}
+.lsw{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;cursor:pointer;padding:2px 0}
+.lsw small{color:var(--dim);font-size:11px;margin-left:4px}
+.live .prm{padding:2px 0}
+
+/* minimal phone polish */
+html.m{font-size:13.5px}
+html.m .btn{height:36px;font-size:13px;padding:0 11px}
+html.m .btn.sm{height:32px;font-size:12.5px;padding:0 10px}
+html.m .medit .btn.sm{height:36px}
+html.m .me-row6 .btn{height:32px}
+html.m .src .btns .btn{height:34px}
+html.m .mexp .btn{height:40px}
+html.m .note,html.m .fx-note,html.m .tl-hint,html.m .hint{font-size:11.5px}
+html.m [data-tab="fx"] .fx-note,html.m .tl-hint{display:none}
+html.m .prm{padding:5px 0}
+html.m .prm-top{font-size:12.5px;margin-bottom:4px}
+html.m input[type=range]::-webkit-slider-thumb{width:20px;height:20px;border-width:3px}
+html.m .card-h h2{font-size:14px}
+html.m [data-tab]>.card-h{padding:8px 12px}
+html.m .chk{font-size:12.5px}
+html.m .pre-h{padding:9px 10px 7px}
+html.m .fx-h{padding:8px 10px}
+html.m .fx-t b{font-size:13px}
+html.m .src-t{font-size:13px}
+html.m .live{padding:10px;gap:7px}
+html.m .live-btn{height:34px}
+html.m .dock{padding:6px 12px}
+html.m .dock button{width:42px;height:42px}
+html.m .dock .play,html.m .dock .rec{width:48px;height:48px}
+html.m .tabbar button{padding:5px 0 4px}
+html.m .tabbar i{font-size:18px}
+html.m .tabbar span{font-size:11px}
+html.m .help-b ul,html.m .help-b ol{font-size:12.5px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -549,96 +589,72 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
   <div class="row2">
     <!-- ======================= 1. INPUT ======================= -->
     <section class="card" data-tab="rec">
-      <div class="card-h"><h2><span class="step">১</span>অডিও ইনপুট</h2><button class="btn sm" id="btnDemo" title="একটা নমুনা গান লোড করে দেখুন">♫ ডেমো</button></div>
+      <div class="card-h"><h2><span class="step">১</span>রেকর্ড ও ইনপুট</h2><button class="btn sm" id="btnDemo" title="একটা নমুনা গান লোড করে দেখুন">♫ ডেমো</button></div>
       <div class="card-b stack">
         <div class="live" id="liveBox">
           <div class="live-top">
-            <div class="live-t"><b>🎤 লাইভ মোড</b><small>ফোনকে ইফেক্টসহ মাইক্রোফোন বানান — অনুষ্ঠান, গান, বক্তব্য</small></div>
-            <button class="btn live-btn" id="btnLive" type="button"><span class="dot"></span><span id="liveTxt">লাইভ চালু</span></button>
+            <div class="live-t"><b>🎤 লাইভ</b><small id="liveState">ইফেক্টসহ মাইক</small></div>
+            <span class="mono live-lat" id="liveLat"></span>
+            <button class="btn live-btn" id="btnLive" type="button"><span class="dot"></span><span id="liveTxt">চালু</span></button>
           </div>
-          <div class="live-body">
-            <div class="meter"><div class="meter-fill" id="liveFill"></div></div>
-            <div class="live-stat"><span id="liveState">বন্ধ — চালু করলে মাইকের গলা সব ইফেক্টসহ স্পিকারে যাবে</span><span class="mono" id="liveLat"></span></div>
-
-            <label class="fld"><span>শব্দ কোথায় শুনবেন</span>
-              <select id="liveOut">
-                <option value="speaker" selected>📢 ফোনের স্পিকার / কাছের স্পিকার — চিঁচিঁ রোধ চালু</option>
-                <option value="phones">🎧 তারের হেডফোন / দূরের বড় স্পিকার — সেরা মান</option>
-              </select></label>
-            <label class="fld"><span>লাইভের গতি — শব্দ কেটে গেলে "আরও স্থির" বাছুন</span>
-              <select id="liveQ">
-                <option value="fast">⚡ দ্রুত — সবচেয়ে কম দেরি (শক্তিশালী ফোনে)</option>
-                <option value="normal" selected>✅ স্বাভাবিক — প্রস্তাবিত</option>
-                <option value="stable">🛡 আরও স্থির — কখনো কাটবে না, একটু বেশি দেরি</option>
-              </select></label>
-            <div id="slot_liveGain"></div>
-            <label class="chk"><input type="checkbox" id="liveFb" checked><span><b>ফিডব্যাক গার্ড</b> — স্পিকার থেকে "চিঁচিঁ/বোঁ" শব্দ উঠলে নিজে থেকে সেই সুরটা কেটে দেবে</span></label>
-            <label class="chk"><input type="checkbox" id="liveVox"><span>টাইমলাইনে আগে রেকর্ড করা ভোকালও মিউজিকের সাথে বাজবে</span></label>
-            <div class="cl-btns"><button class="btn sm" id="btnLiveRec" type="button">⏺ অনুষ্ঠানটা রেকর্ড করুন</button><button class="btn sm" id="btnFbReset" type="button">↺ গার্ড রিসেট</button></div>
-            <details class="sub">
-              <summary>💡 কীভাবে ব্যবহার করবেন — স্পিকার, মাইক, ব্লুটুথ</summary>
-              <div class="sub-b live-tips">
-                <p class="note"><b>১.</b> প্রিসেট ও ইফেক্ট ট্যাবে পছন্দের সাউন্ড ঠিক করুন — সেগুলোই লাইভে যাবে। <b>২.</b> গানের জন্য মিউজিক ফাইল দিন। <b>৩.</b> "লাইভ চালু" চাপুন, মিউজিকের জন্য ▶ চাপুন। শুধু বক্তব্য দিলে ▶ লাগবে না।</p>
-                <p class="note"><b>সবচেয়ে ভালো:</b> তারের (AUX/USB) স্পিকার বা মিক্সার, আর তারের হেডফোন/মাইক — গলা সাথে সাথে বের হয়।</p>
-                <p class="note"><b>ব্লুটুথ স্পিকার:</b> মিউজিক বাজানোর জন্য ঠিক আছে, কিন্তু ব্লুটুথে শব্দ প্রায় ০.২–০.৩ সেকেন্ড দেরিতে বের হয় — নিজের গলা দেরিতে শুনে গাওয়া কঠিন হতে পারে। ওপরের "দেরি" সংখ্যাটা ১০০ ms-এর বেশি হলে তারের সংযোগ ব্যবহার করুন। ব্লুটুথ হেডসেটের মাইকের মান কম — গলার জন্য ফোনের মাইক বা তারের মাইক ভালো।</p>
-                <p class="note"><b>চিঁচিঁ শব্দ (ফিডব্যাক) এড়াতে:</b> ফোন/মাইক স্পিকারের সামনে ধরবেন না, স্পিকারের পেছনে বা পাশে থাকুন, মাইকের জোর একটু কমান।</p>
-                <p class="note">🎯 সুর সংশোধন, 🤖 অটো-টিউন ও 🎶 হারমোনি রেকর্ড করা গানে কাজ করে, লাইভে নয়। বাকি সব — প্রিসেট, ইকো, রিভার্ব, কণ্ঠ মসৃণ, কোরাস, মোবাইল মাস্টারিং — লাইভে চলবে।</p>
-              </div>
-            </details>
-          </div>
+          <div class="meter"><div class="meter-fill" id="liveFill"></div></div>
+          <div class="lrow"><span>ইনপুট</span><select id="liveIn"><option value="">স্বয়ংক্রিয়</option></select></div>
+          <div class="lrow" id="liveOutRow"><span>আউটপুট</span><select id="liveOutDev"><option value="">স্বয়ংক্রিয়</option></select></div>
+          <div class="lrow"><span>গতি</span><div class="seg lseg" id="liveQ"><button data-q="fast" type="button">দ্রুত</button><button data-q="normal" class="on" type="button">স্বাভাবিক</button><button data-q="stable" type="button">স্থির</button></div></div>
+          <div id="slot_liveGain"></div>
+          <label class="lsw"><span>চিঁচিঁ রোধ <small>ফোনের স্পিকারে শুনলে</small></span><span class="switch"><input type="checkbox" id="liveAh"><span></span></span></label>
+          <label class="lsw"><span>রেকর্ড করা ভোকালও বাজবে</span><span class="switch"><input type="checkbox" id="liveVox"><span></span></span></label>
+          <label class="lsw"><span>ফিডব্যাক গার্ড</span><span class="switch"><input type="checkbox" id="liveFb" checked><span></span></span></label>
+          <div class="cl-btns"><button class="btn sm" id="btnLiveRec" type="button">⏺ অনুষ্ঠান রেকর্ড</button><button class="btn sm" id="btnLiveHelp" type="button">? সাহায্য</button></div>
         </div>
         <div class="src music">
-          <div class="src-l"><div class="src-t"><i class="dot music"></i>মিউজিক / কারাওকে ট্র্যাক</div><div class="src-n" id="musicName">কোনো ফাইল নেই</div></div>
-          <div class="btns"><label class="btn sm">+ ফাইল<input type="file" id="fileMusic" accept="audio/*,video/mp4,.m4a,.aac,.mp3,.wav,.ogg,.opus,.flac,.3gp,.webm" hidden></label></div>
+          <div class="src-l"><div class="src-t"><i class="dot music"></i>মিউজিক</div><div class="src-n" id="musicName">কোনো ফাইল নেই</div></div>
+          <div class="btns"><label class="btn sm" title="মিউজিক / কারাওকে ফাইল যোগ করুন">+ যোগ<input type="file" id="fileMusic" accept="audio/*,video/mp4,.m4a,.aac,.mp3,.wav,.ogg,.opus,.flac,.3gp,.webm" hidden></label></div>
         </div>
         <div class="src vocal">
-          <div class="src-l"><div class="src-t"><i class="dot vocal"></i>ভোকাল (আপনার গলা)</div><div class="src-n" id="vocalName">রেকর্ড করুন বা ফাইল দিন</div></div>
+          <div class="src-l"><div class="src-t"><i class="dot vocal"></i>ভোকাল</div><div class="src-n" id="vocalName">রেকর্ড বা আপলোড করুন</div></div>
           <div class="btns">
-            <label class="btn sm primary">📂 রেকর্ড করা গান আপলোড<input type="file" id="fileVocal" accept="audio/*,video/mp4,.m4a,.aac,.mp3,.wav,.ogg,.opus,.flac,.3gp,.webm" hidden></label>
-            <button class="btn sm" id="btnMicTest" title="রেকর্ডের আগে গলার লেভেল চেক করুন">🎚 মাইক টেস্ট</button>
+            <label class="btn sm" title="ফোনের রেকর্ডারে গাওয়া গান আপলোড করুন">📂 আপলোড<input type="file" id="fileVocal" accept="audio/*,video/mp4,.m4a,.aac,.mp3,.wav,.ogg,.opus,.flac,.3gp,.webm" hidden></label>
+            <button class="btn sm" id="btnMicTest" title="রেকর্ডের আগে গলার লেভেল চেক করুন">🎚 টেস্ট</button>
           </div>
         </div>
-        <p class="note rec-tip">💡 ফোনে সরাসরি রেকর্ড কেটে কেটে গেলে: ফোনের নিজের রেকর্ডার অ্যাপে (হেডফোনে মিউজিক শুনে) গেয়ে "📂 রেকর্ড করা গান আপলোড" দিয়ে দিন — এখানে রেকর্ড করার মতোই লাল দাগ থেকে বসবে, নয়েজ পরিষ্কার ও লেভেল ঠিক হবে, তারপর এডিট করতে পারবেন।</p>
         <div class="meter-box">
-          <div class="meter-top"><span>ইনপুট লেভেল (গলার জোর)</span><span class="mono" id="inDb">— dB</span></div>
+          <div class="meter-top"><span>ইনপুট লেভেল</span><span class="mono" id="inDb">— dB</span></div>
           <div class="meter"><div class="meter-fill" id="inFill"></div><div class="meter-zone" title="সবুজ দাগের মাঝে থাকলে সবচেয়ে ভালো"></div></div>
-          <div class="hint" id="inHint">"মাইক টেস্ট" চাপুন — দাগ দুটোর মাঝে থাকলে লেভেল ঠিক আছে</div>
+          <div class="hint" id="inHint">টেস্ট চাপুন — সবুজ দাগের মাঝে রাখুন</div>
         </div>
         <details class="sub">
           <summary>⚙️ রেকর্ড সেটিংস</summary>
           <div class="sub-b">
             <label class="fld"><span>মাইক্রোফোন</span><select id="micSelect"><option value="">ডিফল্ট মাইক্রোফোন</option></select></label>
-            <label class="chk"><input type="checkbox" id="optPreroll" checked><span>রেকর্ডের ২ সেকেন্ড আগে থেকে মিউজিক বাজবে (প্রি-রোল ও কাউন্ট-ইন)</span></label>
-            <label class="chk"><input type="checkbox" id="optReplace" checked><span>নতুন টেক আগের ভোকালের ওপর পড়লে সেই অংশের পুরনোটা সরিয়ে দিন (পাঞ্চ-ইন)</span></label>
-            <label class="chk"><input type="checkbox" id="optMonitor"><span>রেকর্ডের সময় নিজের গলা ইফেক্টসহ শুনুন — শুধু হেডফোনে চালু করুন</span></label>
+            <label class="chk"><input type="checkbox" id="optPreroll" checked><span>২ সেকেন্ড আগে থেকে মিউজিক (কাউন্ট-ইন)</span></label>
+            <label class="chk"><input type="checkbox" id="optReplace" checked><span>নতুন টেক পুরনো অংশ বদলে দেবে</span></label>
+            <label class="chk"><input type="checkbox" id="optMonitor"><span>রেকর্ডের সময় নিজের গলা শুনুন (হেডফোনে)</span></label>
             <div id="slot_latency"></div>
-            <p class="note">রেকর্ড করা গলা মিউজিকের চেয়ে পিছিয়ে শোনালে এই মান বাড়ান, আগে শোনালে কমান। একবার ঠিক করলেই হবে।</p>
           </div>
         </details>
         <div class="cleanup">
-          <div class="cl-row"><span class="cl-t">🧹 নয়েজ রিমুভার</span><span class="note" style="margin-left:auto">ফ্যান, AC, হিস্‌, গুনগুন, রাস্তার শব্দ</span></div>
+          <div class="cl-row"><span class="cl-t">🧹 নয়েজ রিমুভার</span></div>
           <div id="slot_noise"></div>
-          <div class="cl-btns"><button class="btn sm primary" id="btnDenoise" type="button">🧹 নয়েজ পরিষ্কার করুন</button><button class="btn sm" id="btnDenoiseUndo" type="button">↺ আসল শব্দ</button></div>
-          <p class="note" id="dnHint">ভোকাল ক্লিপ সিলেক্ট করা থাকলে শুধু সেটা, না থাকলে সব ভোকাল পরিষ্কার হবে। <b>আরও ভালো ফল:</b> "▭ সিলেক্ট" টুল দিয়ে শুধু-নয়েজ আছে এমন একটু জায়গা (যেমন গান শুরুর আগের অংশ) টেনে সিলেক্ট করে তারপর চাপুন।</p>
-          <label class="chk"><input type="checkbox" id="p_noiseOn" checked><span>রেকর্ড শেষে নতুন টেক নিজে থেকে পরিষ্কার করুন</span></label>
-          <button class="btn sm w100" id="btnAutoLevel">⚡ অটো লেভেল — সব ভোকাল টেক সমান ভলিউমে আনুন</button>
+          <div class="cl-btns"><button class="btn sm primary" id="btnDenoise" type="button">🧹 পরিষ্কার করুন</button><button class="btn sm" id="btnDenoiseUndo" type="button">↺ আসল</button></div>
+          <label class="chk"><input type="checkbox" id="p_noiseOn" checked><span>রেকর্ডের পর নিজে থেকে পরিষ্কার</span></label>
+          <button class="btn sm w100" id="btnAutoLevel" title="সব ভোকাল টেক সমান ভলিউমে আনুন">⚡ অটো লেভেল</button>
         </div>
       </div>
     </section>
 
     <!-- ======================= 2. PRESETS ======================= -->
     <section class="card" data-tab="sound">
-      <div class="card-h"><h2><span class="step">২</span>প্রিসেট — এক ক্লিকে প্রফেশনাল সাউন্ড</h2><span class="tag" id="presetTag">রোমান্টিক গান</span></div>
+      <div class="card-h"><h2><span class="step">২</span>প্রিসেট</h2><span class="tag" id="presetTag">রোমান্টিক গান</span></div>
       <div class="card-b">
-        <p class="fx-note">একাধিক প্রিসেট একসাথে চালু করা যায় — কার্ডে চাপ দিলে যোগ/বাদ, নিচের বার দিয়ে ঠিক করুন কোনটা কতটুকু থাকবে। যেমন: রোমান্টিক ১০০% + নাশিদ ৪০%।</p>
+        <p class="fx-note">একাধিক প্রিসেট মেশানো যায় — চাপ দিলে যোগ/বাদ, বার দিয়ে মাত্রা।</p>
         <div class="presets" id="presetGrid"></div>
-        <div class="prm pre-int"><div class="prm-top"><span>🎚 সব প্রিসেটের সামগ্রিক তীব্রতা</span><b class="mono" id="presetIntV">১০০%</b></div>
+        <div class="prm pre-int"><div class="prm-top"><span>সামগ্রিক তীব্রতা</span><b class="mono" id="presetIntV">১০০%</b></div>
           <input type="range" id="presetInt" min="0" max="150" step="5" value="100" style="--fc:#a78bfa"></div>
         <div class="mobm">
-          <div class="cl-row"><span class="cl-t">📱 মোবাইলে মধুর শোনানো</span><span class="tag off" id="mobTag" style="margin-left:auto">বন্ধ</span><label class="switch" title="চালু / বন্ধ"><input type="checkbox" id="mobOn"><span></span></label></div>
-          <p class="note">ফোনের ছোট স্পিকারে গান "ক্যানক্যানে", পাতলা বা কর্কশ শোনালে চালু করুন। কর্কশ ও নাকি সুর কমে, ফোনেও বেস অনুভূত হয়, গলা ভরাট ও পরিষ্কার শোনায় — বড় স্পিকারেও স্বাভাবিক থাকে। ডাউনলোড করা ফাইলেও এটা যোগ হবে।</p>
+          <div class="cl-row"><span class="cl-t">📱 মোবাইলে মধুর</span><span class="tag off" id="mobTag" style="margin-left:auto">বন্ধ</span><label class="switch" title="চালু / বন্ধ"><input type="checkbox" id="mobOn"><span></span></label></div>
           <div id="slot_mob"></div>
-          <button class="btn sm w100" id="btnPhonePrev" type="button" title="কম্পিউটার বা হেডফোনে শুনে বুঝুন ফোনের স্পিকারে কেমন শোনাবে">🎧 ফোনের স্পিকারে কেমন শোনাবে — প্রিভিউ</button>
+          <button class="btn sm w100" id="btnPhonePrev" type="button" title="কম্পিউটার বা হেডফোনে শুনে বুঝুন ফোনের স্পিকারে কেমন শোনাবে">🎧 ফোন-স্পিকার প্রিভিউ</button>
         </div>
         <div class="viz">
           <canvas id="spec"></canvas>
@@ -654,12 +670,12 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
 
   <!-- ======================= 3. EFFECTS ======================= -->
   <section class="card" data-tab="fx">
-    <div class="card-h"><h2><span class="step">৩</span>ইফেক্ট ও অটো-টিউন</h2><span class="tag off" id="fxCount">কোনো ইফেক্ট চালু নেই</span></div>
+    <div class="card-h"><h2><span class="step">৩</span>ইফেক্ট</h2><span class="tag off" id="fxCount">কোনো ইফেক্ট চালু নেই</span></div>
     <div class="card-b">
       <p class="fx-note">যতগুলো খুশি ইফেক্ট একসাথে চালু করুন — কার্ডে চাপ দিলেই চালু/বন্ধ। নিচের বার টেনে ঠিক করুন কতটুকু লাগবে। বেগুনি তিনটা (সুর-সংক্রান্ত) প্রথমবার প্লে করার সময় কয়েক সেকেন্ড প্রস্তুত হয়, রেকর্ড শেষ হওয়ার পর শোনা যায়।</p>
       <div class="fxgrid" id="fxGrid"></div>
       <div class="tune-set">
-        <div class="ts-h">🎼 সুরের সেটিংস (সুর সংশোধন, অটো-টিউন ও হারমোনির জন্য)</div>
+        <div class="ts-h">🎼 সুরের সেটিংস</div>
         <label class="fld"><span>গানের কী (মূল সুর)</span><select id="tuneKey"><option value="auto" selected>অটো শনাক্ত</option><option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option></select></label>
         <label class="fld"><span>স্কেল</span><select id="tuneScale"><option value="chromatic" selected>সব নোট (সবচেয়ে নিরাপদ)</option><option value="major">মেজর (উজ্জ্বল সুর)</option><option value="minor">মাইনর (আবেগী/দুঃখের সুর)</option></select></label>
         <label class="fld"><span>হারমোনি কণ্ঠের সুর</span><select id="harmMode"><option value="third" selected>ওপরে মিষ্টি তৃতীয় সুর</option><option value="fifth">ওপরে পঞ্চম সুর</option><option value="octdown">এক অষ্টক নিচে (গম্ভীর)</option></select></label>
@@ -671,7 +687,7 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
   <!-- ======================= 4. TIMELINE ======================= -->
   <section class="card tlcard" id="tlCard">
     <div class="card-h">
-      <h2><span class="step">৪</span>টাইমলাইন এডিটর</h2>
+      <h2><span class="step">৪</span>টাইমলাইন</h2>
       <div class="toolbar">
         <div class="seg">
           <button id="toolMove" class="on" title="ক্লিপ টেনে সরান, কিনারা টেনে ছোট-বড় করুন (V)">✋ সরান</button>
@@ -680,7 +696,7 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
         </div>
         <button class="btn sm" id="btnSplit" title="লাল প্লে-হেডের জায়গায় কাটুন (S)">✂ প্লে-হেডে ভাগ</button>
         <button class="btn sm" id="btnDel" title="সিলেক্ট করা ক্লিপ বা অংশ মুছুন (Delete)">🗑 মুছুন</button>
-        <button class="btn sm" id="btnRipple" title="সিলেক্ট অংশ মুছে পরের অংশ টেনে জোড়া দিন">⇤ মুছে জোড়া দিন</button>
+        <button class="btn sm" id="btnRipple" title="সিলেক্ট অংশ মুছে পরের অংশ টেনে জোড়া দিন">⇤ মুছে জোড়া</button>
         <button class="btn sm" id="btnCloseGaps" title="এই ট্র্যাকের ক্লিপগুলোর মাঝের ফাঁকা বন্ধ করুন">🔗 ফাঁক বন্ধ</button>
         <div class="zoom"><button id="zoomOut" title="ছোট করুন">−</button><input type="range" id="zoomR" min="0" max="100" value="0" style="--fc:#64748b"><button id="zoomIn" title="বড় করুন">+</button><span class="mono" id="zoomLbl">1x</span></div>
       </div>
@@ -727,7 +743,7 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
           <b>✂ মোবাইল এডিট প্যানেল</b>
           <div class="seg me-trk"><button id="meTrkV" class="on" type="button">🎤 ভোকাল</button><button id="meTrkM" type="button">🎹 মিউজিক</button></div>
         </div>
-        <div class="me-info" id="meInfo">কোনো ক্লিপ বাছাই করা নেই</div>
+        <div class="me-info" id="meInfo">ক্লিপে একবার চাপ দিয়ে বাছুন</div>
         <div class="me-ph">
           <span class="me-lbl">লাল দাগ (প্লে-হেড)</span><b class="mono" id="mePh">00:00.0</b>
           <input type="range" id="meScrub" min="0" max="1000" step="1" value="0" style="--fc:#fb7185" aria-label="প্লে-হেড সরান">
@@ -736,43 +752,42 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
             <button class="btn sm" data-jog="0.1">+০.১</button><button class="btn sm" data-jog="1">+১s</button><button class="btn sm" data-jog="5">+৫s</button>
           </div>
         </div>
-        <div class="seg me-tabs"><button class="on" data-mtab="cut" type="button">✂ কাটা ও ছাঁটা</button><button data-mtab="range" type="button">▭ অংশ মুছুন</button><button data-mtab="move" type="button">↔ সরান</button></div>
+        <div class="seg me-tabs"><button class="on" data-mtab="cut" type="button">✂ কাটা</button><button data-mtab="range" type="button">▭ অংশ</button><button data-mtab="move" type="button">↔ সরান</button></div>
         <div class="me-pane" data-pane="cut">
           <div class="me-row2">
-            <button class="btn sm" id="meClipPrev" type="button">◀ আগের ক্লিপ</button><button class="btn sm" id="meClipNext" type="button">পরের ক্লিপ ▶</button>
+            <button class="btn sm" id="meClipPrev" type="button">◀ আগের</button><button class="btn sm" id="meClipNext" type="button">পরের ▶</button>
           </div>
-          <button class="btn primary w100" id="meSplit" type="button">✂ লাল দাগের জায়গায় কাটুন</button>
+          <button class="btn primary w100" id="meSplit" type="button">✂ এখানে কাটুন</button>
           <div class="me-row2">
-            <button class="btn sm" id="meTrimS" type="button" title="ক্লিপের শুরু থেকে লাল দাগ পর্যন্ত বাদ দিন">⟦ শুরু এখান পর্যন্ত বাদ</button>
-            <button class="btn sm" id="meTrimE" type="button" title="লাল দাগ থেকে ক্লিপের শেষ পর্যন্ত বাদ দিন">এখান থেকে শেষ বাদ ⟧</button>
+            <button class="btn sm" id="meTrimS" type="button" title="ক্লিপের শুরু থেকে লাল দাগ পর্যন্ত বাদ দিন">⟦ শুরু বাদ</button>
+            <button class="btn sm" id="meTrimE" type="button" title="লাল দাগ থেকে ক্লিপের শেষ পর্যন্ত বাদ দিন">শেষ বাদ ⟧</button>
           </div>
-          <button class="btn sm danger w100" id="meDelClip" type="button">🗑 বাছাই করা ক্লিপ মুছুন</button>
-          <p class="note">লাল দাগ যেখানে কাটতে চান সেখানে আনুন (টাইমলাইনে আঙুল ছোঁয়ান বা ওপরের বাটন/বার দিয়ে), তারপর কাটুন। আনডু (↶) করে আগের অবস্থায় ফেরা যায়।</p>
+          <button class="btn sm danger w100" id="meDelClip" type="button">🗑 ক্লিপ মুছুন</button>
         </div>
         <div class="me-pane hidden" data-pane="range">
           <div class="me-row2">
-            <button class="btn sm" id="meMarkA" type="button">[ এখান থেকে</button><button class="btn sm" id="meMarkB" type="button">এখান পর্যন্ত ]</button>
+            <button class="btn sm" id="meMarkA" type="button">[ শুরু</button><button class="btn sm" id="meMarkB" type="button">শেষ ]</button>
           </div>
-          <div class="me-info" id="meRange">অংশ বাছাই করা নেই — লাল দাগ শুরুতে এনে "[ এখান থেকে", শেষে এনে "এখান পর্যন্ত ]" চাপুন</div>
+          <div class="me-info" id="meRange">লাল দাগ এনে [ শুরু ও শেষ ] চাপুন</div>
           <div class="me-row2">
-            <button class="btn sm danger" id="meDelRange" type="button">🗑 অংশটা মুছুন</button><button class="btn sm" id="meRipple" type="button">⇤ মুছে জোড়া দিন</button>
+            <button class="btn sm danger" id="meDelRange" type="button">🗑 মুছুন</button><button class="btn sm" id="meRipple" type="button">⇤ মুছে জোড়া</button>
           </div>
           <div class="me-row2">
-            <button class="btn sm" id="meLoop" type="button">🔁 অংশটা বারবার বাজান</button><button class="btn sm" id="meClearRange" type="button">✕ বাছাই বাতিল</button>
+            <button class="btn sm" id="meLoop" type="button">🔁 লুপ</button><button class="btn sm" id="meClearRange" type="button">✕ বাতিল</button>
           </div>
-          <button class="btn sm w100" id="meDnRange" type="button">🧹 এই অংশের শব্দ দিয়ে নয়েজ চিনিয়ে পরিষ্কার করুন</button>
+          <button class="btn sm w100" id="meDnRange" type="button">🧹 এটাকে নয়েজ ধরে পরিষ্কার</button>
         </div>
         <div class="me-pane hidden" data-pane="move">
-          <span class="me-lbl">পুরো ক্লিপ সরান (চেপে ধরে রাখলে চলতে থাকবে)</span>
+          <span class="me-lbl">ক্লিপ সরান</span>
           <div class="me-row6">
             <button class="btn sm" data-nudge="-1">◀ ১s</button><button class="btn sm" data-nudge="-0.1">◀ ০.১</button><button class="btn sm" data-nudge="-0.01">◀ ০.০১</button>
             <button class="btn sm" data-nudge="0.01">০.০১ ▶</button><button class="btn sm" data-nudge="0.1">০.১ ▶</button><button class="btn sm" data-nudge="1">১s ▶</button>
           </div>
-          <span class="me-lbl">ক্লিপের শুরুর কিনারা</span>
+          <span class="me-lbl">শুরুর কিনারা</span>
           <div class="me-row2"><button class="btn sm" data-edge="L" data-d="-0.05">◀ বড় করুন</button><button class="btn sm" data-edge="L" data-d="0.05">ছোট করুন ▶</button></div>
-          <span class="me-lbl">ক্লিপের শেষের কিনারা</span>
+          <span class="me-lbl">শেষের কিনারা</span>
           <div class="me-row2"><button class="btn sm" data-edge="R" data-d="-0.05">◀ ছোট করুন</button><button class="btn sm" data-edge="R" data-d="0.05">বড় করুন ▶</button></div>
-          <div class="me-row2"><button class="btn sm" id="meToPh" type="button">ক্লিপের শুরু লাল দাগে আনুন</button><button class="btn sm" id="meGaps" type="button">🔗 ফাঁক বন্ধ</button></div>
+          <div class="me-row2"><button class="btn sm" id="meToPh" type="button">শুরু লাল দাগে</button><button class="btn sm" id="meGaps" type="button">🔗 ফাঁক বন্ধ</button></div>
         </div>
       </div>
       <div class="tl-hint">💡 লাল দাগ (প্লে-হেড) যেখানে রাখবেন, রেকর্ড সেখান থেকে শুরু হবে। ক্লিপের ডান কোণের <b>✕</b> চাপলে ক্লিপ মুছে যায়, দুই কিনারা টেনে ছোট-বড় করা যায়। <span class="only-desk"><b>Ctrl + মাউস হুইল</b> = জুম।</span><span class="only-touch">মোবাইলে: ক্লিপে <b>একবার চাপ</b> দিলে সেটা বাছাই হয় ও লাল দাগ সেখানে যায়; বাছাই করা ক্লিপ আঙুলে টেনে সরানো যায়, দুই পাশের সাদা হাতল টেনে ছোট-বড় করা যায়। আঙুল টানলে সামনে-পেছনে যাবে, দুই আঙুলে চিমটি = জুম। ওপরের <b>✂ মোবাইল এডিট প্যানেল</b> দিয়ে নিখুঁতভাবে কাটুন।</span></div>
@@ -781,9 +796,9 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
 
   <!-- ======================= 4. RACK ======================= -->
   <section class="card" data-tab="mix">
-    <div class="card-h"><h2><span class="step">৫</span>ফাইন টিউনিং র‍্যাক</h2><button class="btn sm" id="btnResetFx" title="বর্তমান প্রিসেটের মানগুলোতে ফিরে যান">↺ প্রিসেটে ফিরুন</button></div>
+    <div class="card-h"><h2><span class="step">৫</span>মিক্স</h2><button class="btn sm" id="btnResetFx" title="বর্তমান প্রিসেটের মানগুলোতে ফিরে যান">↺ রিসেট</button></div>
     <div class="m-only mexp">
-      <button class="btn success" id="mExport" type="button">⬇ ফাইনাল গান ডাউনলোড</button>
+      <button class="btn success" id="mExport" type="button">⬇ ডাউনলোড</button>
       <button class="btn" id="mExportVocal" type="button">শুধু ভোকাল</button>
     </div>
     <div class="card-b rack">
@@ -809,6 +824,17 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
   <details class="card help" data-tab="help">
     <summary>📖 কীভাবে ব্যবহার করবেন ও কীবোর্ড শর্টকাট</summary>
     <div class="help-b">
+      <ul id="help_live">
+        <li><b>🎤 লাইভ:</b> প্রিসেট/ইফেক্ট ঠিক করে "চালু" চাপুন — গলা ইফেক্টসহ বের হবে। মিউজিকের জন্য ▶।</li>
+        <li><b>ইনপুট:</b> হেডফোনের মাইক বা ফোনের মাইক বাছুন। "স্বয়ংক্রিয়" হলে হেডফোন লাগালে হেডফোনের মাইক।</li>
+        <li><b>আউটপুট:</b> ফোনের ব্রাউজার সাধারণত আউটপুট বদলাতে দেয় না — হেডফোন লাগানো থাকলে শব্দ হেডফোনেই যায়।</li>
+        <li><b>চিঁচিঁ শব্দ:</b> ফোনের স্পিকারে শুনলে "চিঁচিঁ রোধ" চালু করুন, ফোন স্পিকার থেকে দূরে রাখুন। হেডফোনে বন্ধ রাখুন (মান ভালো থাকে)।</li>
+        <li><b>কেটে কেটে গেলে:</b> গতি "স্থির" করুন। ব্লুটুথে শব্দ ০.২–০.৩ সেকেন্ড দেরিতে আসে — গানের জন্য তারের সংযোগ ভালো।</li>
+        <li>সুর সংশোধন, অটো-টিউন ও হারমোনি লাইভে চলে না — বাকি সব চলে।</li>
+        <li><b>📂 আপলোড:</b> ফোনের রেকর্ডারে গাওয়া গান দিলে লাল দাগ থেকে বসে, পরিষ্কার ও লেভেল ঠিক হয়।</li>
+        <li><b>🧹 নয়েজ:</b> শুধু-নয়েজ আছে এমন অংশ বাছাই করে চাপলে আরও ভালো পরিষ্কার হয়।</li>
+        <li><b>সিঙ্ক:</b> রেকর্ড মিউজিকের পিছিয়ে শোনালে রেকর্ড সেটিংসে "সিঙ্ক সংশোধন" বাড়ান।</li>
+      </ul>
       <ol>
         <li><b>মিউজিক / কারাওকে</b> ফাইল যোগ করুন।</li>
         <li><b>হেডফোন</b> লাগান (না হলে মিউজিক মাইকে ঢুকে যাবে)। "মাইক টেস্ট" দিয়ে লেভেল দেখে নিন।</li>
@@ -909,8 +935,8 @@ const PARAMS = [
   { id: 'duck', slot: 'mod_mix', label: 'অটো ডাকিং (গাওয়ার সময় মিউজিক নামবে)', min: 0, max: 12, step: 0.5, def: 3, fmt: v => v > 0 ? '-' + (+v).toFixed(1) + ' dB' : 'বন্ধ', kind: 'restart', color: '#f472b6' },
   { id: 'pocket', slot: 'mod_mix', label: 'ভোকাল পকেট (মিউজিকে গলার জায়গা)', min: 0, max: 100, step: 5, def: 55, fmt: pctFmt, kind: 'live', color: '#f472b6' },
   { id: 'padLevel', slot: 'mod_mix', label: 'আবহ হামিং প্যাড', min: 0, max: 80, step: 1, def: 0, fmt: v => v > 0 ? v + '%' : 'বন্ধ', kind: 'live', color: '#f472b6' },
-  { id: 'liveGain', slot: 'slot_liveGain', label: 'মাইকের জোর (লাইভ)', min: 0, max: 200, step: 5, def: 100, fmt: pctFmt, kind: 'none', color: '#f43f5e' },
-  { id: 'mobAmt', slot: 'slot_mob', label: 'কতটুকু প্রয়োগ হবে', min: 0, max: 100, step: 5, def: 60, fmt: pctFmt, kind: 'live', color: '#34d399' },
+  { id: 'liveGain', slot: 'slot_liveGain', label: 'মাইকের জোর', min: 0, max: 200, step: 5, def: 100, fmt: pctFmt, kind: 'none', color: '#f43f5e' },
+  { id: 'mobAmt', slot: 'slot_mob', label: 'মাত্রা', min: 0, max: 100, step: 5, def: 60, fmt: pctFmt, kind: 'live', color: '#34d399' },
   { id: 'masterVol', slot: 'mod_mix', label: 'মাস্টার ভলিউম', min: -12, max: 6, step: 0.5, def: 0, fmt: dbFmt, kind: 'live', color: '#f472b6' },
 ];
 const PSPEC = Object.fromEntries(PARAMS.map(p => [p.id, p]));
@@ -1094,6 +1120,7 @@ function getCtx() {
     const hint = S.wantMode || (phone ? 'playback' : 'interactive');
     try { S.ctx = new AC({ latencyHint: hint }); } catch (e) { S.ctx = new AC(); }
     S.ctxMode = hint;
+    if (S.sinkId && S.ctx.setSinkId) S.ctx.setSinkId(S.sinkId).catch(() => {});
     S.analyser = S.ctx.createAnalyser();
     S.analyser.fftSize = 2048;
     S.analyser.smoothingTimeConstant = 0.78;
@@ -1286,7 +1313,7 @@ function updMobUI() {
   $('mobTag').textContent = on ? 'চালু' : 'বন্ধ';
   $('mobTag').className = 'tag' + (on ? '' : ' off');
   $('btnPhonePrev').classList.toggle('on', !!S.phonePrev);
-  $('btnPhonePrev').textContent = S.phonePrev ? '🎧 ফোন-প্রিভিউ চলছে — চাপলে বন্ধ হবে' : '🎧 ফোনের স্পিকারে কেমন শোনাবে — প্রিভিউ';
+  $('btnPhonePrev').textContent = S.phonePrev ? '■ প্রিভিউ বন্ধ করুন' : '🎧 ফোন-স্পিকার প্রিভিউ';
 }
 
 function applyLive() {
@@ -1967,7 +1994,7 @@ S.dnBusy = false;
 function dnButtons(busy, pct) {
   const b = $('btnDenoise');
   b.disabled = busy; $('btnDenoiseUndo').disabled = busy; $('insDenoise').disabled = busy;
-  b.textContent = busy ? `⏳ পরিষ্কার হচ্ছে ${bnNum(pct || 0)}%` : '🧹 নয়েজ পরিষ্কার করুন';
+  b.textContent = busy ? `⏳ পরিষ্কার হচ্ছে ${bnNum(pct || 0)}%` : '🧹 পরিষ্কার করুন';
 }
 function dnTargets() {
   const f = S.sel && findClip(S.sel);
@@ -2338,13 +2365,32 @@ async function openMic(clean) {
   fillMics();
   return stream;
 }
+function devName(d, i, kind) {
+  const l = d.label || '';
+  let n = /bluetooth|\bbt\b|hands-?free|airpod|buds/i.test(l) ? '🔵 ব্লুটুথ'
+    : /headset|headphone|wired|earpiece|ear|jack/i.test(l) ? '🎧 হেডফোন'
+    : /usb/i.test(l) ? '🔌 USB'
+    : /speaker|built.?in|internal|bottom|back|front|phone|mic/i.test(l) ? (kind === 'out' ? '📱 ফোনের স্পিকার' : '📱 ফোনের মাইক') : '';
+  return n ? `${n}${l ? ' — ' + l.slice(0, 28) : ''}` : (l || (kind === 'out' ? 'স্পিকার ' : 'মাইক ') + (i + 1));
+}
 async function fillMics() {
   try {
-    const sel = $('micSelect'), cur = sel.value;
-    const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput');
-    sel.innerHTML = '<option value="">ডিফল্ট মাইক্রোফোন</option>' +
-      devs.filter(d => d.deviceId && d.deviceId !== 'default').map((d, i) => `<option value="${d.deviceId}">${d.label || 'মাইক ' + (i + 1)}</option>`).join('');
-    sel.value = cur;
+    const all = await navigator.mediaDevices.enumerateDevices();
+    const ins = all.filter(d => d.kind === 'audioinput' && d.deviceId && d.deviceId !== 'default' && d.deviceId !== 'communications');
+    const opts = '<option value="">স্বয়ংক্রিয় (হেডফোন লাগালে হেডফোনের মাইক)</option>' + ins.map((d, i) => `<option value="${d.deviceId}">${devName(d, i, 'in')}</option>`).join('');
+    ['micSelect', 'liveIn'].forEach(id => { const sel = $(id), cur = sel.value; sel.innerHTML = opts; sel.value = cur; if (sel.value !== cur) sel.value = ''; });
+    // output choice only where the browser allows it (most phone browsers don't)
+    const outs = all.filter(d => d.kind === 'audiooutput' && d.deviceId && d.deviceId !== 'default' && d.deviceId !== 'communications');
+    const canOut = !!(window.AudioContext && AudioContext.prototype.setSinkId) && outs.length > 0;
+    S.canOut = canOut;
+    const so = $('liveOutDev');
+    if (canOut) {
+      const cur = so.value;
+      so.innerHTML = '<option value="">স্বয়ংক্রিয়</option>' + outs.map((d, i) => `<option value="${d.deviceId}">${devName(d, i, 'out')}</option>`).join('');
+      so.value = cur; so.disabled = false;
+    } else {
+      so.innerHTML = '<option value="">স্বয়ংক্রিয় — হেডফোন থাকলে হেডফোনে</option>'; so.disabled = true;
+    }
   } catch (e) {}
 }
 function micError(e) {
@@ -2361,7 +2407,7 @@ async function toggleMicTest() {
   an.fftSize = 1024; src.connect(an);
   const buf = new Float32Array(an.fftSize);
   S.micTest = { stream, src, raf: 0 };
-  $('btnMicTest').classList.add('on'); $('btnMicTest').textContent = '■ টেস্ট বন্ধ';
+  $('btnMicTest').classList.add('on'); $('btnMicTest').textContent = '■ বন্ধ';
   const tick = () => {
     if (!S.micTest) return;
     setInputMeter(linToDb(levelOf(an, buf)));
@@ -2375,7 +2421,7 @@ function stopMicTest() {
   try { M.src.disconnect(); } catch (e) {}
   M.stream.getTracks().forEach(t => t.stop());
   S.micTest = null;
-  $('btnMicTest').classList.remove('on'); $('btnMicTest').textContent = '🎚 মাইক টেস্ট';
+  $('btnMicTest').classList.remove('on'); $('btnMicTest').textContent = '🎚 টেস্ট';
   setMeter('inFill', 0); $('inDb').textContent = '— dB';
 }
 
@@ -2633,7 +2679,7 @@ function clearTrack(tk) {
   pushUndo();
   S.tracks[tk] = [];
   if (S.sel && !findClip(S.sel)) S.sel = null;
-  $(tk === 'music' ? 'musicName' : 'vocalName').textContent = tk === 'music' ? 'কোনো ফাইল নেই' : 'রেকর্ড করুন বা ফাইল দিন';
+  $(tk === 'music' ? 'musicName' : 'vocalName').textContent = tk === 'music' ? 'কোনো ফাইল নেই' : 'রেকর্ড বা আপলোড করুন';
   afterEdit();
   toast(`${tk === 'vocal' ? 'ভোকাল' : 'মিউজিক'} ট্র্যাক খালি করা হয়েছে (আনডু করা যাবে)`, 'info');
 }
@@ -2680,7 +2726,7 @@ function newProject() {
   S.sel = null; S.region = null; S.playhead = 0; S.takeNo = 0;
   S.muted = { vocal: false, music: false };
   $('muteV').classList.remove('on'); $('muteM').classList.remove('on');
-  $('musicName').textContent = 'কোনো ফাইল নেই'; $('vocalName').textContent = 'রেকর্ড করুন বা ফাইল দিন';
+  $('musicName').textContent = 'কোনো ফাইল নেই'; $('vocalName').textContent = 'রেকর্ড বা আপলোড করুন';
   applyPreset('romantic', false);
   setZoom(1);
   afterEdit();
@@ -3233,7 +3279,7 @@ function meMark(which) {
 }
 function meNudge(sec, first) {
   const f = S.sel && findClip(S.sel);
-  if (!f || S.rec) { if (first) toast('আগে একটা ক্লিপ বাছুন (টাইমলাইনে ক্লিপে চাপ দিন বা "পরের ক্লিপ ▶")', 'error'); return false; }
+  if (!f || S.rec) { if (first) toast('আগে একটা ক্লিপ বাছুন (টাইমলাইনে ক্লিপে চাপ দিন বা "পরের ▶")', 'error'); return false; }
   if (first) pushUndo();
   f.c.offset = Math.max(0, f.c.offset + sec);
   refreshLayout(); updUI(); updTime(); drawTimeline(S.playing ? curPos() : null);
@@ -3271,11 +3317,11 @@ function updMe() {
     info.innerHTML = `${f.tk === 'vocal' ? '🎤' : '🎹'} <b>${f.c.name}</b> — শুরু ${fmtTime(f.c.offset)}, শেষ ${fmtTime(cEnd(f.c))} (${dur(f.c).toFixed(2)}s)`;
     info.classList.add('sel');
   } else {
-    info.textContent = 'কোনো ক্লিপ বাছাই করা নেই — টাইমলাইনে ক্লিপে একবার চাপ দিন, অথবা "পরের ক্লিপ ▶" চাপুন';
+    info.textContent = 'ক্লিপে একবার চাপ দিয়ে বাছুন';
     info.classList.remove('sel');
   }
   const r = regionNorm();
-  $('meRange').innerHTML = r ? `বাছাই করা অংশ (${r.tk === 'vocal' ? 'ভোকাল' : 'মিউজিক'}): <b>${fmtTime(r.a)} → ${fmtTime(r.b)}</b> (${(r.b - r.a).toFixed(2)}s)` : 'অংশ বাছাই করা নেই — লাল দাগ শুরুতে এনে "[ এখান থেকে", শেষে এনে "এখান পর্যন্ত ]" চাপুন';
+  $('meRange').innerHTML = r ? `বাছাই করা অংশ (${r.tk === 'vocal' ? 'ভোকাল' : 'মিউজিক'}): <b>${fmtTime(r.a)} → ${fmtTime(r.b)}</b> (${(r.b - r.a).toFixed(2)}s)` : 'লাল দাগ এনে [ শুরু ও শেষ ] চাপুন';
   $('meRange').classList.toggle('sel', !!r);
   $('meLoop').classList.toggle('on', S.loop);
 }
@@ -3344,13 +3390,13 @@ async function startLive() {
     // phones: switch the engine to its lowest-delay setting so you hear yourself instantly
     // the shortest audio buffer can starve on many phones (voice turns into crackles),
     // so the user picks speed vs. stability; "normal" is a safe middle ground
-    const q = $('liveQ').value;
+    const q = S.liveQ || 'normal';
     await setCtxMode(q === 'fast' ? 'interactive' : q === 'stable' ? 0.15 : 0.06);
     const ctx = getCtx();
     try { await Promise.race([ctx.resume(), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
     if (ctx.state !== 'running') { toast('ফোনের অডিও চালু হয়নি — 🎤 লাইভ বাটনটা আরেকবার চাপুন', 'error'); return; }
     let stream;
-    const spk = $('liveOut').value === 'speaker';
+    const spk = $('liveAh').checked;
     try { stream = await openMic(spk); } catch (e) { micError(e); return; }
     const L = { stream, nIdx: 0, cand: null, spk, att: spk ? 0.6 : 1, hot: 0 };
     L.src = ctx.createMediaStreamSource(stream);
@@ -3367,7 +3413,7 @@ async function startLive() {
     liveAttach();
     L.timer = setInterval(liveTick, 100);
     updLiveUI();
-    toast('🎤 লাইভ চালু — এখন মাইকে কথা বলুন বা গান, ইফেক্টসহ স্পিকারে যাবে। মিউজিকের জন্য ▶ চাপুন।', 'success');
+    toast('🎤 লাইভ চালু', 'success');
   } finally { S.lmBusy = false; }
 }
 // connect the mic to the current sound chain (the playing one, or a standby one when music is stopped)
@@ -3408,7 +3454,7 @@ function liveTick() {
   const db = linToDb(pk), rms = Math.sqrt(ss / L.td.length);
   setMeter('liveFill', (db + 60) / 60 * 100);
   const lat = liveLatencyMs();
-  $('liveLat').textContent = lat ? `দেরি ~${bnNum(lat)} ms${lat > 100 ? ' ⚠' : ''}` : '';
+  $('liveLat').textContent = lat ? `${bnNum(lat)} ms${lat > 100 ? ' ⚠' : ''}` : '';
   if (!S.playing && $('outFill').offsetParent) drawMeters();
   // howl breaker: if the mic stays extremely loud for a second it's feedback, not a voice —
   // turn the mic down step by step until it stops (the slider resets this)
@@ -3416,7 +3462,7 @@ function liveTick() {
   if (L.hot >= 8 && L.att > 0.1) {
     L.att *= 0.5; L.hot = 0;
     L.gain.gain.setTargetAtTime(getParams().liveGain / 100 * L.att, S.ctx.currentTime, 0.02);
-    toast(`🔇 অনবরত চিঁচিঁ শব্দ — মাইকের জোর নিজে থেকে কমানো হলো। ফোন/মাইক স্পিকার থেকে দূরে সরান${L.spk ? '' : ', অথবা "ফোনের স্পিকার — চিঁচিঁ রোধ" বাছুন'}।`, 'error');
+    toast(`🔇 অনবরত চিঁচিঁ শব্দ — মাইকের জোর নিজে থেকে কমানো হলো। ফোন/মাইক স্পিকার থেকে দূরে সরান${L.spk ? '' : ', অথবা "চিঁচিঁ রোধ" চালু করুন'}।`, 'error');
   }
   // live ducking: music dips a little while you sing/speak
   const p = getParams();
@@ -3485,34 +3531,44 @@ function stopLiveRec() {
 function updLiveUI() {
   const on = !!S.lm;
   $('liveBox').classList.toggle('on', on);
-  $('liveTxt').textContent = on ? 'লাইভ বন্ধ' : 'লাইভ চালু';
+  $('liveTxt').textContent = on ? 'বন্ধ' : 'চালু';
   $('dLive').classList.toggle('on', on);
-  $('liveState').textContent = on ? '● লাইভ চলছে — গলা ইফেক্টসহ স্পিকারে যাচ্ছে' : 'বন্ধ — চালু করলে মাইকের গলা সব ইফেক্টসহ স্পিকারে যাবে';
+  $('liveState').textContent = on ? '● চলছে' : 'ইফেক্টসহ মাইক';
   if (!on) $('liveLat').textContent = '';
   const rec = on && S.lm.rec;
   $('btnLiveRec').classList.toggle('on', !!rec);
-  $('btnLiveRec').textContent = rec ? '■ রেকর্ড থামিয়ে ফাইল নিন' : '⏺ অনুষ্ঠানটা রেকর্ড করুন';
+  $('btnLiveRec').textContent = rec ? '■ থামিয়ে সেভ' : '⏺ অনুষ্ঠান রেকর্ড';
+}
+function openHelp(sec) {
+  if (document.documentElement.classList.contains('m')) goTab('help');
+  else document.querySelector('details.help').open = true;
+  const el = $('help_' + sec); if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 function initLive() {
   $('btnLive').onclick = toggleLive;
   $('dLive').onclick = () => { toggleLive(); if (!S.lm) goTab('rec'); };
   $('btnLiveRec').onclick = () => (S.lm && S.lm.rec) ? stopLiveRec() : startLiveRec();
-  $('btnFbReset').onclick = () => {
-    if (S.lm) S.lm.notches.forEach(n => n.gain.setTargetAtTime(0, S.ctx.currentTime, 0.05));
-    toast('ফিডব্যাক গার্ড রিসেট — কাটা সুরগুলো আবার স্বাভাবিক', 'info');
-  };
+  $('liveFb').addEventListener('change', () => { if (S.lm && !$('liveFb').checked) S.lm.notches.forEach(n => n.gain.setTargetAtTime(0, S.ctx.currentTime, 0.05)); });
   $('p_liveGain').addEventListener('input', () => { if (S.lm) { S.lm.att = S.lm.spk ? 0.6 : 1; S.lm.hot = 0; S.lm.gain.gain.setTargetAtTime(getParams().liveGain / 100 * S.lm.att, S.ctx.currentTime, 0.03); } });
-  try { const o = localStorage.getItem('tf_liveOut'); if (o) $('liveOut').value = o; } catch (e) {}
-  $('liveOut').addEventListener('change', async () => {
-    try { localStorage.setItem('tf_liveOut', $('liveOut').value); } catch (e) {}
-    if (S.lm) { stopLive(); await startLive(); }
+  const restartLive = async () => { if (S.lm) { stopLive(); await startLive(); } };
+  const store = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const load = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  S.liveQ = load('tf_liveQ') || 'normal';
+  const updQ = () => document.querySelectorAll('#liveQ button').forEach(b => b.classList.toggle('on', b.dataset.q === S.liveQ));
+  updQ();
+  document.querySelectorAll('#liveQ button').forEach(b => b.onclick = () => { S.liveQ = b.dataset.q; store('tf_liveQ', S.liveQ); updQ(); restartLive(); });
+  $('liveAh').checked = load('tf_liveAh') === '1';
+  $('liveAh').addEventListener('change', () => { store('tf_liveAh', $('liveAh').checked ? '1' : '0'); restartLive(); });
+  $('liveIn').addEventListener('change', () => { $('micSelect').value = $('liveIn').value; restartLive(); });
+  $('micSelect').addEventListener('change', () => { $('liveIn').value = $('micSelect').value; });
+  ['liveIn', 'liveOutDev'].forEach(id => { $(id).addEventListener('focus', fillMics); $(id).addEventListener('pointerdown', fillMics); });
+  $('liveOutDev').addEventListener('change', async () => {
+    S.sinkId = $('liveOutDev').value;
+    if (S.ctx && S.ctx.setSinkId) { try { await S.ctx.setSinkId(S.sinkId || ''); toast('🔈 আউটপুট বদলানো হয়েছে', 'success'); } catch (e) { toast('এই আউটপুটে পাঠানো যায়নি', 'error'); } }
   });
+  $('btnLiveHelp').onclick = () => openHelp('live');
+  fillMics();
   $('liveVox').addEventListener('change', () => { if (S.playing) restartSoon(); });
-  try { const q = localStorage.getItem('tf_liveQ'); if (q) $('liveQ').value = q; } catch (e) {}
-  $('liveQ').addEventListener('change', async () => {
-    try { localStorage.setItem('tf_liveQ', $('liveQ').value); } catch (e) {}
-    if (S.lm) { stopLive(); await startLive(); }
-  });
   updLiveUI();
 }
 
@@ -3537,6 +3593,7 @@ function goTab(t, silent) {
   const on = document.querySelector(`[data-tab="${t}"]`);
   if (on && !silent) on.scrollTop = 0;
   if (t === 'sound') requestAnimationFrame(sizeSpec);
+  if (t === 'help') document.querySelector('details.help').open = true;
 }
 function openSheet(open) {
   $('sheet').classList.toggle('hidden', !open); $('sheetBg').classList.toggle('hidden', !open);
