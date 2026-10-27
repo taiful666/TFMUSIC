@@ -299,6 +299,8 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
 .envwarn .envbtns{display:flex;gap:8px}
 .envwarn a.btn{text-decoration:none}
 @media (max-width:760px){.tune-set{grid-template-columns:1fr 1fr}.keyinfo{grid-column:1/-1}.fx-h{padding:12px 12px 8px}}
+.cl-btns{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.cl-btns .btn{width:100%}
 </style>
 </head>
 <body>
@@ -366,8 +368,11 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
           </div>
         </details>
         <div class="cleanup">
-          <div class="cl-row"><label class="switch"><input type="checkbox" id="p_noiseOn" checked><span></span></label><span class="cl-t">নয়েজ রিমুভার</span><span class="note" style="margin-left:auto">ফ্যান/রুমের শোঁ শোঁ শব্দ কমায়</span></div>
+          <div class="cl-row"><span class="cl-t">🧹 নয়েজ রিমুভার</span><span class="note" style="margin-left:auto">ফ্যান, AC, হিস্‌, গুনগুন, রাস্তার শব্দ</span></div>
           <div id="slot_noise"></div>
+          <div class="cl-btns"><button class="btn sm primary" id="btnDenoise" type="button">🧹 নয়েজ পরিষ্কার করুন</button><button class="btn sm" id="btnDenoiseUndo" type="button">↺ আসল শব্দ</button></div>
+          <p class="note" id="dnHint">ভোকাল ক্লিপ সিলেক্ট করা থাকলে শুধু সেটা, না থাকলে সব ভোকাল পরিষ্কার হবে। <b>আরও ভালো ফল:</b> "▭ সিলেক্ট" টুল দিয়ে শুধু-নয়েজ আছে এমন একটু জায়গা (যেমন গান শুরুর আগের অংশ) টেনে সিলেক্ট করে তারপর চাপুন।</p>
+          <label class="chk"><input type="checkbox" id="p_noiseOn" checked><span>রেকর্ড শেষে নতুন টেক নিজে থেকে পরিষ্কার করুন</span></label>
           <button class="btn sm w100" id="btnAutoLevel">⚡ অটো লেভেল — সব ভোকাল টেক সমান ভলিউমে আনুন</button>
         </div>
       </div>
@@ -449,6 +454,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
           <button class="btn sm" id="nudgeL" title="১০ মিলিসেকেন্ড আগে সরান (← কী, Shift সহ ১০০ms)">◀ আগে</button>
           <button class="btn sm" id="nudgeR" title="১০ মিলিসেকেন্ড পরে সরান (→ কী)">পরে ▶</button>
           <button class="btn sm" id="insNorm" title="এই ক্লিপের ভলিউম অটো ঠিক করুন">⚡ লেভেল</button>
+          <button class="btn sm" id="insDenoise" title="এই ক্লিপের নয়েজ পরিষ্কার করুন">🧹 নয়েজ</button>
           <button class="btn sm danger" id="insDel" title="এই ক্লিপ মুছুন">🗑</button>
         </div>
       </div>
@@ -487,6 +493,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
         <li><b>হেডফোন</b> লাগান (না হলে মিউজিক মাইকে ঢুকে যাবে)। "মাইক টেস্ট" দিয়ে লেভেল দেখে নিন।</li>
         <li>লাল প্লে-হেড শুরুতে রেখে <b>● রেকর্ড</b> চাপুন — মিউজিক বাজবে, আপনি গাইবেন। থামাতে আবার চাপুন।</li>
         <li>একটা জায়গা ভুল হলে প্লে-হেড সেখানে রেখে আবার রেকর্ড করুন — শুধু ওই অংশ বদলে যাবে।</li>
+        <li>পেছনে শব্দ থাকলে <b>🧹 নয়েজ পরিষ্কার করুন</b> চাপুন।</li>
         <li>দরকার হলে <b>সুর সংশোধন</b> সহ পছন্দের ইফেক্টগুলো চালু করুন।</li>
         <li>একটা <b>প্রিসেট</b> বাছুন, "আসল গলা / স্টুডিও FX" চেপে তুলনা করুন, দরকার হলে র‍্যাকে সূক্ষ্ম টিউন করুন।</li>
         <li>সব ঠিক হলে <b>⬇ মিক্স ডাউনলোড</b> — WAV ফাইল পাবেন।</li>
@@ -537,7 +544,7 @@ const PARAMS = [
   { id: 'vocalVol', slot: 'slot_vocalVol', label: 'ভলিউম', min: 0, max: 150, step: 1, def: 100, fmt: pctFmt, kind: 'live', compact: true, color: '#38bdf8' },
   { id: 'musicVol', slot: 'slot_musicVol', label: 'ভলিউম', min: 0, max: 150, step: 1, def: 85, fmt: pctFmt, kind: 'live', compact: true, color: '#34d399' },
   // input
-  { id: 'noiseAmt', slot: 'slot_noise', label: 'নয়েজ কমানোর মাত্রা', min: 0, max: 100, step: 1, def: 40, fmt: pctFmt, kind: 'restart' },
+  { id: 'noiseAmt', slot: 'slot_noise', label: 'নয়েজ কমানোর মাত্রা', min: 10, max: 100, step: 1, def: 55, fmt: pctFmt, kind: 'none' },
   { id: 'latency', slot: 'slot_latency', label: 'রেকর্ড সিঙ্ক সংশোধন', min: 0, max: 400, step: 1, def: 40, fmt: v => v + ' ms', kind: 'none' },
   // EQ
   { id: 'hpFreq', slot: 'mod_eq', label: 'লো-কাট (গুমগুম শব্দ বাদ)', min: 40, max: 200, step: 1, def: 95, fmt: v => v + ' Hz', kind: 'live' },
@@ -924,6 +931,8 @@ function gateBuffer(buf, amt) {
   return out;
 }
 function gated(buf, p) {
+  return buf;            // noise is now removed from the clip itself (see Spectral noise reduction)
+  // eslint-disable-next-line no-unreachable
   if (!p.noiseOn || p.noiseAmt <= 0) return buf;
   const e = gateCache.get(buf);
   if (e && e.amt === p.noiseAmt) return e.out;
@@ -1329,6 +1338,220 @@ function prewarm() {
   const p = getParams();
   if (S.rec || !S.tracks.vocal.length || !needsPitch(p) || pitchReady(p)) return;
   prepareVocals(p).catch(() => {});
+}
+
+/* ---------------- Spectral noise reduction ---------------- */
+const fftPlans = {};
+function fftPlan(N) {
+  if (fftPlans[N]) return fftPlans[N];
+  const lev = Math.log2(N), rev = new Uint32Array(N);
+  for (let i = 0; i < N; i++) { let r = 0, x = i; for (let j = 0; j < lev; j++) { r = (r << 1) | (x & 1); x >>= 1; } rev[i] = r; }
+  const cos = new Float64Array(N / 2), sin = new Float64Array(N / 2);
+  for (let i = 0; i < N / 2; i++) { cos[i] = Math.cos(2 * Math.PI * i / N); sin[i] = Math.sin(2 * Math.PI * i / N); }
+  return (fftPlans[N] = { N, rev, cos, sin });
+}
+function fft(P, re, im, inv) {
+  const { N, rev, cos, sin } = P;
+  for (let i = 0; i < N; i++) { const j = rev[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+  for (let size = 2; size <= N; size <<= 1) {
+    const half = size >> 1, step = N / size;
+    for (let i = 0; i < N; i += size) {
+      for (let j = 0, k = 0; j < half; j++, k += step) {
+        const wr = cos[k], wi = inv ? sin[k] : -sin[k], a = i + j, b = a + half;
+        const tr = re[b] * wr - im[b] * wi, ti = re[b] * wi + im[b] * wr;
+        re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+      }
+    }
+  }
+  if (inv) for (let i = 0; i < N; i++) { re[i] /= N; im[i] /= N; }
+}
+const DN_N = 2048, DN_HOP = 512;
+function dnWindow() {
+  if (dnWindow.w) return dnWindow.w;
+  const w = new Float64Array(DN_N);
+  for (let i = 0; i < DN_N; i++) w[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / DN_N);
+  return (dnWindow.w = w);
+}
+function frameEnergies(buf) {
+  const n = buf.length, C = buf.numberOfChannels, F = Math.ceil(n / DN_HOP) + 1, en = new Float64Array(F);
+  const ch = []; for (let c = 0; c < C; c++) ch.push(buf.getChannelData(c));
+  for (let f = 0; f < F; f++) {
+    const a = f * DN_HOP - DN_N / 2; let s = 0;
+    for (let i = Math.max(0, a); i < Math.min(n, a + DN_N); i++) { let v = 0; for (let c = 0; c < C; c++) v += ch[c][i]; v /= C; s += v * v; }
+    en[f] = s / DN_N;
+  }
+  return en;
+}
+// average noise spectrum (in dB) measured on the given frames
+function noiseProfile(buf, frames) {
+  const P = fftPlan(DN_N), w = dnWindow(), K = DN_N / 2 + 1, n = buf.length, C = buf.numberOfChannels;
+  const ch = []; for (let c = 0; c < C; c++) ch.push(buf.getChannelData(c));
+  const sum = new Float64Array(K), sq = new Float64Array(K), re = new Float64Array(DN_N), im = new Float64Array(DN_N);
+  const en = frameEnergies(buf);
+  let e = 0;
+  for (const f of frames) {
+    const a = f * DN_HOP - DN_N / 2;
+    for (let i = 0; i < DN_N; i++) { const idx = a + i; let v = 0; if (idx >= 0 && idx < n) { for (let c = 0; c < C; c++) v += ch[c][idx]; v /= C; } re[i] = v * w[i]; im[i] = 0; }
+    fft(P, re, im, false);
+    for (let k = 0; k < K; k++) { const d = 10 * Math.log10(re[k] * re[k] + im[k] * im[k] + 1e-20); sum[k] += d; sq[k] += d * d; }
+    e += en[f];
+  }
+  const L = Math.max(1, frames.length), mean = new Float64Array(K), std = new Float64Array(K);
+  for (let k = 0; k < K; k++) { mean[k] = sum[k] / L; std[k] = Math.sqrt(Math.max(0, sq[k] / L - mean[k] * mean[k])); }
+  return { mean, std, energy: e / L, frames: frames.length };
+}
+function autoNoiseFrames(en) {
+  const idx = [];
+  for (let f = 0; f < en.length; f++) if (en[f] > 1e-12) idx.push(f);
+  idx.sort((a, b) => en[a] - en[b]);
+  return idx.slice(0, Math.max(8, Math.floor(idx.length * 0.12)));
+}
+function regionFrames(buf, s, e) {
+  const sr = buf.sampleRate, out = [];
+  for (let f = Math.max(0, Math.ceil((s * sr) / DN_HOP)); f * DN_HOP <= e * sr; f++) out.push(f);
+  return out;
+}
+async function denoiseBuffer(buf, amt, prof, prog) {
+  const sr = buf.sampleRate, n = buf.length, C = buf.numberOfChannels;
+  const N = DN_N, Hh = DN_HOP, K = N / 2 + 1, P = fftPlan(N), w = dnWindow();
+  const ch = []; for (let c = 0; c < C; c++) ch.push(buf.getChannelData(c));
+  const en = frameEnergies(buf), F = en.length;
+  if (!prof) prof = noiseProfile(buf, autoNoiseFrames(en));
+  // is the "noise" sample actually quiet compared with the singing?
+  const loud = Array.from(en).filter(v => v > 1e-12).sort((a, b) => a - b);
+  const median = loud.length ? loud[loud.length >> 1] : 1e-12;
+  const weak = 10 * Math.log10((prof.energy + 1e-20) / (median + 1e-20)) > -9;
+  const nstd = weak ? 0.5 : 1.0 + amt * 1.0;
+  const thr = new Float64Array(K);
+  for (let k = 0; k < K; k++) thr[k] = prof.mean[k] + Math.max(nstd * prof.std[k], weak ? 3 : 6 + amt * 4) + (weak ? -2 : 0);
+  const floor = dbToLin(-(8 + amt * 27) * (weak ? 0.55 : 1));
+  const RING = 5;
+  const rRe = [], rIm = [], rMk = [];
+  for (let s = 0; s < RING; s++) { rRe.push([]); rIm.push([]); rMk.push(new Float64Array(K)); for (let c = 0; c < C; c++) { rRe[s].push(new Float64Array(N)); rIm[s].push(new Float64Array(N)); } }
+  const out = []; for (let c = 0; c < C; c++) out.push(new Float32Array(n));
+  const wsum = new Float32Array(n), mt = new Float64Array(K), g = new Float64Array(K), mag = new Float64Array(K);
+  const analyzeFrame = (f, s) => {
+    const a = f * Hh - N / 2;
+    if (f >= F) { rMk[s].fill(0); for (let c = 0; c < C; c++) { rRe[s][c].fill(0); rIm[s][c].fill(0); } return; }
+    mag.fill(0);
+    for (let c = 0; c < C; c++) {
+      const re = rRe[s][c], im = rIm[s][c], x = ch[c];
+      for (let i = 0; i < N; i++) { const idx = a + i; re[i] = (idx >= 0 && idx < n) ? x[idx] * w[i] : 0; im[i] = 0; }
+      fft(P, re, im, false);
+      for (let k = 0; k < K; k++) mag[k] += (re[k] * re[k] + im[k] * im[k]) / C;
+    }
+    const mk = rMk[s];
+    for (let k = 0; k < K; k++) { const d = 10 * Math.log10(mag[k] + 1e-20); mk[k] = 1 / (1 + Math.exp(-(d - thr[k]) / 2)); }
+  };
+  const synthFrame = f => {
+    const s = f % RING, a = f * Hh - N / 2;
+    const at = d => rMk[((f + d) % RING + RING) % RING];
+    const m2 = f >= 2 ? at(-2) : null, m1 = f >= 1 ? at(-1) : null, m0 = at(0), p1 = at(1), p2 = at(2);
+    for (let k = 0; k < K; k++) mt[k] = ((m2 ? m2[k] : 0) + 2 * (m1 ? m1[k] : 0) + 3 * m0[k] + 2 * p1[k] + p2[k]) / 9;
+    for (let k = 0; k < K; k++) {
+      let acc = 0, ws = 0;
+      for (let j = -2; j <= 2; j++) { const q = k + j; if (q < 0 || q >= K) continue; const wt = 3 - Math.abs(j); acc += mt[q] * wt; ws += wt; }
+      g[k] = floor + (1 - floor) * (acc / ws);
+    }
+    for (let c = 0; c < C; c++) {
+      const re = rRe[s][c], im = rIm[s][c];
+      for (let k = 0; k < K; k++) { re[k] *= g[k]; im[k] *= g[k]; if (k > 0 && k < N / 2) { re[N - k] *= g[k]; im[N - k] *= g[k]; } }
+      fft(P, re, im, true);
+      const o = out[c];
+      for (let i = 0; i < N; i++) { const idx = a + i; if (idx < 0 || idx >= n) continue; o[idx] += re[i] * w[i]; if (c === 0) wsum[idx] += w[i] * w[i]; }
+    }
+  };
+  for (let f = 0; f <= F + 1; f++) {
+    analyzeFrame(f, f % RING);
+    if (f >= 2) synthFrame(f - 2);
+    if ((f & 63) === 0) { if (prog) prog(f / (F + 2)); await tick(); }
+  }
+  const res = getCtx().createBuffer(C, n, sr);
+  for (let c = 0; c < C; c++) {
+    const o = out[c];
+    for (let i = 0; i < n; i++) o[i] = wsum[i] > 1e-4 ? o[i] / wsum[i] : 0;
+    res.getChannelData(c).set(o);
+  }
+  return { buf: res, weak };
+}
+
+S.dnBusy = false;
+function dnButtons(busy, pct) {
+  const b = $('btnDenoise');
+  b.disabled = busy; $('btnDenoiseUndo').disabled = busy; $('insDenoise').disabled = busy;
+  b.textContent = busy ? `⏳ পরিষ্কার হচ্ছে ${bnNum(pct || 0)}%` : '🧹 নয়েজ পরিষ্কার করুন';
+}
+function dnTargets() {
+  const f = S.sel && findClip(S.sel);
+  if (f && f.tk === 'vocal') return [f.c];
+  if (f && f.tk === 'music') return null;
+  return S.tracks.vocal.slice();
+}
+// noise sample = the region the user selected on the vocal track (optional)
+function dnSampleProfile() {
+  const r = regionNorm();
+  if (!r || r.tk !== 'vocal' || r.b - r.a < 0.2) return null;
+  const c = S.tracks.vocal.find(x => r.a < cEnd(x) && r.b > x.offset);
+  if (!c) return null;
+  const s = Math.max(r.a, c.offset), e = Math.min(r.b, cEnd(c));
+  if (e - s < 0.2) return null;
+  const src = c.orig || c.buffer;
+  return noiseProfile(src, regionFrames(src, c.trimStart + (s - c.offset), c.trimStart + (e - c.offset)));
+}
+async function runDenoise(targets, opts = {}) {
+  if (S.rec || S.dnBusy || !targets || !targets.length) return false;
+  const amt = getParams().noiseAmt / 100;
+  const prof = opts.auto ? null : dnSampleProfile();
+  if (S.playing) pause();
+  S.dnBusy = true; dnButtons(true, 0);
+  const groups = new Map();
+  for (const c of targets) { const src = c.orig || c.buffer; if (!groups.has(src)) groups.set(src, []); groups.get(src).push(c); }
+  const total = [...groups.keys()].reduce((a, b) => a + b.duration, 0) || 1;
+  let done = 0, weak = false;
+  const snap = snapshot();
+  try {
+    const results = [];
+    for (const [src, clips] of groups) {
+      const r = await denoiseBuffer(src, amt, prof, fr => dnButtons(true, Math.min(99, Math.round((done + fr * src.duration) / total * 100))));
+      results.push([src, clips, r]);
+      weak = weak || r.weak;
+      done += src.duration;
+    }
+    // only commit if nothing changed meanwhile (e.g. the clip was deleted)
+    pushUndo(snap);
+    for (const [src, clips, r] of results) clips.forEach(c => {
+      const live = findClip(c.id);
+      if (live) { live.c.orig = src; live.c.buffer = r.buf; live.c.clean = Math.round(amt * 100); }
+    });
+  } catch (e) {
+    console.error(e);
+    toast('নয়েজ পরিষ্কার করতে সমস্যা হয়েছে, আবার চেষ্টা করুন', 'error');
+    return false;
+  } finally { S.dnBusy = false; dnButtons(false); }
+  afterEdit();
+  if (weak && !prof) toast('এই অংশে নীরব জায়গা কম ছিল, তাই হালকাভাবে পরিষ্কার করা হয়েছে। আরও ভালো ফলের জন্য "▭ সিলেক্ট" দিয়ে শুধু-নয়েজ অংশ সিলেক্ট করে আবার চাপুন।', 'info');
+  else if (!opts.auto) toast(`🧹 ${bnNum(targets.length)}টি ভোকাল অংশ পরিষ্কার হয়েছে${prof ? ' (আপনার সিলেক্ট করা নয়েজ নমুনা দিয়ে)' : ''} — ▶ চেপে শুনুন। পছন্দ না হলে "↺ আসল শব্দ"।`, 'success');
+  else toast('🧹 নতুন টেকের নয়েজ নিজে থেকে পরিষ্কার হয়েছে', 'success');
+  return true;
+}
+function denoiseCmd() {
+  const t = dnTargets();
+  if (t === null) return toast('নয়েজ পরিষ্কার শুধু ভোকাল ট্র্যাকে করা যায় — ভোকাল ক্লিপ সিলেক্ট করুন', 'error');
+  if (!t.length) return toast('আগে ভোকাল রেকর্ড বা আপলোড করুন', 'error');
+  runDenoise(t);
+}
+function undoDenoise() {
+  if (S.rec || S.dnBusy) return;
+  const t = (dnTargets() || []).filter(c => c.orig);
+  if (!t.length) return toast('পরিষ্কার করা কোনো ভোকাল নেই', 'info');
+  pushUndo();
+  t.forEach(c => { c.buffer = c.orig; delete c.orig; delete c.clean; });
+  afterEdit();
+  toast('↺ আসল (পরিষ্কার করার আগের) শব্দে ফিরে গেছে', 'info');
+}
+async function afterTake(clip) {
+  if ($('p_noiseOn').checked && findClip(clip.id)) await runDenoise([clip], { auto: true });
+  prewarm();
 }
 
 /* ---------------- Ducking envelope ---------------- */
@@ -1774,7 +1997,7 @@ async function finishRec() {
   pushUndo();
   if ($('optReplace').checked) cutRegion('vocal', clip.offset, cEnd(clip), false);
   S.tracks.vocal.push(clip);
-  setTimeout(prewarm, 400);
+  setTimeout(() => afterTake(clip), 300);
   S.sel = clip.id; S.playhead = startAt;
   $('vocalName').textContent = `রেকর্ড করা হয়েছে (${S.tracks.vocal.length} পার্ট)`;
   afterEdit();
@@ -2103,7 +2326,7 @@ function drawClip(g, c, tk, y, col, fill, P, sx, vw) {
   if (W > 60) {
     g.fillStyle = '#f1f5f9'; g.font = '600 11px Hind Siliguri, sans-serif'; g.textBaseline = 'middle';
     const gtxt = c.gainDb ? `  ${dbFmt(c.gainDb)}` : '';
-    g.fillText(`${c.name} • ${dur(c).toFixed(1)}s${gtxt}`, x + 9, top + 10, W - 34);
+    g.fillText(`${c.clean ? '🧹 ' : ''}${c.name} • ${dur(c).toFixed(1)}s${gtxt}`, x + 9, top + 10, W - 34);
   }
   g.restore();
   g.strokeStyle = sel ? '#ffffff' : (muted ? '#475569' : col);
@@ -2432,7 +2655,9 @@ function init() {
   $('btnDemo').onclick = loadDemo;
   $('btnMicTest').onclick = toggleMicTest;
   $('btnAutoLevel').onclick = autoLevelAll;
-  $('p_noiseOn').addEventListener('change', () => { $('p_noiseAmt').disabled = !$('p_noiseOn').checked; restartSoon(); });
+  $('btnDenoise').onclick = () => denoiseCmd();
+  $('btnDenoiseUndo').onclick = () => undoDenoise();
+  $('insDenoise').onclick = () => denoiseCmd();
   $('p_padKey').addEventListener('change', () => { markCustom(); restartSoon(); });
   $('toolMove').onclick = () => setTool('move');
   $('toolSplit').onclick = () => setTool('split');
