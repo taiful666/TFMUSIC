@@ -559,7 +559,13 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
           <div class="live-body">
             <div class="meter"><div class="meter-fill" id="liveFill"></div></div>
             <div class="live-stat"><span id="liveState">বন্ধ — চালু করলে মাইকের গলা সব ইফেক্টসহ স্পিকারে যাবে</span><span class="mono" id="liveLat"></span></div>
-            <label class="fld"><span>লাইভের গতি — শব্দ কেটে গেলে বা "চিঁচিঁ/কড়কড়" শব্দ হলে "আরও স্থির" বাছুন</span>
+
+            <label class="fld"><span>শব্দ কোথায় শুনবেন</span>
+              <select id="liveOut">
+                <option value="speaker" selected>📢 ফোনের স্পিকার / কাছের স্পিকার — চিঁচিঁ রোধ চালু</option>
+                <option value="phones">🎧 তারের হেডফোন / দূরের বড় স্পিকার — সেরা মান</option>
+              </select></label>
+            <label class="fld"><span>লাইভের গতি — শব্দ কেটে গেলে "আরও স্থির" বাছুন</span>
               <select id="liveQ">
                 <option value="fast">⚡ দ্রুত — সবচেয়ে কম দেরি (শক্তিশালী ফোনে)</option>
                 <option value="normal" selected>✅ স্বাভাবিক — প্রস্তাবিত</option>
@@ -2322,10 +2328,12 @@ function levelOf(an, buf) {
 }
 
 /* ---------------- Microphone ---------------- */
-async function openMic() {
+async function openMic(clean) {
   const id = $('micSelect').value;
+  // clean = phone's own echo canceller on: it removes the speaker's sound from the mic,
+  // which is what stops the endless howl when the speaker is right next to the mic
   const stream = await navigator.mediaDevices.getUserMedia({
-    audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 }
+    audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: !!clean, noiseSuppression: !!clean, autoGainControl: false, channelCount: 1 }
   });
   fillMics();
   return stream;
@@ -3342,14 +3350,16 @@ async function startLive() {
     try { await Promise.race([ctx.resume(), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
     if (ctx.state !== 'running') { toast('ফোনের অডিও চালু হয়নি — 🎤 লাইভ বাটনটা আরেকবার চাপুন', 'error'); return; }
     let stream;
-    try { stream = await openMic(); } catch (e) { micError(e); return; }
-    const L = { stream, nIdx: 0, cand: null };
+    const spk = $('liveOut').value === 'speaker';
+    try { stream = await openMic(spk); } catch (e) { micError(e); return; }
+    const L = { stream, nIdx: 0, cand: null, spk, att: spk ? 0.6 : 1, hot: 0 };
     L.src = ctx.createMediaStreamSource(stream);
-    L.hp = bq(ctx, 'highpass', 90, 0.7);
-    L.notches = Array.from({ length: 6 }, () => bq(ctx, 'peaking', 1000, 25, 0));
-    L.gain = ctx.createGain(); L.gain.gain.value = getParams().liveGain / 100;
+    L.hp = bq(ctx, 'highpass', spk ? 160 : 90, 0.7);
+    L.lp = bq(ctx, 'lowpass', spk ? 7000 : 18000, 0.7);          // phone speakers howl most in the top end
+    L.notches = Array.from({ length: spk ? 10 : 6 }, () => bq(ctx, 'peaking', 1000, 25, 0));
+    L.gain = ctx.createGain(); L.gain.gain.value = getParams().liveGain / 100 * L.att;
     L.an = ctx.createAnalyser(); L.an.fftSize = 4096; L.an.smoothingTimeConstant = 0.5;
-    chain(L.src, L.hp, ...L.notches, L.gain);
+    chain(L.src, L.hp, L.lp, ...L.notches, L.gain);
     L.fb = new Float32Array(L.an.frequencyBinCount); L.td = new Float32Array(L.an.fftSize);
     S.lm = L;
     try { if (navigator.wakeLock) L.wake = await navigator.wakeLock.request('screen'); } catch (e) {}
@@ -3400,6 +3410,14 @@ function liveTick() {
   const lat = liveLatencyMs();
   $('liveLat').textContent = lat ? `দেরি ~${bnNum(lat)} ms${lat > 100 ? ' ⚠' : ''}` : '';
   if (!S.playing && $('outFill').offsetParent) drawMeters();
+  // howl breaker: if the mic stays extremely loud for a second it's feedback, not a voice —
+  // turn the mic down step by step until it stops (the slider resets this)
+  if (rms > (L.spk ? 0.18 : 0.3)) L.hot++; else L.hot = Math.max(0, L.hot - 1);
+  if (L.hot >= 8 && L.att > 0.1) {
+    L.att *= 0.5; L.hot = 0;
+    L.gain.gain.setTargetAtTime(getParams().liveGain / 100 * L.att, S.ctx.currentTime, 0.02);
+    toast(`🔇 অনবরত চিঁচিঁ শব্দ — মাইকের জোর নিজে থেকে কমানো হলো। ফোন/মাইক স্পিকার থেকে দূরে সরান${L.spk ? '' : ', অথবা "ফোনের স্পিকার — চিঁচিঁ রোধ" বাছুন'}।`, 'error');
+  }
   // live ducking: music dips a little while you sing/speak
   const p = getParams();
   if (S.playing && S.live && p.duck > 0 && !$('liveVox').checked) {
@@ -3415,16 +3433,16 @@ function liveTick() {
   let sum = 0, n = 0;
   for (let d = 8; d <= 40; d++) { sum += L.fb[mb - d] + L.fb[mb + d]; n += 2; }
   const prom = mv - sum / n;
-  if (mv > -24 && prom > 26) {
+  if (mv > (L.spk ? -34 : -24) && prom > (L.spk ? 18 : 26)) {
     if (L.cand && Math.abs(L.cand.b - mb) <= 2) L.cand.n++; else L.cand = { b: mb, n: 1 };
-    if (L.cand.n >= 6) {
+    if (L.cand.n >= (L.spk ? 3 : 6)) {
       const f = mb * hz;
       let nt = L.notches.find(x => x.gain.value < 0 && Math.abs(x.frequency.value - f) / f < 0.03);
       if (nt) nt.gain.setTargetAtTime(Math.max(-20, nt.gain.value - 4), S.ctx.currentTime, 0.02);
       else {
         nt = L.notches[L.nIdx++ % L.notches.length];
         nt.frequency.setValueAtTime(f, S.ctx.currentTime);
-        nt.gain.setTargetAtTime(-10, S.ctx.currentTime, 0.02);
+        nt.gain.setTargetAtTime(L.spk ? -15 : -10, S.ctx.currentTime, 0.02);
       }
       L.cand = null;
       toast(`🔇 চিঁচিঁ শব্দ (ফিডব্যাক) ধরা পড়েছে — ${bnNum(Math.round(f))} Hz কেটে দেওয়া হয়েছে`, 'info');
@@ -3483,7 +3501,12 @@ function initLive() {
     if (S.lm) S.lm.notches.forEach(n => n.gain.setTargetAtTime(0, S.ctx.currentTime, 0.05));
     toast('ফিডব্যাক গার্ড রিসেট — কাটা সুরগুলো আবার স্বাভাবিক', 'info');
   };
-  $('p_liveGain').addEventListener('input', () => { if (S.lm) S.lm.gain.gain.setTargetAtTime(getParams().liveGain / 100, S.ctx.currentTime, 0.03); });
+  $('p_liveGain').addEventListener('input', () => { if (S.lm) { S.lm.att = S.lm.spk ? 0.6 : 1; S.lm.hot = 0; S.lm.gain.gain.setTargetAtTime(getParams().liveGain / 100 * S.lm.att, S.ctx.currentTime, 0.03); } });
+  try { const o = localStorage.getItem('tf_liveOut'); if (o) $('liveOut').value = o; } catch (e) {}
+  $('liveOut').addEventListener('change', async () => {
+    try { localStorage.setItem('tf_liveOut', $('liveOut').value); } catch (e) {}
+    if (S.lm) { stopLive(); await startLive(); }
+  });
   $('liveVox').addEventListener('change', () => { if (S.playing) restartSoon(); });
   try { const q = localStorage.getItem('tf_liveQ'); if (q) $('liveQ').value = q; } catch (e) {}
   $('liveQ').addEventListener('change', async () => {
