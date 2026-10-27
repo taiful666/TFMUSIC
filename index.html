@@ -132,10 +132,18 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(
 .tag.custom{background:#2b2210;color:#fde68a;border-color:#6b5414}
 .presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 @media (max-width:640px){.presets{grid-template-columns:repeat(2,1fr)}}
-.pre{text-align:left;font:inherit;color:var(--text);background:#0b111c;border:1px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;transition:.15s}
-.pre:hover{border-color:#3b4e6e;background:#101929}
-.pre .pt{font-weight:700;font-size:13px}
-.pre .ps{color:var(--muted);font-size:11.5px;margin-top:2px}
+.pre{color:var(--text);background:#0b111c;border:1px solid var(--line);border-radius:10px;transition:.15s;min-width:0}
+.pre:hover{border-color:#3b4e6e}
+.pre-h{font:inherit;color:inherit;background:none;border:0;width:100%;display:flex;align-items:center;gap:8px;padding:9px 10px 5px;cursor:pointer;text-align:left}
+.pre-tx{flex:1;min-width:0}
+.pre .pt{display:block;font-weight:700;font-size:13px}
+.pre .ps{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.pre .fx-sw{width:32px;height:18px}.pre .fx-sw::after{width:12px;height:12px}
+.pre.on .fx-sw{background:#0ea5e9}.pre.on .fx-sw::after{left:17px;background:#fff}
+.pre-amt{display:flex;align-items:center;gap:8px;padding:2px 10px 10px}
+.pre-amt b{font-size:11.5px;color:#e2e8f0;min-width:38px;text-align:right}
+.pre:not(.on) .pre-amt{opacity:.4}
+.pre-int{margin-top:8px;padding:8px 12px;border:1px solid #2e2650;border-radius:10px;background:#0d0b1c}
 .pre.speech .pt{color:#fcd34d}
 .pre.on{border-color:var(--accent);background:linear-gradient(135deg,rgba(34,195,238,.18),rgba(99,102,241,.08));box-shadow:0 0 16px rgba(34,195,238,.15)}
 .viz{display:grid;grid-template-columns:1fr 210px;gap:10px;margin-top:12px}
@@ -247,7 +255,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
   .src .btns{width:100%;justify-content:stretch}
   .src .btns>*{flex:1}
   .src-n{max-width:100%}
-  .pre{padding:11px 10px}
+  .pre-h{padding:11px 10px 6px}
   .mbtn,.xbtn{width:30px;height:28px;font-size:12px}
   .th{padding:8px}
   .inspector{gap:10px}
@@ -300,7 +308,29 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
 .envwarn a.btn{text-decoration:none}
 @media (max-width:760px){.tune-set{grid-template-columns:1fr 1fr}.keyinfo{grid-column:1/-1}.fx-h{padding:12px 12px 8px}}
 .cl-btns{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.mobm{margin-top:10px;padding:10px 12px;border-radius:10px;background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(34,195,238,.05));border:1px solid #1d4a3c;display:flex;flex-direction:column;gap:6px}
+.mobm.on{border-color:var(--ok)}
+#btnPhonePrev.on{background:#3b2f0b;border-color:var(--warn);color:#fde68a}
 .cl-btns .btn{width:100%}
+
+/* Mobile edit panel */
+.medit{display:none;margin-top:10px;padding:10px;border-radius:12px;background:#0b111c;border:1px solid #23395a;flex-direction:column;gap:9px}
+@media (max-width:760px),(pointer:coarse){.medit{display:flex}}
+.me-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.me-head b{font-size:14px;color:#e0f2fe}
+.me-info{font-size:12.5px;color:#cbd5e1;background:#070b13;border:1px solid var(--line);border-radius:9px;padding:7px 10px;line-height:1.5}
+.me-info.sel{border-color:#38bdf8;color:#e0f2fe}
+.me-ph{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
+.me-ph input,.me-ph .me-row6{grid-column:1/-1}
+.me-ph b{font-size:16px;color:#fb7185}
+.me-lbl{font-size:12px;color:var(--muted)}
+.me-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.me-row6{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.me-row6 .btn{padding:0 2px;font-size:12px}
+.me-row2 .btn{white-space:normal;line-height:1.2}
+.me-tabs{width:100%}.me-tabs button{flex:1}
+.me-pane{display:flex;flex-direction:column;gap:7px}
+.medit .btn.sm{height:42px}
 </style>
 </head>
 <body>
@@ -382,7 +412,16 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
     <section class="card">
       <div class="card-h"><h2><span class="step">২</span>প্রিসেট — এক ক্লিকে প্রফেশনাল সাউন্ড</h2><span class="tag" id="presetTag">রোমান্টিক গান</span></div>
       <div class="card-b">
+        <p class="fx-note">একাধিক প্রিসেট একসাথে চালু করা যায় — কার্ডে চাপ দিলে যোগ/বাদ, নিচের বার দিয়ে ঠিক করুন কোনটা কতটুকু থাকবে। যেমন: রোমান্টিক ১০০% + নাশিদ ৪০%।</p>
         <div class="presets" id="presetGrid"></div>
+        <div class="prm pre-int"><div class="prm-top"><span>🎚 সব প্রিসেটের সামগ্রিক তীব্রতা</span><b class="mono" id="presetIntV">১০০%</b></div>
+          <input type="range" id="presetInt" min="0" max="150" step="5" value="100" style="--fc:#a78bfa"></div>
+        <div class="mobm">
+          <div class="cl-row"><span class="cl-t">📱 মোবাইলে মধুর শোনানো</span><span class="tag off" id="mobTag" style="margin-left:auto">বন্ধ</span><label class="switch" title="চালু / বন্ধ"><input type="checkbox" id="mobOn"><span></span></label></div>
+          <p class="note">ফোনের ছোট স্পিকারে গান "ক্যানক্যানে", পাতলা বা কর্কশ শোনালে চালু করুন। কর্কশ ও নাকি সুর কমে, ফোনেও বেস অনুভূত হয়, গলা ভরাট ও পরিষ্কার শোনায় — বড় স্পিকারেও স্বাভাবিক থাকে। ডাউনলোড করা ফাইলেও এটা যোগ হবে।</p>
+          <div id="slot_mob"></div>
+          <button class="btn sm w100" id="btnPhonePrev" type="button" title="কম্পিউটার বা হেডফোনে শুনে বুঝুন ফোনের স্পিকারে কেমন শোনাবে">🎧 ফোনের স্পিকারে কেমন শোনাবে — প্রিভিউ</button>
+        </div>
         <div class="viz">
           <canvas id="spec"></canvas>
           <div class="outm">
@@ -458,7 +497,60 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
           <button class="btn sm danger" id="insDel" title="এই ক্লিপ মুছুন">🗑</button>
         </div>
       </div>
-      <div class="tl-hint">💡 লাল দাগ (প্লে-হেড) যেখানে রাখবেন, রেকর্ড সেখান থেকে শুরু হবে। ক্লিপের ডান কোণের <b>✕</b> চাপলে ক্লিপ মুছে যায়, দুই কিনারা টেনে ছোট-বড় করা যায়। <span class="only-desk"><b>Ctrl + মাউস হুইল</b> = জুম।</span><span class="only-touch">দুই আঙুলে চিমটি কাটলে জুম, ফাঁকা জায়গায় আঙুল টানলে সামনে-পেছনে যাবে।</span></div>
+      <div class="medit" id="medit">
+        <div class="me-head">
+          <b>✂ মোবাইল এডিট প্যানেল</b>
+          <div class="seg me-trk"><button id="meTrkV" class="on" type="button">🎤 ভোকাল</button><button id="meTrkM" type="button">🎹 মিউজিক</button></div>
+        </div>
+        <div class="me-info" id="meInfo">কোনো ক্লিপ বাছাই করা নেই</div>
+        <div class="me-ph">
+          <span class="me-lbl">লাল দাগ (প্লে-হেড)</span><b class="mono" id="mePh">00:00.0</b>
+          <input type="range" id="meScrub" min="0" max="1000" step="1" value="0" style="--fc:#fb7185" aria-label="প্লে-হেড সরান">
+          <div class="me-row6">
+            <button class="btn sm" data-jog="-5">−৫s</button><button class="btn sm" data-jog="-1">−১s</button><button class="btn sm" data-jog="-0.1">−০.১</button>
+            <button class="btn sm" data-jog="0.1">+০.১</button><button class="btn sm" data-jog="1">+১s</button><button class="btn sm" data-jog="5">+৫s</button>
+          </div>
+        </div>
+        <div class="seg me-tabs"><button class="on" data-tab="cut" type="button">✂ কাটা ও ছাঁটা</button><button data-tab="range" type="button">▭ অংশ মুছুন</button><button data-tab="move" type="button">↔ সরান</button></div>
+        <div class="me-pane" data-pane="cut">
+          <div class="me-row2">
+            <button class="btn sm" id="meClipPrev" type="button">◀ আগের ক্লিপ</button><button class="btn sm" id="meClipNext" type="button">পরের ক্লিপ ▶</button>
+          </div>
+          <button class="btn primary w100" id="meSplit" type="button">✂ লাল দাগের জায়গায় কাটুন</button>
+          <div class="me-row2">
+            <button class="btn sm" id="meTrimS" type="button" title="ক্লিপের শুরু থেকে লাল দাগ পর্যন্ত বাদ দিন">⟦ শুরু এখান পর্যন্ত বাদ</button>
+            <button class="btn sm" id="meTrimE" type="button" title="লাল দাগ থেকে ক্লিপের শেষ পর্যন্ত বাদ দিন">এখান থেকে শেষ বাদ ⟧</button>
+          </div>
+          <button class="btn sm danger w100" id="meDelClip" type="button">🗑 বাছাই করা ক্লিপ মুছুন</button>
+          <p class="note">লাল দাগ যেখানে কাটতে চান সেখানে আনুন (টাইমলাইনে আঙুল ছোঁয়ান বা ওপরের বাটন/বার দিয়ে), তারপর কাটুন। আনডু (↶) করে আগের অবস্থায় ফেরা যায়।</p>
+        </div>
+        <div class="me-pane hidden" data-pane="range">
+          <div class="me-row2">
+            <button class="btn sm" id="meMarkA" type="button">[ এখান থেকে</button><button class="btn sm" id="meMarkB" type="button">এখান পর্যন্ত ]</button>
+          </div>
+          <div class="me-info" id="meRange">অংশ বাছাই করা নেই — লাল দাগ শুরুতে এনে "[ এখান থেকে", শেষে এনে "এখান পর্যন্ত ]" চাপুন</div>
+          <div class="me-row2">
+            <button class="btn sm danger" id="meDelRange" type="button">🗑 অংশটা মুছুন</button><button class="btn sm" id="meRipple" type="button">⇤ মুছে জোড়া দিন</button>
+          </div>
+          <div class="me-row2">
+            <button class="btn sm" id="meLoop" type="button">🔁 অংশটা বারবার বাজান</button><button class="btn sm" id="meClearRange" type="button">✕ বাছাই বাতিল</button>
+          </div>
+          <button class="btn sm w100" id="meDnRange" type="button">🧹 এই অংশের শব্দ দিয়ে নয়েজ চিনিয়ে পরিষ্কার করুন</button>
+        </div>
+        <div class="me-pane hidden" data-pane="move">
+          <span class="me-lbl">পুরো ক্লিপ সরান (চেপে ধরে রাখলে চলতে থাকবে)</span>
+          <div class="me-row6">
+            <button class="btn sm" data-nudge="-1">◀ ১s</button><button class="btn sm" data-nudge="-0.1">◀ ০.১</button><button class="btn sm" data-nudge="-0.01">◀ ০.০১</button>
+            <button class="btn sm" data-nudge="0.01">০.০১ ▶</button><button class="btn sm" data-nudge="0.1">০.১ ▶</button><button class="btn sm" data-nudge="1">১s ▶</button>
+          </div>
+          <span class="me-lbl">ক্লিপের শুরুর কিনারা</span>
+          <div class="me-row2"><button class="btn sm" data-edge="L" data-d="-0.05">◀ বড় করুন</button><button class="btn sm" data-edge="L" data-d="0.05">ছোট করুন ▶</button></div>
+          <span class="me-lbl">ক্লিপের শেষের কিনারা</span>
+          <div class="me-row2"><button class="btn sm" data-edge="R" data-d="-0.05">◀ ছোট করুন</button><button class="btn sm" data-edge="R" data-d="0.05">বড় করুন ▶</button></div>
+          <div class="me-row2"><button class="btn sm" id="meToPh" type="button">ক্লিপের শুরু লাল দাগে আনুন</button><button class="btn sm" id="meGaps" type="button">🔗 ফাঁক বন্ধ</button></div>
+        </div>
+      </div>
+      <div class="tl-hint">💡 লাল দাগ (প্লে-হেড) যেখানে রাখবেন, রেকর্ড সেখান থেকে শুরু হবে। ক্লিপের ডান কোণের <b>✕</b> চাপলে ক্লিপ মুছে যায়, দুই কিনারা টেনে ছোট-বড় করা যায়। <span class="only-desk"><b>Ctrl + মাউস হুইল</b> = জুম।</span><span class="only-touch">মোবাইলে: ক্লিপে <b>একবার চাপ</b> দিলে সেটা বাছাই হয় ও লাল দাগ সেখানে যায়; বাছাই করা ক্লিপ আঙুলে টেনে সরানো যায়, দুই পাশের সাদা হাতল টেনে ছোট-বড় করা যায়। আঙুল টানলে সামনে-পেছনে যাবে, দুই আঙুলে চিমটি = জুম। ওপরের <b>✂ মোবাইল এডিট প্যানেল</b> দিয়ে নিখুঁতভাবে কাটুন।</span></div>
     </div>
   </section>
 
@@ -570,6 +662,7 @@ const PARAMS = [
   { id: 'duck', slot: 'mod_mix', label: 'অটো ডাকিং (গাওয়ার সময় মিউজিক নামবে)', min: 0, max: 12, step: 0.5, def: 3, fmt: v => v > 0 ? '-' + (+v).toFixed(1) + ' dB' : 'বন্ধ', kind: 'restart', color: '#f472b6' },
   { id: 'pocket', slot: 'mod_mix', label: 'ভোকাল পকেট (মিউজিকে গলার জায়গা)', min: 0, max: 100, step: 5, def: 55, fmt: pctFmt, kind: 'live', color: '#f472b6' },
   { id: 'padLevel', slot: 'mod_mix', label: 'আবহ হামিং প্যাড', min: 0, max: 80, step: 1, def: 0, fmt: v => v > 0 ? v + '%' : 'বন্ধ', kind: 'live', color: '#f472b6' },
+  { id: 'mobAmt', slot: 'slot_mob', label: 'কতটুকু প্রয়োগ হবে', min: 0, max: 100, step: 5, def: 60, fmt: pctFmt, kind: 'live', color: '#34d399' },
   { id: 'masterVol', slot: 'mod_mix', label: 'মাস্টার ভলিউম', min: -12, max: 6, step: 0.5, def: 0, fmt: dbFmt, kind: 'live', color: '#f472b6' },
 ];
 const PSPEC = Object.fromEntries(PARAMS.map(p => [p.id, p]));
@@ -649,39 +742,98 @@ function getParams() {
   const p = {};
   PARAMS.forEach(s => { p[s.id] = parseFloat($('p_' + s.id).value); });
   p.noiseOn = $('p_noiseOn').checked;
+  p.mobOn = $('mobOn').checked;
   p.padKey = $('p_padKey').value;
   p.fx = JSON.parse(JSON.stringify(S.fx));
   p.tuneKey = $('tuneKey').value; p.tuneScale = $('tuneScale').value; p.harmMode = $('harmMode').value;
   return p;
 }
 
+/* ---- Preset mixer: several presets at once, each with its own amount ----
+   Every preset is stored as a set of rack values. A clean "neutral" sound is the
+   starting point; each active preset pulls the sound towards itself by its amount.
+   Two presets at 100% = an even blend of both. "Overall strength" scales everything. */
+const NEUTRAL = [80,0,0,0,0,0,-12,1.5,0,400,0,0,0,1.5,20,0,0,0,0,85];
+S.pmix = {}; S.pInt = 100;
+Object.keys(PRESETS).forEach(k => { S.pmix[k] = { on: false, amt: 100 }; });
+
 function renderPresets() {
   const g = $('presetGrid');
   Object.entries(PRESETS).forEach(([k, P]) => {
-    const b = document.createElement('button');
-    b.className = 'pre' + (P.speech ? ' speech' : '');
-    b.id = 'pre_' + k;
-    b.innerHTML = `<div class="pt">${P.name}</div><div class="ps">${P.sub}</div>`;
-    b.addEventListener('click', () => applyPreset(k, true));
-    g.appendChild(b);
+    const d = document.createElement('div');
+    d.className = 'pre' + (P.speech ? ' speech' : '');
+    d.id = 'pre_' + k;
+    d.innerHTML = `<button class="pre-h" type="button" aria-pressed="false"><span class="pre-tx"><span class="pt">${P.name}</span><span class="ps">${P.sub}</span></span><span class="fx-sw"></span></button>
+      <div class="pre-amt"><input type="range" min="0" max="100" step="5" value="100" aria-label="${P.name} মাত্রা"><b class="mono">১০০%</b></div>`;
+    g.appendChild(d);
+    const sl = d.querySelector('input'), lbl = d.querySelector('b');
+    setFill(sl);
+    d.querySelector('.pre-h').addEventListener('click', () => {
+      S.pmix[k].on = !S.pmix[k].on;
+      applyBlend();
+      toast(S.pmix[k].on ? `"${P.name}" যোগ হয়েছে` : `"${P.name}" বাদ দেওয়া হয়েছে`, S.pmix[k].on ? 'success' : 'info');
+    });
+    sl.addEventListener('input', () => {
+      S.pmix[k].amt = +sl.value; lbl.textContent = bnNum(sl.value) + '%'; setFill(sl);
+      if (!S.pmix[k].on) S.pmix[k].on = true;
+      applyBlend(false, true);
+    });
+    sl.addEventListener('change', () => restartSoon());
+  });
+  const ps = $('presetInt');
+  setFill(ps);
+  ps.addEventListener('input', () => { S.pInt = +ps.value; $('presetIntV').textContent = bnNum(ps.value) + '%'; setFill(ps); applyBlend(false, true); });
+  ps.addEventListener('change', () => restartSoon());
+}
+function blendValues() {
+  const act = Object.keys(PRESETS).filter(k => S.pmix[k].on && S.pmix[k].amt > 0);
+  const tot = act.reduce((s, k) => s + S.pmix[k].amt / 100, 0);
+  const norm = Math.max(1, tot), str = S.pInt / 100;
+  return PK.map((id, i) => {
+    let d = 0;
+    act.forEach(k => { d += (S.pmix[k].amt / 100) * (PRESETS[k].v[i] - NEUTRAL[i]); });
+    const sp = PSPEC[id];
+    const v = clamp(NEUTRAL[i] + str * d / norm, sp.min, sp.max);
+    return Math.round(v / sp.step) * sp.step;
   });
 }
+function blendName() {
+  const act = Object.keys(PRESETS).filter(k => S.pmix[k].on && S.pmix[k].amt > 0);
+  if (!act.length) return 'কোনো প্রিসেট নেই (পরিষ্কার গলা)';
+  if (act.length === 1 && S.pmix[act[0]].amt === 100) return PRESETS[act[0]].name;
+  return act.map(k => `${PRESETS[k].name} ${bnNum(S.pmix[k].amt)}%`).join(' + ');
+}
+function updPresetUI() {
+  Object.keys(PRESETS).forEach(k => {
+    const d = $('pre_' + k), m = S.pmix[k];
+    d.classList.toggle('on', m.on);
+    d.querySelector('.pre-h').setAttribute('aria-pressed', m.on);
+    const sl = d.querySelector('input');
+    if (+sl.value !== m.amt) { sl.value = m.amt; setFill(sl); }
+    d.querySelector('.pre-amt b').textContent = bnNum(m.amt) + '%';
+  });
+  const tag = $('presetTag');
+  tag.textContent = blendName() + (S.presetDirty ? ' (পরিবর্তিত)' : '');
+  tag.className = 'tag' + (S.presetDirty ? ' custom' : '');
+}
+function applyBlend(announce, live) {
+  blendValues().forEach((v, i) => setParam(PK[i], v));
+  S.presetDirty = false;
+  updPresetUI();
+  if (S.raw) setRaw(false); else { applyLive(); if (!live) restartSoon(); }
+  if (announce) toast(`"${blendName()}" প্রিসেট চালু হয়েছে`, 'success');
+}
+// switch to just one preset at 100% (used for new project / demo)
 function applyPreset(key, announce) {
-  const P = PRESETS[key];
-  PK.forEach((k, i) => setParam(k, P.v[i]));
-  S.preset = key; S.presetDirty = false;
-  document.querySelectorAll('.pre').forEach(b => b.classList.remove('on'));
-  $('pre_' + key).classList.add('on');
-  const tag = $('presetTag'); tag.textContent = P.name; tag.className = 'tag';
-  if (S.raw) setRaw(false); else { applyLive(); restartSoon(); }
-  if (announce) toast(`"${P.name}" প্রিসেট চালু হয়েছে`, 'success');
+  Object.keys(PRESETS).forEach(k => { S.pmix[k] = { on: k === key, amt: 100 }; });
+  S.pInt = 100; $('presetInt').value = 100; $('presetIntV').textContent = '১০০%'; setFill($('presetInt'));
+  S.preset = key;
+  applyBlend(announce);
 }
 function markCustom() {
   if (S.presetDirty) return;
   S.presetDirty = true;
-  const tag = $('presetTag');
-  tag.textContent = PRESETS[S.preset].name + ' (পরিবর্তিত)';
-  tag.className = 'tag custom';
+  updPresetUI();
 }
 
 /* ---------------- Audio context & helpers ---------------- */
@@ -734,7 +886,10 @@ function buildGraph(ctx, p, o) {
   G.lim = ctx.createDynamicsCompressor();
   G.lim.threshold.value = -1.5; G.lim.knee.value = 0; G.lim.ratio.value = 20;
   G.lim.attack.value = 0.002; G.lim.release.value = 0.15;
-  G.master.connect(G.lim); G.lim.connect(o.out);
+  buildMobile(ctx, G);
+  setMobile(G, p, raw, (prm, v) => { prm.value = v; });
+  G.master.connect(G.mIn); G.mOut.connect(G.lim);
+  if (o.preview) G.lim.connect(buildPhoneSim(ctx, o.out)); else G.lim.connect(o.out);
 
   G.vocalIn = ctx.createGain();
   G.vocalFader = ctx.createGain();
@@ -802,11 +957,79 @@ function buildGraph(ctx, p, o) {
   return G;
 }
 
+/* ---------------- Mobile-speaker mastering ----------------
+   Phone speakers can't play deep bass, are mono, and exaggerate the honky (~1 kHz)
+   and harsh (3-4 kHz) zones — that's what makes a mix sound "tinny". This master stage:
+   • narrows extreme stereo so nothing cancels on a mono phone speaker
+   • adds bass harmonics (the ear "hears" the bass even when the speaker can't play it)
+   • adds a little vocal body, gently tames honk, harshness, sibilance and fizz
+   • trims useless sub-bass that makes phone speakers crackle
+   • glues everything with soft bus compression, like a radio/streaming master */
+function buildMobile(ctx, G) {
+  const M = {};
+  M.up = ctx.createGain(); M.up.channelCount = 2; M.up.channelCountMode = 'explicit'; M.up.channelInterpretation = 'speakers';
+  const spl = ctx.createChannelSplitter(2), mrg = ctx.createChannelMerger(2);
+  M.ll = ctx.createGain(); M.rl = ctx.createGain(); M.lr = ctx.createGain(); M.rr = ctx.createGain();
+  M.up.connect(spl);
+  spl.connect(M.ll, 0); spl.connect(M.rl, 1); spl.connect(M.lr, 0); spl.connect(M.rr, 1);
+  M.ll.connect(mrg, 0, 0); M.rl.connect(mrg, 0, 0); M.lr.connect(mrg, 0, 1); M.rr.connect(mrg, 0, 1);
+  M.sub = bq(ctx, 'lowshelf', 70, null, 0);
+  M.body = bq(ctx, 'peaking', 280, 0.9, 0);
+  M.honk = bq(ctx, 'peaking', 1000, 1.2, 0);
+  M.harsh = bq(ctx, 'peaking', 3400, 1.0, 0);
+  M.sib = bq(ctx, 'peaking', 7500, 2.0, 0);
+  M.fizz = bq(ctx, 'highshelf', 11000, null, 0);
+  M.sum = ctx.createGain();
+  chain(mrg, M.sub, M.body, M.honk, M.harsh, M.sib, M.fizz, M.sum);
+  // bass harmonics: isolate low end -> saturate -> keep only the new 170-650 Hz overtones
+  const l1 = bq(ctx, 'lowpass', 150, 0.7), l2 = bq(ctx, 'lowpass', 150, 0.7);
+  const pre = ctx.createGain(); pre.gain.value = 3;
+  const sh = ctx.createWaveShaper(); sh.curve = shaperCurve(2.2); sh.oversample = '2x';
+  const h1 = bq(ctx, 'highpass', 170, 0.7), h2 = bq(ctx, 'highpass', 170, 0.7), hl = bq(ctx, 'lowpass', 650, 0.7);
+  M.harm = ctx.createGain(); M.harm.gain.value = 0;
+  chain(mrg, l1, l2, pre, sh, h1, h2, hl, M.harm, M.sum);
+  // glue compressor + makeup
+  M.glue = ctx.createDynamicsCompressor();
+  M.glue.knee.value = 12; M.glue.attack.value = 0.025; M.glue.release.value = 0.25;
+  M.make = ctx.createGain();
+  chain(M.sum, M.glue, M.make);
+  G.M = M; G.mIn = M.up; G.mOut = M.make;
+}
+function setMobile(G, p, raw, set) {
+  const M = G.M; if (!M) return;
+  const m = (!raw && p.mobOn) ? p.mobAmt / 100 : 0;
+  const k = 1 - 0.4 * m, a = (1 + k) / 2, b = (1 - k) / 2;
+  set(M.ll.gain, a); set(M.rr.gain, a); set(M.rl.gain, b); set(M.lr.gain, b);
+  set(M.sub.gain, -3 * m); set(M.body.gain, 1.6 * m); set(M.honk.gain, -1.8 * m);
+  set(M.harsh.gain, -2.6 * m); set(M.sib.gain, -2 * m); set(M.fizz.gain, -1.5 * m);
+  set(M.harm.gain, 0.32 * m);
+  set(M.glue.threshold, -8 - 14 * m); set(M.glue.ratio, 1 + 1.8 * m);
+  set(M.make.gain, dbToLin(2.2 * m));
+}
+// listening check: roughly how a phone speaker would play the mix (never exported)
+function buildPhoneSim(ctx, out) {
+  const mono = ctx.createGain(); mono.channelCount = 1; mono.channelCountMode = 'explicit'; mono.channelInterpretation = 'speakers';
+  const sh = ctx.createWaveShaper(); sh.curve = shaperCurve(1.4);
+  const lv = ctx.createGain(); lv.gain.value = 0.8;
+  chain(mono, bq(ctx, 'highpass', 420, 0.9), bq(ctx, 'highpass', 420, 0.9), bq(ctx, 'peaking', 1100, 1.0, 3),
+    bq(ctx, 'peaking', 3000, 1.2, 4), bq(ctx, 'lowpass', 7500, 0.8), sh, lv, out);
+  return mono;
+}
+function updMobUI() {
+  const on = $('mobOn').checked;
+  document.querySelector('.mobm').classList.toggle('on', on);
+  $('mobTag').textContent = on ? 'চালু' : 'বন্ধ';
+  $('mobTag').className = 'tag' + (on ? '' : ' off');
+  $('btnPhonePrev').classList.toggle('on', !!S.phonePrev);
+  $('btnPhonePrev').textContent = S.phonePrev ? '🎧 ফোন-প্রিভিউ চলছে — চাপলে বন্ধ হবে' : '🎧 ফোনের স্পিকারে কেমন শোনাবে — প্রিভিউ';
+}
+
 function applyLive() {
   const G = S.live;
   if (!G || !S.ctx) return;
   const p = getParams(), t = S.ctx.currentTime;
   const set = (prm, v) => prm.setTargetAtTime(v, t, 0.03);
+  setMobile(G, p, S.raw, set);
   set(G.master.gain, dbToLin(p.masterVol));
   set(G.vocalFader.gain, S.muted.vocal ? 0 : p.vocalVol / 100);
   set(G.musicFader.gain, S.muted.music ? 0 : p.musicVol / 100);
@@ -1675,7 +1898,7 @@ async function play(opts = {}) {
   const lr = !S.rec && S.loop && loopRange();
   if (lr) { if (S.playhead < lr[0] || S.playhead >= lr[1]) S.playhead = lr[0]; }
   else if (!opts.allowEmpty && S.playhead >= contentEnd() - 0.05) S.playhead = 0;
-  const G = buildGraph(ctx, p, { raw: S.raw, out: S.analyser });
+  const G = buildGraph(ctx, p, { raw: S.raw, out: S.analyser, preview: S.phonePrev });
   const t0 = ctx.currentTime + 0.06, P = S.playhead;
   S.sources = scheduleAll(ctx, G, p, P, t0, {});
   S.pads = S.raw ? [] : startPad(ctx, G, p, t0, null);
@@ -1739,6 +1962,7 @@ function updTime(pos) {
   $('tTot').textContent = fmtTime(contentEnd());
   $('dCur').textContent = $('tCur').textContent;
   $('dTot').textContent = '/ ' + $('tTot').textContent;
+  updMePh(pos);
 }
 
 function runLoop() {
@@ -2059,8 +2283,9 @@ function doSplit() {
   const selected = S.sel && findClip(S.sel);
   if (selected && ph > selected.c.offset + 0.02 && ph < cEnd(selected.c) - 0.02) target = selected;
   if (!target) {
-    const c = S.tracks.vocal.find(x => ph > x.offset + 0.02 && ph < cEnd(x) - 0.02);
-    if (c) target = { tk: 'vocal', c };
+    const etk = S.etk || 'vocal';
+    const c = S.tracks[etk].find(x => ph > x.offset + 0.02 && ph < cEnd(x) - 0.02);
+    if (c) target = { tk: etk, c };
   }
   if (!target) return toast('লাল প্লে-হেডটি কোনো ক্লিপের মাঝখানে রাখুন, অথবা ক্লিপ সিলেক্ট করুন', 'error');
   pushUndo();
@@ -2090,7 +2315,7 @@ function doDelete(ripple) {
 }
 function closeGaps() {
   if (S.rec) return;
-  const tk = (S.region && S.region.tk) || (S.sel && findClip(S.sel) && findClip(S.sel).tk) || 'vocal';
+  const tk = (S.region && S.region.tk) || (S.sel && findClip(S.sel) && findClip(S.sel).tk) || S.etk || 'vocal';
   const arr = S.tracks[tk];
   if (arr.length < 2) return toast('জোড়া দেওয়ার মতো একাধিক ক্লিপ এই ট্র্যাকে নেই', 'error');
   pushUndo();
@@ -2177,12 +2402,14 @@ function updUI() {
     $('insGain').value = c.gainDb; setFill($('insGain'));
     $('insGainV').textContent = dbFmt(c.gainDb);
   }
+  updMe();
 }
 
 /* ---------------- Timeline drawing ---------------- */
 const tl = $('tl'), tctx = tl.getContext('2d'), wrap = $('tlWrap'), spacer = $('tlSpacer');
 const RULER = 24, TH = 100, TLH = RULER + TH * 2, PR = 200;
 const peakCache = new WeakMap();
+const COARSE = window.matchMedia && matchMedia('(pointer:coarse)').matches;
 function peaksOf(buf) {
   let p = peakCache.get(buf);
   if (p) return p;
@@ -2334,9 +2561,13 @@ function drawClip(g, c, tk, y, col, fill, P, sx, vw) {
   rr(g, x + 0.5, top + 0.5, W - 1, h - 1, 6); g.stroke();
   // trim grips
   g.fillStyle = sel ? '#ffffff' : 'rgba(251,191,36,.85)';
-  g.fillRect(x + 1, top + h / 2 - 12, 3, 24); g.fillRect(x + W - 4, top + h / 2 - 12, 3, 24);
+  if (sel && COARSE && W > 40) {
+    [x + 1, x + W - 11].forEach(gx => { rr(g, gx, top + h / 2 - 18, 10, 36, 4); g.fill(); });
+    g.fillStyle = '#0b111c'; g.font = '700 10px sans-serif'; g.textBaseline = 'middle';
+    g.fillText('‹', x + 3, top + h / 2); g.fillText('›', x + W - 8, top + h / 2);
+  } else { g.fillRect(x + 1, top + h / 2 - 12, 3, 24); g.fillRect(x + W - 4, top + h / 2 - 12, 3, 24); }
   // delete button
-  if (W > 48) {
+  if (W > 48 && (!COARSE || sel)) {
     const dx = x + W - 20, dy = top + 2;
     g.fillStyle = '#be123c'; rr(g, dx, dy, 15, 15, 4); g.fill();
     g.strokeStyle = '#fff'; g.lineWidth = 1.6; g.beginPath();
@@ -2367,10 +2598,12 @@ function tlCoords(e) {
   const x = xs + wrap.scrollLeft;
   return { x, xs, y, sec: Math.max(0, x / pps()) };
 }
-function hitClip(x, y) {
+function hitClip(x, y, touch) {
+  const pad = touch ? 9 : 2;
   for (let i = boxes.length - 1; i >= 0; i--) {
     const b = boxes[i];
-    if (b.del && x >= b.del.x - 2 && x <= b.del.x + b.del.s + 2 && y >= b.del.y - 2 && y <= b.del.y + b.del.s + 2) return { b, del: true };
+    if (touch && b.id !== S.sel) continue;           // on touch, the ✕ only works on the selected clip (no accidental deletes)
+    if (b.del && x >= b.del.x - pad && x <= b.del.x + b.del.s + pad && y >= b.del.y - pad && y <= b.del.y + b.del.s + pad) return { b, del: true };
   }
   for (let i = boxes.length - 1; i >= 0; i--) {
     const b = boxes[i];
@@ -2408,15 +2641,22 @@ tl.addEventListener('pointerdown', e => {
   tl.setPointerCapture(e.pointerId);
   if (y <= RULER) { S.drag = { type: 'playhead' }; seekTo(sec); return; }
   const tk = y < RULER + TH ? 'vocal' : 'music';
-  const hit = hitClip(x, y);
-  if (hit && hit.del) { S.sel = hit.b.id; doDelete(false); return; }
+  const touch = e.pointerType === 'touch';
+  const hit = hitClip(x, y, touch);
+  if (hit && hit.del) { S.sel = hit.b.id; S.region = null; doDelete(false); return; }
 
   if (S.tool === 'select') {
     S.region = { tk, a: sec, b: sec }; S.drag = { type: 'select', tap: sec }; drawTimeline(); return;
   }
   if (hit && hit.b.tk === tk) {
     const f = findClip(hit.b.id);
-    S.sel = f.c.id; S.region = null;
+    // touch: the first tap only selects the clip (and moves the red line there), so swiping
+    // across the timeline scrolls instead of accidentally dragging the clip
+    if (touch && S.tool === 'move' && S.sel !== f.c.id) {
+      S.drag = { type: 'pan', sx: xs, sl: wrap.scrollLeft, tap: sec, selId: f.c.id, selTk: f.tk };
+      return;
+    }
+    S.sel = f.c.id; S.region = null; if (S.etk !== f.tk) meSetTrack(f.tk);
     if (S.tool === 'split') {
       pushUndo();
       const R = splitClip(f.tk, f.c, sec);
@@ -2424,8 +2664,8 @@ tl.addEventListener('pointerdown', e => {
       else { S.undo.pop(); updUI(); drawTimeline(); }
       return;
     }
-    const base = { tk: f.tk, id: f.c.id, start: sec, snap: snapshot(), o: f.c.offset, ts: f.c.trimStart, te: f.c.trimEnd, moved: false };
-    const edge = 8 / pps();
+    const base = { tk: f.tk, id: f.c.id, start: sec, snap: snapshot(), o: f.c.offset, ts: f.c.trimStart, te: f.c.trimEnd, moved: false, touch };
+    const edge = Math.min(touch ? 24 : 8, dur(f.c) * pps() / 3) / pps();
     if (Math.abs(sec - f.c.offset) <= edge) S.drag = { ...base, type: 'trimL' };
     else if (Math.abs(sec - cEnd(f.c)) <= edge) S.drag = { ...base, type: 'trimR' };
     else S.drag = { ...base, type: 'move' };
@@ -2464,7 +2704,7 @@ tl.addEventListener('pointermove', e => {
   if (D.type === 'select') { S.region.b = sec; drawTimeline(); return; }
   const f = findClip(D.id); if (!f) return;
   const c = f.c, delta = sec - D.start;
-  if (Math.abs(delta) * pps() > 2) D.moved = true;
+  if (Math.abs(delta) * pps() > (D.touch ? 7 : 2)) D.moved = true;
   if (!D.moved) return;
   if (D.type === 'move') {
     let off = Math.max(0, D.o + delta);
@@ -2484,7 +2724,11 @@ tl.addEventListener('pointermove', e => {
 function endDrag() {
   const D = S.drag; S.drag = null;
   if (!D) return;
-  if (D.type === 'pan' && !D.moved) { S.sel = null; S.region = null; updUI(); seekTo(D.tap); return; }
+  if (D.type === 'pan' && !D.moved) {
+    S.region = null;
+    if (D.selId) { S.sel = D.selId; meSetTrack(D.selTk); } else S.sel = null;
+    updUI(); seekTo(D.tap); return;
+  }
   if (D.type === 'select') {
     const r = regionNorm();
     if (!r) { S.region = null; seekTo(Math.max(0, D.tap != null ? D.tap : S.playhead)); }
@@ -2494,7 +2738,8 @@ function endDrag() {
   if ((D.type === 'move' || D.type === 'trimL' || D.type === 'trimR') && D.moved) {
     pushUndo(D.snap);
     afterEdit();
-  } else { refreshLayout(); drawTimeline(); }
+  } else if (D.touch && D.type === 'move') { refreshLayout(); seekTo(D.start); }   // tap on the selected clip = move the red line there
+  else { refreshLayout(); drawTimeline(); }
 }
 function pointerEnd(e) {
   touches.delete(e.pointerId);
@@ -2634,10 +2879,159 @@ function toggleMute(tk) {
   if (tk === 'vocal' && S.playing) restartSoon();
 }
 
+/* ---------------- Mobile edit panel ---------------- */
+S.etk = 'vocal';
+function meTarget() {
+  const f = S.sel && findClip(S.sel);
+  if (f) return f;
+  const ph = curPos(), c = S.tracks[S.etk].find(x => ph >= x.offset && ph <= cEnd(x));
+  return c ? { tk: S.etk, c } : null;
+}
+function meSetTrack(tk) {
+  S.etk = tk;
+  $('meTrkV').classList.toggle('on', tk === 'vocal');
+  $('meTrkM').classList.toggle('on', tk === 'music');
+}
+function meSelect(f, seek) {
+  if (!f) return;
+  S.sel = f.c.id; meSetTrack(f.tk);
+  if (seek) { const x = f.c.offset * pps(), w = wrap.clientWidth; if (x < wrap.scrollLeft || x > wrap.scrollLeft + w - 40) wrap.scrollLeft = Math.max(0, x - 40); }
+  updUI(); drawTimeline(S.playing ? curPos() : null);
+}
+function meCycle(dir) {
+  const arr = S.tracks[S.etk].slice().sort((a, b) => a.offset - b.offset);
+  if (!arr.length) return toast(`${S.etk === 'vocal' ? 'ভোকাল' : 'মিউজিক'} ট্র্যাকে কোনো ক্লিপ নেই`, 'error');
+  const cur = S.sel ? arr.findIndex(c => c.id === S.sel) : -1;
+  let i = cur < 0 ? (dir > 0 ? 0 : arr.length - 1) : clamp(cur + dir, 0, arr.length - 1);
+  meSelect({ tk: S.etk, c: arr[i] }, true);
+}
+function meJog(d) { if (!S.rec) seekTo(clamp(curPos() + d, 0, Math.max(contentEnd(), 1))); autoScroll(S.playhead); drawTimeline(); }
+function meTrim(side) {
+  if (S.rec) return;
+  const f = meTarget(), t = curPos();
+  if (!f) return toast('লাল দাগটা কোনো ক্লিপের ওপর রাখুন, অথবা আগে ক্লিপ বাছুন', 'error');
+  const c = f.c;
+  if (t <= c.offset + 0.02 || t >= cEnd(c) - 0.02) return toast('লাল দাগটা বাছাই করা ক্লিপের ভেতরে আনুন', 'error');
+  pushUndo();
+  if (side === 'S') { c.trimStart += t - c.offset; c.offset = t; }
+  else c.trimEnd += cEnd(c) - t;
+  S.sel = c.id; afterEdit();
+  toast(side === 'S' ? '⟦ ক্লিপের শুরুর অংশ বাদ দেওয়া হয়েছে' : 'ক্লিপের শেষের অংশ বাদ দেওয়া হয়েছে ⟧', 'success');
+}
+function meMark(which) {
+  if (S.rec) return;
+  const t = curPos();
+  if (!S.region || S.region.tk !== S.etk) S.region = { tk: S.etk, a: t, b: t };
+  if (which === 'A') S.region.a = t; else S.region.b = t;
+  S.sel = null; updUI(); drawTimeline();
+  const r = regionNorm();
+  toast(r ? `▭ ${(r.b - r.a).toFixed(2)} সেকেন্ডের অংশ বাছাই হয়েছে` : (which === 'A' ? '[ শুরু চিহ্নিত — এবার লাল দাগ শেষে এনে "এখান পর্যন্ত ]" চাপুন' : 'শেষ চিহ্নিত — এবার শুরুটা চিহ্নিত করুন'), 'info');
+}
+function meNudge(sec, first) {
+  const f = S.sel && findClip(S.sel);
+  if (!f || S.rec) { if (first) toast('আগে একটা ক্লিপ বাছুন (টাইমলাইনে ক্লিপে চাপ দিন বা "পরের ক্লিপ ▶")', 'error'); return false; }
+  if (first) pushUndo();
+  f.c.offset = Math.max(0, f.c.offset + sec);
+  refreshLayout(); updUI(); updTime(); drawTimeline(S.playing ? curPos() : null);
+  return true;
+}
+function meEdge(side, d, first) {
+  const f = S.sel && findClip(S.sel);
+  if (!f || S.rec) { if (first) toast('আগে একটা ক্লিপ বাছুন', 'error'); return false; }
+  const c = f.c;
+  if (first) pushUndo();
+  if (side === 'L') {
+    const ts = clamp(c.trimStart + d, Math.max(0, c.trimStart - c.offset), c.buffer.duration - c.trimEnd - 0.05);
+    c.offset += ts - c.trimStart; c.trimStart = ts;
+  } else {
+    c.trimEnd = clamp(c.trimEnd - d, 0, c.buffer.duration - c.trimStart - 0.05);
+  }
+  refreshLayout(); updUI(); updTime(); drawTimeline(S.playing ? curPos() : null);
+  return true;
+}
+// press-and-hold repeat for small step buttons
+function holdRepeat(el, fn) {
+  let t1 = 0, t2 = 0, n = 0;
+  const stop = () => { clearTimeout(t1); clearInterval(t2); if (n > 1 && S.playing && !S.rec) restartSoon(); n = 0; };
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); stop();
+    n = 1; if (fn(true) === false) return;
+    t1 = setTimeout(() => { t2 = setInterval(() => { n++; fn(false); }, 90); }, 380);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => el.addEventListener(ev, stop));
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+function updMe() {
+  const f = S.sel && findClip(S.sel), info = $('meInfo');
+  if (f) {
+    info.innerHTML = `${f.tk === 'vocal' ? '🎤' : '🎹'} <b>${f.c.name}</b> — শুরু ${fmtTime(f.c.offset)}, শেষ ${fmtTime(cEnd(f.c))} (${dur(f.c).toFixed(2)}s)`;
+    info.classList.add('sel');
+  } else {
+    info.textContent = 'কোনো ক্লিপ বাছাই করা নেই — টাইমলাইনে ক্লিপে একবার চাপ দিন, অথবা "পরের ক্লিপ ▶" চাপুন';
+    info.classList.remove('sel');
+  }
+  const r = regionNorm();
+  $('meRange').innerHTML = r ? `বাছাই করা অংশ (${r.tk === 'vocal' ? 'ভোকাল' : 'মিউজিক'}): <b>${fmtTime(r.a)} → ${fmtTime(r.b)}</b> (${(r.b - r.a).toFixed(2)}s)` : 'অংশ বাছাই করা নেই — লাল দাগ শুরুতে এনে "[ এখান থেকে", শেষে এনে "এখান পর্যন্ত ]" চাপুন';
+  $('meRange').classList.toggle('sel', !!r);
+  $('meLoop').classList.toggle('on', S.loop);
+}
+function updMePh(pos) {
+  const t = pos != null ? pos : S.playhead, end = Math.max(contentEnd(), 1);
+  $('mePh').textContent = fmtTime(t);
+  const sc = $('meScrub');
+  if (!sc.dataset.drag) { sc.value = Math.round(t / end * 1000); setFill(sc); }
+}
+function initMobileEdit() {
+  $('meTrkV').onclick = () => { meSetTrack('vocal'); if (S.sel && findClip(S.sel).tk !== 'vocal') { S.sel = null; updUI(); drawTimeline(); } };
+  $('meTrkM').onclick = () => { meSetTrack('music'); if (S.sel && findClip(S.sel).tk !== 'music') { S.sel = null; updUI(); drawTimeline(); } };
+  document.querySelectorAll('.me-tabs button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.me-tabs button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.me-pane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== b.dataset.tab));
+  });
+  const sc = $('meScrub');
+  sc.addEventListener('input', () => {
+    sc.dataset.drag = '1'; setFill(sc);
+    const t = sc.value / 1000 * Math.max(contentEnd(), 1);
+    S.playhead = t; if (!S.playing) { updTime(); drawTimeline(); autoScroll(t); }
+  });
+  sc.addEventListener('change', () => { delete sc.dataset.drag; seekTo(sc.value / 1000 * Math.max(contentEnd(), 1)); });
+  document.querySelectorAll('[data-jog]').forEach(b => holdRepeat(b, () => { meJog(parseFloat(b.dataset.jog)); }));
+  document.querySelectorAll('[data-nudge]').forEach(b => holdRepeat(b, first => meNudge(parseFloat(b.dataset.nudge), first)));
+  document.querySelectorAll('[data-edge]').forEach(b => holdRepeat(b, first => meEdge(b.dataset.edge, parseFloat(b.dataset.d), first)));
+  $('meClipPrev').onclick = () => meCycle(-1);
+  $('meClipNext').onclick = () => meCycle(1);
+  $('meSplit').onclick = () => {
+    if (!S.sel) { const f = meTarget(); if (f) S.sel = f.c.id; }
+    S.region = null; doSplit();
+  };
+  $('meTrimS').onclick = () => meTrim('S');
+  $('meTrimE').onclick = () => meTrim('E');
+  $('meDelClip').onclick = () => { if (!S.sel) return toast('আগে একটা ক্লিপ বাছুন', 'error'); S.region = null; doDelete(false); };
+  $('meMarkA').onclick = () => meMark('A');
+  $('meMarkB').onclick = () => meMark('B');
+  $('meDelRange').onclick = () => { if (!regionNorm()) return toast('আগে অংশটা চিহ্নিত করুন', 'error'); doDelete(false); };
+  $('meRipple').onclick = () => { if (!regionNorm()) return toast('আগে অংশটা চিহ্নিত করুন', 'error'); doDelete(true); };
+  $('meLoop').onclick = () => { toggleLoop(); updMe(); };
+  $('meClearRange').onclick = () => { S.region = null; updUI(); drawTimeline(); };
+  $('meDnRange').onclick = () => {
+    const r = regionNorm();
+    if (!r || r.tk !== 'vocal') return toast('ভোকাল ট্র্যাকে শুধু-নয়েজ আছে এমন একটু অংশ চিহ্নিত করুন (যেমন গান শুরুর আগের অংশ)', 'error');
+    S.sel = null; denoiseCmd();
+  };
+  $('meToPh').onclick = () => {
+    const f = S.sel && findClip(S.sel);
+    if (!f) return toast('আগে একটা ক্লিপ বাছুন', 'error');
+    pushUndo(); f.c.offset = curPos(); afterEdit();
+    toast('ক্লিপটা লাল দাগ থেকে শুরু হবে', 'success');
+  };
+  $('meGaps').onclick = () => closeGaps();
+}
+
 function init() {
   renderParams();
   renderPresets();
   renderFx();
+  initMobileEdit();
   applyPreset('romantic', false);
   $('fileMusic').addEventListener('change', e => { loadFile(e.target.files[0], 'music'); e.target.value = ''; });
   $('fileVocal').addEventListener('change', e => { loadFile(e.target.files[0], 'vocal'); e.target.value = ''; });
@@ -2671,7 +3065,20 @@ function init() {
   $('zoomIn').onclick = () => setZoom(S.zoom * 1.5);
   $('zoomOut').onclick = () => setZoom(S.zoom / 1.5);
   $('zoomR').addEventListener('input', e => setZoom(Math.pow(40, e.target.value / 100)));
-  $('btnResetFx').onclick = () => applyPreset(S.preset, true);
+  $('btnResetFx').onclick = () => applyBlend(true);
+  try { $('mobOn').checked = localStorage.getItem('tf_mobOn') === '1'; } catch (e) {}
+  updMobUI();
+  $('mobOn').addEventListener('change', () => {
+    try { localStorage.setItem('tf_mobOn', $('mobOn').checked ? '1' : '0'); } catch (e) {}
+    updMobUI(); applyLive();
+    toast($('mobOn').checked ? '📱 মোবাইল-স্পিকার মাস্টারিং চালু — ফোনেও ভরাট, মিষ্টি শোনাবে' : 'মোবাইল-স্পিকার মাস্টারিং বন্ধ', $('mobOn').checked ? 'success' : 'info');
+  });
+  $('p_mobAmt').addEventListener('input', () => { if (!$('mobOn').checked) { $('mobOn').checked = true; try { localStorage.setItem('tf_mobOn', '1'); } catch (e) {} updMobUI(); applyLive(); } });
+  $('btnPhonePrev').onclick = () => {
+    S.phonePrev = !S.phonePrev; updMobUI();
+    if (S.playing && !S.rec) restartSoon();
+    toast(S.phonePrev ? '🎧 এখন ফোনের ছোট স্পিকারের মতো শোনাবে (শুধু শোনার জন্য, ডাউনলোডে যাবে না)' : 'প্রিভিউ বন্ধ — স্বাভাবিক শব্দ', 'info');
+  };
   $('nudgeL').onclick = () => nudge(-0.01); $('nudgeR').onclick = () => nudge(0.01);
   $('insNorm').onclick = () => { const f = S.sel && findClip(S.sel); if (!f) return; pushUndo(); const g = autoLevelClip(f.c); afterEdit(); toast(`⚡ ক্লিপ লেভেল ${dbFmt(g)}`, 'success'); };
   $('insDel').onclick = () => doDelete(false);
