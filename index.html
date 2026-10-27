@@ -269,10 +269,41 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
   .dtime b{display:block;font-size:17px;color:#5eead4}
   .dtime span{font-size:11px;color:#7dd3fc}
 }
+
+/* Effects */
+.fxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.fx{border:1px solid var(--line);border-radius:12px;background:#0b111c;transition:border-color .15s,background .15s}
+.fx.on{border-color:var(--accent);background:linear-gradient(135deg,rgba(34,195,238,.15),rgba(99,102,241,.06))}
+.fx.pitch.on{border-color:#a78bfa;background:linear-gradient(135deg,rgba(167,139,250,.17),rgba(34,195,238,.05))}
+.fx-h{font:inherit;color:inherit;background:none;border:0;display:flex;gap:10px;align-items:center;width:100%;padding:11px 12px 8px;cursor:pointer;text-align:left}
+.fx-ico{font-size:21px;width:40px;height:40px;display:grid;place-items:center;border-radius:11px;background:#141e31;flex:none}
+.fx.pitch .fx-ico{background:#1d1838}
+.fx-t{flex:1;min-width:0}
+.fx-t b{display:block;font-size:13.5px}
+.fx-t small{display:block;color:var(--muted);font-size:11.5px;line-height:1.4;margin-top:2px}
+.fx-tag{font-style:normal;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;background:#3b2f0b;color:#fde68a;margin-left:4px;vertical-align:1px}
+.fx-sw{width:38px;height:22px;border-radius:99px;background:#253247;position:relative;flex:none;transition:.15s}
+.fx-sw::after{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;border-radius:50%;background:#94a3b8;transition:.15s}
+.fx.on .fx-sw{background:#0ea5e9}.fx.pitch.on .fx-sw{background:#8b5cf6}
+.fx.on .fx-sw::after{left:19px;background:#fff}
+.fx-amt{display:flex;align-items:center;gap:10px;padding:2px 12px 12px;font-size:12px;color:var(--muted)}
+.fx:not(.on) .fx-amt{opacity:.45}
+.fx-amt b{color:#e2e8f0;min-width:40px;text-align:right;font-size:12px}
+.tag.off{background:#111827;color:var(--muted);border-color:var(--line2)}
+.tag.busy{background:#2b2210;color:#fde68a;border-color:#6b5414}
+.tune-set{display:grid;grid-template-columns:repeat(3,1fr) 1.2fr;gap:10px;margin-top:12px;padding:10px 12px;border:1px solid #2e2650;border-radius:10px;background:#0d0b1c;align-items:end}
+.tune-set .ts-h{grid-column:1/-1;font-weight:700;color:#c4b5fd;font-size:12.5px}
+.keyinfo{font-size:12.5px;color:#ddd6fe;padding:6px 0;line-height:1.5}
+.fx-note{margin:0 0 10px;font-size:12px;color:var(--muted);line-height:1.6}
+.envwarn{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:#2b2210;border:1px solid #6b5414;color:#fde68a;border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.6}
+.envwarn .envbtns{display:flex;gap:8px}
+.envwarn a.btn{text-decoration:none}
+@media (max-width:760px){.tune-set{grid-template-columns:1fr 1fr}.keyinfo{grid-column:1/-1}.fx-h{padding:12px 12px 8px}}
 </style>
 </head>
 <body>
 <div class="app">
+  <div class="envwarn hidden" id="envWarn"></div>
 
   <!-- ======================= TOP BAR ======================= -->
   <header class="card topbar">
@@ -359,10 +390,26 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
     </section>
   </div>
 
-  <!-- ======================= 3. TIMELINE ======================= -->
+  <!-- ======================= 3. EFFECTS ======================= -->
+  <section class="card">
+    <div class="card-h"><h2><span class="step">৩</span>ইফেক্ট ও অটো-টিউন</h2><span class="tag off" id="fxCount">কোনো ইফেক্ট চালু নেই</span></div>
+    <div class="card-b">
+      <p class="fx-note">যতগুলো খুশি ইফেক্ট একসাথে চালু করুন — কার্ডে চাপ দিলেই চালু/বন্ধ। নিচের বার টেনে ঠিক করুন কতটুকু লাগবে। বেগুনি তিনটা (সুর-সংক্রান্ত) প্রথমবার প্লে করার সময় কয়েক সেকেন্ড প্রস্তুত হয়, রেকর্ড শেষ হওয়ার পর শোনা যায়।</p>
+      <div class="fxgrid" id="fxGrid"></div>
+      <div class="tune-set">
+        <div class="ts-h">🎼 সুরের সেটিংস (সুর সংশোধন, অটো-টিউন ও হারমোনির জন্য)</div>
+        <label class="fld"><span>গানের কী (মূল সুর)</span><select id="tuneKey"><option value="auto" selected>অটো শনাক্ত</option><option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option></select></label>
+        <label class="fld"><span>স্কেল</span><select id="tuneScale"><option value="chromatic" selected>সব নোট (সবচেয়ে নিরাপদ)</option><option value="major">মেজর (উজ্জ্বল সুর)</option><option value="minor">মাইনর (আবেগী/দুঃখের সুর)</option></select></label>
+        <label class="fld"><span>হারমোনি কণ্ঠের সুর</span><select id="harmMode"><option value="third" selected>ওপরে মিষ্টি তৃতীয় সুর</option><option value="fifth">ওপরে পঞ্চম সুর</option><option value="octdown">এক অষ্টক নিচে (গম্ভীর)</option></select></label>
+        <div class="keyinfo" id="keyInfo">শনাক্ত কী: প্লে চাপলে বের হবে</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 4. TIMELINE ======================= -->
   <section class="card">
     <div class="card-h">
-      <h2><span class="step">৩</span>টাইমলাইন এডিটর</h2>
+      <h2><span class="step">৪</span>টাইমলাইন এডিটর</h2>
       <div class="toolbar">
         <div class="seg">
           <button id="toolMove" class="on" title="ক্লিপ টেনে সরান, কিনারা টেনে ছোট-বড় করুন (V)">✋ সরান</button>
@@ -411,7 +458,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
 
   <!-- ======================= 4. RACK ======================= -->
   <section class="card">
-    <div class="card-h"><h2><span class="step">৪</span>ফাইন টিউনিং র‍্যাক</h2><button class="btn sm" id="btnResetFx" title="বর্তমান প্রিসেটের মানগুলোতে ফিরে যান">↺ প্রিসেটে ফিরুন</button></div>
+    <div class="card-h"><h2><span class="step">৫</span>ফাইন টিউনিং র‍্যাক</h2><button class="btn sm" id="btnResetFx" title="বর্তমান প্রিসেটের মানগুলোতে ফিরে যান">↺ প্রিসেটে ফিরুন</button></div>
     <div class="card-b rack">
       <div class="mod"><div class="mod-h eq">ইকুয়ালাইজার (EQ)</div><div id="mod_eq"></div></div>
       <div class="mod"><div class="mod-h dyn">কম্প্রেসর (গলা সমান রাখে)</div><div id="mod_dyn"></div></div>
@@ -440,6 +487,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
         <li><b>হেডফোন</b> লাগান (না হলে মিউজিক মাইকে ঢুকে যাবে)। "মাইক টেস্ট" দিয়ে লেভেল দেখে নিন।</li>
         <li>লাল প্লে-হেড শুরুতে রেখে <b>● রেকর্ড</b> চাপুন — মিউজিক বাজবে, আপনি গাইবেন। থামাতে আবার চাপুন।</li>
         <li>একটা জায়গা ভুল হলে প্লে-হেড সেখানে রেখে আবার রেকর্ড করুন — শুধু ওই অংশ বদলে যাবে।</li>
+        <li>দরকার হলে <b>সুর সংশোধন</b> সহ পছন্দের ইফেক্টগুলো চালু করুন।</li>
         <li>একটা <b>প্রিসেট</b> বাছুন, "আসল গলা / স্টুডিও FX" চেপে তুলনা করুন, দরকার হলে র‍্যাকে সূক্ষ্ম টিউন করুন।</li>
         <li>সব ঠিক হলে <b>⬇ মিক্স ডাউনলোড</b> — WAV ফাইল পাবেন।</li>
       </ol>
@@ -543,6 +591,7 @@ const S = {
   undo: [], redo: [], drag: null, rec: null, micTest: null,
   preset: 'romantic', presetDirty: false, latencyTouched: false,
   nextId: 1, takeNo: 0, workletOk: undefined,
+  fx: {}, playToken: 0, detKey: null,
 };
 
 /* ---------------- Toast ---------------- */
@@ -594,6 +643,8 @@ function getParams() {
   PARAMS.forEach(s => { p[s.id] = parseFloat($('p_' + s.id).value); });
   p.noiseOn = $('p_noiseOn').checked;
   p.padKey = $('p_padKey').value;
+  p.fx = JSON.parse(JSON.stringify(S.fx));
+  p.tuneKey = $('tuneKey').value; p.tuneScale = $('tuneScale').value; p.harmMode = $('harmMode').value;
   return p;
 }
 
@@ -696,7 +747,9 @@ function buildGraph(ctx, p, o) {
     N.comp.threshold.value = p.compThresh; N.comp.knee.value = 12; N.comp.ratio.value = p.compRatio;
     N.comp.attack.value = 0.005; N.comp.release.value = 0.18;
     N.makeup = ctx.createGain(); N.makeup.gain.value = dbToLin(p.makeup);
-    chain(G.vocalIn, N.hp, N.warm, N.mud, N.pres, N.ess, N.air, N.comp, N.makeup, G.vocalFader);
+    chain(G.vocalIn, N.hp, N.warm, N.mud, N.pres, N.ess, N.air, N.comp, N.makeup);
+    buildFx(ctx, N, G);
+    setFx(N, p, (prm, v) => { prm.value = v; });
 
     // Stereo doubler (post-fader so track volume/mute affects it)
     N.dbl = ctx.createGain(); N.dbl.gain.value = p.width / 100 * 0.45;
@@ -754,6 +807,7 @@ function applyLive() {
   set(G.padGain.gain, S.raw ? 0 : p.padLevel / 100 * 0.16);
   const N = G.N;
   if (!N) return;
+  setFx(N, p, set);
   set(N.hp.frequency, p.hpFreq); set(N.warm.gain, p.warmth); set(N.mud.gain, p.mud);
   set(N.pres.gain, p.presence); set(N.ess.gain, p.deEss); set(N.air.gain, p.air);
   set(N.comp.threshold, p.compThresh); set(N.comp.ratio, p.compRatio);
@@ -878,6 +932,405 @@ function gated(buf, p) {
   return out;
 }
 
+/* =====================================================================
+   Effects rack (multi-select) + pitch correction engine
+   ===================================================================== */
+const FX = [
+  { id: 'tune', ico: '🎯', name: 'সুর সংশোধন', tag: 'প্রস্তাবিত', sub: 'বেসুরো বা কাঁপা সুর স্বাভাবিকভাবে ঠিক নোটে বসিয়ে দেয় — গলার আসল ভাব থাকে', def: 60, pitch: true },
+  { id: 'robot', ico: '🤖', name: 'রোবটিক অটো-টিউন', sub: 'জনপ্রিয় পপ/র‍্যাপ গানের মতো যান্ত্রিক, ঝকঝকে অটো-টিউন কণ্ঠ', def: 80, pitch: true },
+  { id: 'harm', ico: '🎶', name: 'হারমোনি কণ্ঠ', sub: 'আপনার সাথে আরেকটা সুরে দ্বিতীয় কণ্ঠ গায় — গান ভরাট শোনায়', def: 35, pitch: true },
+  { id: 'smooth', ico: '✨', name: 'কণ্ঠ মসৃণ', sub: 'খসখসে, ভাঙা বা কর্কশ কণ্ঠ নরম ও মিষ্টি করে', def: 50 },
+  { id: 'chorus', ico: '🌊', name: 'কোরাস', sub: 'কয়েকজন একসাথে গাইছে এমন চওড়া, ভাসমান ভাব', def: 40 },
+  { id: 'warm', ico: '🔥', name: 'অ্যানালগ উষ্ণতা', sub: 'পুরনো স্টুডিও টেপের মতো ভরাট ও উষ্ণ কণ্ঠ', def: 35 },
+  { id: 'radio', ico: '📻', name: 'রেডিও / টেলিফোন', sub: 'পুরনো রেডিও বা ফোনের মতো সরু কণ্ঠ — ইন্ট্রোর জন্য দারুণ', def: 70 },
+];
+const PITCH_FX = ['tune', 'robot', 'harm'];
+FX.forEach(f => { S.fx[f.id] = { on: false, amt: f.def }; });
+const bnNum = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const fxA = (p, id) => (p.fx[id] && p.fx[id].on) ? p.fx[id].amt / 100 : 0;
+
+function renderFx() {
+  const g = $('fxGrid');
+  FX.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'fx' + (f.pitch ? ' pitch' : '');
+    d.id = 'fx_' + f.id;
+    d.innerHTML = `<button class="fx-h" type="button" aria-pressed="false"><span class="fx-ico">${f.ico}</span>
+      <span class="fx-t"><b>${f.name}${f.tag ? `<em class="fx-tag">${f.tag}</em>` : ''}</b><small>${f.sub}</small></span><span class="fx-sw"></span></button>
+      <div class="fx-amt"><span>মাত্রা</span><input type="range" min="0" max="100" step="1" value="${f.def}" aria-label="${f.name} মাত্রা"><b class="mono">${f.def}%</b></div>`;
+    g.appendChild(d);
+    const btn = d.querySelector('.fx-h'), sl = d.querySelector('input'), lbl = d.querySelector('.fx-amt b');
+    sl.style.setProperty('--fc', f.pitch ? '#a78bfa' : '#22c3ee');
+    setFill(sl);
+    btn.addEventListener('click', () => {
+      S.fx[f.id].on = !S.fx[f.id].on;
+      updFxUI();
+      fxChanged(f);
+      toast(`${f.ico} ${f.name} ${S.fx[f.id].on ? 'চালু হয়েছে' : 'বন্ধ হয়েছে'}`, S.fx[f.id].on ? 'success' : 'info');
+    });
+    sl.addEventListener('input', () => {
+      S.fx[f.id].amt = +sl.value; lbl.textContent = sl.value + '%'; setFill(sl);
+      if (!S.fx[f.id].on) { S.fx[f.id].on = true; updFxUI(); if (f.pitch) fxChanged(f); }
+      if (!f.pitch) fxChanged(f);
+    });
+    sl.addEventListener('change', () => { if (f.pitch) fxChanged(f); });
+  });
+  ['tuneKey', 'tuneScale', 'harmMode'].forEach(id => $(id).addEventListener('change', () => { updKeyInfo(); fxChanged({ pitch: true }); }));
+  updFxUI(); updKeyInfo();
+}
+function updFxUI() {
+  let n = 0;
+  FX.forEach(f => {
+    const on = S.fx[f.id].on; if (on) n++;
+    const d = $('fx_' + f.id);
+    d.classList.toggle('on', on);
+    d.querySelector('.fx-h').setAttribute('aria-pressed', on);
+  });
+  const tag = $('fxCount');
+  if (tag.classList.contains('busy')) return;
+  tag.textContent = n ? `${bnNum(n)}টি ইফেক্ট চালু` : 'কোনো ইফেক্ট চালু নেই';
+  tag.className = 'tag' + (n ? '' : ' off');
+}
+function setFxBusy(b, pct) {
+  const tag = $('fxCount');
+  if (b) { tag.className = 'tag busy'; tag.textContent = `⏳ সুর প্রস্তুত হচ্ছে ${pct != null ? bnNum(pct) + '%' : ''}`; }
+  else { tag.classList.remove('busy'); updFxUI(); }
+}
+function fxChanged(f) {
+  if (S.raw && FX.some(x => S.fx[x.id].on)) setRaw(false);
+  if (f.pitch) { if (S.playing && !S.rec) restartSoon(); else if (!S.rec) prewarm(); }
+  else applyLive();
+}
+
+/* ---- realtime tone effects (smooth, warmth, radio, chorus) ---- */
+function shaperCurve(k) {
+  const n = 2048, c = new Float32Array(n), norm = Math.tanh(k);
+  for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.tanh(k * x) / norm; }
+  return c;
+}
+function buildFx(ctx, N, G) {
+  N.sComp = ctx.createDynamicsCompressor();
+  N.sComp.knee.value = 24; N.sComp.attack.value = 0.008; N.sComp.release.value = 0.25;
+  N.sCut = bq(ctx, 'peaking', 3300, 0.9, 0);
+  N.sShelf = bq(ctx, 'highshelf', 7000, null, 0);
+  N.sBody = bq(ctx, 'peaking', 260, 0.8, 0);
+  chain(N.makeup, N.sComp, N.sBody, N.sCut, N.sShelf);
+  // analog warmth (parallel saturation)
+  N.satDry = ctx.createGain(); N.satWet = ctx.createGain(); N.satOut = ctx.createGain();
+  const sh = ctx.createWaveShaper(); sh.curve = shaperCurve(2.4); sh.oversample = '4x';
+  const shLp = bq(ctx, 'lowpass', 9000, 0.7);
+  N.sShelf.connect(N.satDry); N.satDry.connect(N.satOut);
+  N.sShelf.connect(sh); sh.connect(shLp); shLp.connect(N.satWet); N.satWet.connect(N.satOut);
+  // radio / telephone
+  N.radDry = ctx.createGain(); N.radWet = ctx.createGain();
+  const rHp = bq(ctx, 'highpass', 480, 0.8), rLp = bq(ctx, 'lowpass', 3100, 0.9), rPk = bq(ctx, 'peaking', 1600, 1.2, 6);
+  const rSh = ctx.createWaveShaper(); rSh.curve = shaperCurve(5);
+  N.satOut.connect(N.radDry); N.radDry.connect(G.vocalFader);
+  chain(N.satOut, rHp, rLp, rPk, rSh, N.radWet, G.vocalFader);
+  // chorus: two slowly modulated voices panned left/right
+  N.chWet = ctx.createGain(); N.chWet.connect(G.vocalFader);
+  G.oscs = [];
+  [[0.019, 0.83, -0.7], [0.027, 1.17, 0.7]].forEach(([base, rate, pan]) => {
+    const dl = ctx.createDelay(0.1); dl.delayTime.value = base;
+    const lfo = ctx.createOscillator(); lfo.frequency.value = rate;
+    const dep = ctx.createGain(); dep.gain.value = 0.0035;
+    lfo.connect(dep); dep.connect(dl.delayTime); lfo.start();
+    const pn = ctx.createStereoPanner(); pn.pan.value = pan;
+    N.satOut.connect(dl); dl.connect(pn); pn.connect(N.chWet);
+    G.oscs.push(lfo);
+  });
+}
+function setFx(N, p, set) {
+  if (!N.sComp) return;
+  const s = fxA(p, 'smooth'), w = fxA(p, 'warm'), r = fxA(p, 'radio'), c = fxA(p, 'chorus');
+  set(N.sComp.threshold, -4 - s * 24); set(N.sComp.ratio, 1 + s * 2.5);
+  set(N.sCut.gain, -s * 5); set(N.sShelf.gain, -s * 2.5); set(N.sBody.gain, s * 1.5);
+  set(N.satDry.gain, 1 - w * 0.5); set(N.satWet.gain, w * 0.7);
+  set(N.radDry.gain, 1 - r); set(N.radWet.gain, r * 1.3);
+  set(N.chWet.gain, c * 0.6);
+}
+
+/* ---- key / scale ---- */
+const KN = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const SC_MAJ = [0, 2, 4, 5, 7, 9, 11], SC_MIN = [0, 2, 3, 5, 7, 8, 10];
+const PROF_MAJ = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
+const PROF_MIN = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+function pearson(h, prof, t) {
+  let mh = 0, mp = 0;
+  for (let i = 0; i < 12; i++) { mh += h[i]; mp += prof[i]; }
+  mh /= 12; mp /= 12;
+  let num = 0, dh = 0, dp = 0;
+  for (let i = 0; i < 12; i++) { const a = h[(i + t) % 12] - mh, b = prof[i] - mp; num += a * b; dh += a * a; dp += b * b; }
+  return num / (Math.sqrt(dh * dp) || 1);
+}
+function detectKey(hist) {
+  let best = { tonic: 0, mode: 'major', r: -2 };
+  for (let t = 0; t < 12; t++) {
+    const a = pearson(hist, PROF_MAJ, t), b = pearson(hist, PROF_MIN, t);
+    if (a > best.r) best = { tonic: t, mode: 'major', r: a };
+    if (b > best.r) best = { tonic: t, mode: 'minor', r: b };
+  }
+  return best;
+}
+function scaleInfo(p) {
+  const det = S.detKey || { tonic: 0, mode: 'major' };
+  let tonic, mode;
+  if (p.tuneKey === 'auto') {
+    tonic = det.tonic; mode = det.mode;
+    if (p.tuneScale !== 'chromatic' && p.tuneScale !== mode) {
+      tonic = mode === 'minor' ? (tonic + 3) % 12 : (tonic + 9) % 12;   // relative major / minor
+      mode = p.tuneScale;
+    }
+  } else {
+    tonic = KN.indexOf(p.tuneKey);
+    mode = p.tuneScale === 'minor' ? 'minor' : 'major';
+  }
+  const scale = new Array(12).fill(false);
+  (mode === 'minor' ? SC_MIN : SC_MAJ).forEach(d => { scale[(tonic + d) % 12] = true; });
+  const chrom = p.tuneScale === 'chromatic';
+  return { tonic, mode, scale, chrom, snap: chrom ? new Array(12).fill(true) : scale, key: `${tonic}${mode}${chrom ? 'c' : 'd'}` };
+}
+function updKeyInfo() {
+  const p = getParams(), sc = scaleInfo(p);
+  const det = S.detKey ? `শনাক্ত কী: <b>${KN[S.detKey.tonic]} ${S.detKey.mode === 'minor' ? 'মাইনর' : 'মেজর'}</b>` : 'শনাক্ত কী: প্লে চাপলে বের হবে';
+  const use = sc.chrom ? 'সংশোধন: সব নোটে (নিরাপদ)' : `সংশোধন: ${KN[sc.tonic]} ${sc.mode === 'minor' ? 'মাইনর' : 'মেজর'} স্কেলে`;
+  $('keyInfo').innerHTML = `${det}<br><span style="color:#a5b4fc">${use}</span>`;
+}
+const pcOf = m => ((m % 12) + 12) % 12;
+function snapNote(m, pcs, prev, hyst) {
+  if (prev != null && Math.abs(m - prev) < hyst) return prev;
+  const r = Math.round(m);
+  let best = r, bd = 99;
+  for (let c = r - 2; c <= r + 2; c++) {
+    if (!pcs[pcOf(c)]) continue;
+    const d = Math.abs(c - m);
+    if (d < bd) { bd = d; best = c; }
+  }
+  return best;
+}
+function harmInterval(t, sc, mode) {
+  if (mode === 'fifth') return 7;
+  if (mode === 'octdown') return -12;
+  let c = t, cnt = 0, guard = 0;
+  while (cnt < 2 && guard++ < 12) { c++; if (sc.scale[pcOf(c)]) cnt++; }
+  return cnt === 2 ? c - t : 4;
+}
+
+/* ---- pitch analysis (YIN) + pitch marks ---- */
+const tick = () => new Promise(r => setTimeout(r, 0));
+const anaCache = new WeakMap(), procCache = new WeakMap();
+async function analyze(buf, prog) {
+  const sr = buf.sampleRate, n = buf.length, C = buf.numberOfChannels;
+  const x = new Float32Array(n);
+  for (let c = 0; c < C; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) x[i] += d[i] / C; }
+  // low-pass + decimate to ~11 kHz for a fast, robust pitch detector
+  const D = Math.max(1, Math.round(sr / 11025)), sd = sr / D, m = Math.floor(n / D);
+  const y = new Float32Array(m), al = Math.exp(-2 * Math.PI * 3000 / sr);
+  let z1 = 0, z2 = 0, yi = 0;
+  for (let i = 0; i < m * D; i++) { z1 = x[i] + (z1 - x[i]) * al; z2 = z1 + (z2 - z1) * al; if (i % D === D - 1) y[yi++] = z2; }
+  const H = Math.round(sr * 0.01), F = Math.ceil(n / H);
+  const W = Math.round(sd * 0.03), tMin = Math.max(2, Math.floor(sd / 1000)), tMax = Math.min(Math.ceil(sd / 65), W);
+  const midi = new Float32Array(F).fill(NaN), rms = new Float32Array(F);
+  let gmax = 0;
+  for (let f = 0; f < F; f++) {
+    const a = Math.round(f * H / D - W / 2);
+    if (a < 0 || a + W > m) continue;
+    let s = 0; for (let j = 0; j < W; j++) s += y[a + j] * y[a + j];
+    rms[f] = Math.sqrt(s / W); if (rms[f] > gmax) gmax = rms[f];
+  }
+  const thr = Math.max(0.003, gmax * 0.045);
+  const df = new Float32Array(tMax + 2);
+  for (let f = 0; f < F; f++) {
+    if ((f & 127) === 0) { if (prog) prog(f / F); await tick(); }
+    if (rms[f] < thr) continue;
+    const a = Math.round(f * H / D - W / 2);
+    if (a < 0 || a + W + tMax >= m) continue;
+    let run = 0;
+    df[0] = 1;
+    for (let tau = 1; tau <= tMax; tau++) {
+      let s = 0;
+      for (let j = 0; j < W; j++) { const d = y[a + j] - y[a + j + tau]; s += d * d; }
+      run += s;
+      df[tau] = run > 0 ? s * tau / run : 1;
+    }
+    let found = -1, minv = 1e9, mint = -1;
+    for (let tau = tMin; tau <= tMax; tau++) {
+      if (df[tau] < 0.15) { let t2 = tau; while (t2 + 1 <= tMax && df[t2 + 1] < df[t2]) t2++; found = t2; break; }
+      if (df[tau] < minv) { minv = df[tau]; mint = tau; }
+    }
+    if (found < 0) { if (minv < 0.3) found = mint; else continue; }
+    let tf = found;
+    if (found > 1 && found < tMax) {
+      const s0 = df[found - 1], s1 = df[found], s2 = df[found + 1], den = s0 - 2 * s1 + s2;
+      if (den !== 0) tf = found + 0.5 * (s0 - s2) / den;
+    }
+    const f0 = sd / tf;
+    if (f0 >= 65 && f0 <= 1000) midi[f] = 69 + 12 * Math.log2(f0 / 440);
+  }
+  // clean up: median-of-5 outlier fix (octave jumps), drop tiny voiced blips
+  const mc = midi.slice(), win = [];
+  for (let f = 0; f < F; f++) {
+    if (isNaN(mc[f])) continue;
+    win.length = 0;
+    for (let j = f - 2; j <= f + 2; j++) if (j >= 0 && j < F && !isNaN(mc[j])) win.push(mc[j]);
+    if (win.length >= 3) { win.sort((p, q) => p - q); const md = win[win.length >> 1]; if (Math.abs(mc[f] - md) > 2.5) midi[f] = md; }
+  }
+  for (let f = 0; f < F;) {
+    if (isNaN(midi[f])) { f++; continue; }
+    let e = f; while (e < F && !isNaN(midi[e])) e++;
+    if (e - f < 5) for (let j = f; j < e; j++) midi[j] = NaN;
+    f = e;
+  }
+  // pitch-synchronous analysis marks
+  const marks = [], per = [], vf = [], U = Math.round(sr * 0.005);
+  let t = 0, prevV = false;
+  while (t < n) {
+    const mm = midi[Math.min(F - 1, Math.round(t / H))];
+    if (!isNaN(mm)) {
+      const T = sr / (440 * Math.pow(2, (mm - 69) / 12));
+      const last = marks.length ? marks[marks.length - 1] : -1;
+      let a = prevV ? Math.round(t - 0.2 * T) : Math.round(t), b = prevV ? Math.round(t + 0.2 * T) : Math.round(t + T);
+      a = Math.max(0, a); b = Math.min(n - 1, b);
+      let best = a, bv = -Infinity;
+      for (let j = a; j <= b; j++) if (x[j] > bv) { bv = x[j]; best = j; }
+      if (prevV && best < last + 0.6 * T) best = Math.round(last + T);
+      if (best <= last) best = last + 1;
+      if (best >= n) break;
+      marks.push(best); per.push(T); vf.push(1);
+      t = best + T; prevV = true;
+    } else {
+      marks.push(Math.round(t)); per.push(U); vf.push(0);
+      t += U; prevV = false;
+    }
+  }
+  const A = { x, n, sr, H, midi, marks: Int32Array.from(marks), per: Float32Array.from(per), vf: Uint8Array.from(vf) };
+  anaCache.set(buf, A);
+  if (prog) prog(1);
+  return A;
+}
+
+/* ---- TD-PSOLA pitch shifter (keeps timing, changes pitch) ---- */
+function psola(A, rat, widen, muteUnvoiced) {
+  const { x, n, marks, per, vf, H } = A, M = marks.length;
+  if (!M) return x.slice();
+  const out = new Float32Array(n), ws = new Float32Array(n), F = rat.length;
+  let ts = marks[0], i = 0;
+  while (ts < n) {
+    while (i < M - 1 && Math.abs(marks[i + 1] - ts) <= Math.abs(marks[i] - ts)) i++;
+    const T = per[i], v = vf[i];
+    const r = v ? rat[Math.min(F - 1, Math.round(ts / H))] : 1;
+    const half = Math.max(16, Math.round(T * (widen && r < 1 ? 1 / r : 1)));
+    const c = marks[i], o = Math.round(ts), amp = (muteUnvoiced && !v) ? 0 : 1;
+    const j0 = Math.max(-half, -c, -o), j1 = Math.min(half, n - c, n - o);
+    for (let j = j0; j < j1; j++) {
+      const w = 0.5 - 0.5 * Math.cos(Math.PI * (j + half) / half);
+      out[o + j] += x[c + j] * w * amp; ws[o + j] += w;
+    }
+    ts += Math.max(8, T / r);
+  }
+  for (let j = 0; j < n; j++) out[j] /= Math.max(ws[j], 0.5);
+  return out;
+}
+function synthPitch(A, p) {
+  const sc = scaleInfo(p), m = A.midi, F = m.length;
+  const aT = fxA(p, 'tune'), aR = fxA(p, 'robot'), aH = fxA(p, 'harm');
+  const corr = new Float32Array(F), hs = new Float32Array(F);
+  for (let k = 0; k < F;) {
+    if (isNaN(m[k])) { k++; continue; }
+    let e = k; while (e < F && !isNaN(m[e])) e++;
+    const L = e - k, sm = new Float32Array(L), cN = new Float32Array(L), tg = new Float32Array(L);
+    // smoothed pitch (keeps vibrato & expression out of the correction)
+    for (let i = 0; i < L; i++) {
+      let s = 0, c = 0;
+      for (let j = Math.max(0, i - 4); j <= Math.min(L - 1, i + 4); j++) { s += m[k + j]; c++; }
+      sm[i] = s / c;
+    }
+    let prev = null;
+    for (let i = 0; i < L; i++) { const t = snapNote(sm[i], sc.snap, prev, 0.62); prev = t; tg[i] = t; cN[i] = t - sm[i]; }
+    // retune speed: stronger setting = faster, tighter correction
+    const rad = Math.round(1 + (1 - aT) * 9);
+    for (let i = 0; i < L; i++) {
+      let s = 0, c = 0;
+      for (let j = Math.max(0, i - rad); j <= Math.min(L - 1, i + rad); j++) { s += cN[j]; c++; }
+      const cNs = s / c;
+      const cR = tg[i] - m[k + i];          // hard tune: lock to the note, remove wobble and vibrato
+      const edge = Math.min(1, (i + 1) / 4, (L - i) / 4);
+      corr[k + i] = (cR * aR + (1 - aR) * cNs * aT) * edge;
+      hs[k + i] = harmInterval(tg[i], sc, p.harmMode) + cNs;
+    }
+    k = e;
+  }
+  let main;
+  if (aT > 0 || aR > 0) {
+    const rat = new Float32Array(F);
+    for (let i = 0; i < F; i++) rat[i] = Math.pow(2, corr[i] / 12);
+    main = psola(A, rat, false, false);
+  } else main = A.x.slice();
+  if (aH > 0) {
+    const rat = new Float32Array(F);
+    for (let i = 0; i < F; i++) rat[i] = Math.pow(2, hs[i] / 12);
+    const h = psola(A, rat, true, true), g = aH * 0.75, dly = Math.round(A.sr * 0.012);
+    for (let i = dly; i < A.n; i++) main[i] += h[i - dly] * g;
+  }
+  const out = getCtx().createBuffer(1, A.n, A.sr);
+  out.getChannelData(0).set(main);
+  return out;
+}
+
+/* ---- processing cache / scheduling ---- */
+function needsPitch(p) { return !S.raw && PITCH_FX.some(id => fxA(p, id) > 0); }
+function pitchKey(p) { return PITCH_FX.map(id => Math.round(fxA(p, id) * 100)).join(',') + '|' + scaleInfo(p).key + '|' + p.harmMode; }
+function procBuf(gb, p) {
+  if (!needsPitch(p)) return gb;
+  const e = procCache.get(gb);
+  return e && e.key === pitchKey(p) ? e.out : gb;
+}
+function pitchReady(p) {
+  const key = pitchKey(p);
+  return S.tracks.vocal.every(c => { const e = procCache.get(gated(c.buffer, p)); return e && e.key === key; });
+}
+let prepBusy = null;
+async function prepareVocals(p) {
+  while (prepBusy) { try { await prepBusy; } catch (e) {} }
+  if (!needsPitch(p) || pitchReady(p)) return;
+  prepBusy = doPrep(p);
+  try { await prepBusy; } finally { prepBusy = null; }
+}
+async function doPrep(p) {
+  const gbs = [...new Set(S.tracks.vocal.map(c => gated(c.buffer, p)))];
+  const need = gbs.filter(b => !anaCache.has(b));
+  const total = need.reduce((a, b) => a + b.duration, 0) || 1;
+  const t0 = performance.now();
+  let done = 0, lastPct = -1;
+  setFxBusy(true, 0);
+  try {
+    for (const b of need) {
+      await analyze(b, fr => {
+        const pct = Math.min(99, Math.round((done + fr * b.duration) / total * 100));
+        if (pct !== lastPct) { lastPct = pct; setFxBusy(true, pct); }
+      });
+      done += b.duration;
+    }
+    const hist = new Float32Array(12); let cnt = 0;
+    for (const b of gbs) { const A = anaCache.get(b); for (let i = 0; i < A.midi.length; i++) { const v = A.midi[i]; if (!isNaN(v)) { hist[pcOf(Math.round(v))]++; cnt++; } } }
+    if (cnt > 40) S.detKey = detectKey(hist);
+    updKeyInfo();
+    const key = pitchKey(p);
+    for (const b of gbs) {
+      const e = procCache.get(b);
+      if (e && e.key === key) continue;
+      procCache.set(b, { key, out: synthPitch(anaCache.get(b), p) });
+      await tick();
+    }
+  } finally { setFxBusy(false); }
+  if (performance.now() - t0 > 1200) toast('✅ সুর প্রস্তুত — এখন শুনুন', 'success');
+}
+function prewarm() {
+  const p = getParams();
+  if (S.rec || !S.tracks.vocal.length || !needsPitch(p) || pitchReady(p)) return;
+  prepareVocals(p).catch(() => {});
+}
+
 /* ---------------- Ducking envelope ---------------- */
 const envCache = new WeakMap(), EH = 0.02;
 function envOf(buf) {
@@ -958,7 +1411,7 @@ function scheduleClip(ctx, buf, c, P, t0, dest) {
 function scheduleAll(ctx, G, p, P, t0, o) {
   const srcs = [];
   for (const c of S.tracks.vocal) {
-    const s = scheduleClip(ctx, S.raw ? c.buffer : gated(c.buffer, p), c, P, t0, G.vocalIn);
+    const s = scheduleClip(ctx, S.raw ? c.buffer : procBuf(gated(c.buffer, p), p), c, P, t0, G.vocalIn);
     if (s) srcs.push(s);
   }
   if (!o.vocalOnly) {
@@ -983,12 +1436,19 @@ function loopRange() {
   const a = Math.min(S.region.a, S.region.b), b = Math.max(S.region.a, S.region.b);
   return b - a > 0.2 ? [a, b] : null;
 }
-function play(opts = {}) {
+async function play(opts = {}) {
+  const tok = ++S.playToken;
   const has = S.tracks.vocal.length || S.tracks.music.length;
   if (!has && !opts.allowEmpty) { toast('প্রথমে মিউজিক বা ভোকাল যোগ করুন, অথবা "♫ ডেমো" চাপুন', 'error'); return; }
   const ctx = getCtx();
+  let p = getParams();
+  if (needsPitch(p) && S.tracks.vocal.length && !pitchReady(p)) {
+    if (S.playing) { S.playhead = curPos(); stopSources(); S.playing = false; cancelAnimationFrame(S.raf); updTransport(); }
+    try { await prepareVocals(p); } catch (e) { console.error(e); }
+    if (tok !== S.playToken) return;
+    p = getParams();
+  }
   stopSources();
-  const p = getParams();
   const lr = !S.rec && S.loop && loopRange();
   if (lr) { if (S.playhead < lr[0] || S.playhead >= lr[1]) S.playhead = lr[0]; }
   else if (!opts.allowEmpty && S.playhead >= contentEnd() - 0.05) S.playhead = 0;
@@ -996,6 +1456,7 @@ function play(opts = {}) {
   const t0 = ctx.currentTime + 0.06, P = S.playhead;
   S.sources = scheduleAll(ctx, G, p, P, t0, {});
   S.pads = S.raw ? [] : startPad(ctx, G, p, t0, null);
+  if (G.oscs) S.pads.push(...G.oscs);
   S.live = G; S.playStartCtx = t0; S.playStartPos = P; S.playing = true;
   updTransport();
   runLoop();
@@ -1007,6 +1468,7 @@ function stopSources() {
   if (S.live) { try { S.live.lim.disconnect(); } catch (e) {} S.live = null; }
 }
 function pause() {
+  S.playToken++;
   if (!S.playing) return;
   S.playhead = curPos();
   stopSources();
@@ -1248,8 +1710,10 @@ async function startRec() {
   S.playhead = Math.max(0, R.punch - preroll);
   S.rec = R;
   S.region = null; S.sel = null;
-  play({ allowEmpty: true });
-  R.startCtx = S.playStartCtx; R.startPos = S.playStartPos;
+  await play({ allowEmpty: true });
+  if (S.rec !== R) return;
+  if (!S.playing) { R.startCtx = ctx.currentTime; R.startPos = S.playhead; }
+  else { R.startCtx = S.playStartCtx; R.startPos = S.playStartPos; }
   if ($('optMonitor').checked && S.live) { R.mon = ctx.createGain(); src.connect(R.mon); R.mon.connect(S.live.vocalIn); }
   updTransport(); updUI();
   if (preroll && R.punch - S.playhead > 0.5) countIn(R.punch - S.playhead);
@@ -1310,6 +1774,7 @@ async function finishRec() {
   pushUndo();
   if ($('optReplace').checked) cutRegion('vocal', clip.offset, cEnd(clip), false);
   S.tracks.vocal.push(clip);
+  setTimeout(prewarm, 400);
   S.sel = clip.id; S.playhead = startAt;
   $('vocalName').textContent = `রেকর্ড করা হয়েছে (${S.tracks.vocal.length} পার্ট)`;
   afterEdit();
@@ -1859,7 +2324,9 @@ async function exportMix(vocalOnly) {
   const btn = $(vocalOnly ? 'btnExportVocal' : 'btnExport'), prev = btn.innerHTML;
   btn.disabled = true; btn.textContent = '⏳ তৈরি হচ্ছে...';
   try {
-    const p = getParams(), end = contentEnd(which);
+    let p = getParams();
+    if (needsPitch(p) && S.tracks.vocal.length) { await prepareVocals(p); p = getParams(); }
+    const end = contentEnd(which);
     const tail = S.raw ? 0.3 : Math.min(p.revDecay, 4.5) + 1.2;
     const sr = 44100, total = end + tail;
     const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
@@ -1947,6 +2414,7 @@ function toggleMute(tk) {
 function init() {
   renderParams();
   renderPresets();
+  renderFx();
   applyPreset('romantic', false);
   $('fileMusic').addEventListener('change', e => { loadFile(e.target.files[0], 'music'); e.target.value = ''; });
   $('fileVocal').addEventListener('change', e => { loadFile(e.target.files[0], 'vocal'); e.target.value = ''; });
@@ -2002,6 +2470,7 @@ function init() {
   $('dRec').onclick = () => S.rec ? finishRec() : startRec();
   $('dHome').onclick = () => $('btnHome').click();
   $('dLoop').onclick = toggleLoop;
+  checkEnv();
   setupInstall();
 
   window.addEventListener('keydown', e => {
@@ -2035,15 +2504,41 @@ function init() {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawTimeline());
 }
 /* ---------------- Install as app (PWA) ---------------- */
+const APP_URL = 'https://taiful666.github.io/TFMUSIC/';
+function isInAppBrowser() {
+  return /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|Line\/|MicroMessenger|Snapchat|TikTok|musical_ly|imo|Telegram|GSA\/|; wv\)/i.test(navigator.userAgent);
+}
+function checkEnv() {
+  const el = $('envWarn'), android = /Android/i.test(navigator.userAgent);
+  const touch = window.matchMedia('(pointer:coarse)').matches;
+  const local = location.protocol === 'file:' || location.protocol === 'content:';
+  const wrongHost = /(^|\.)github\.com$|githubusercontent\.com$|htmlpreview\.github\.io$/i.test(location.hostname);
+  const wrongCase = location.hostname === 'taiful666.github.io' && !location.pathname.startsWith('/TFMUSIC');
+  let msg = '';
+  if (isInAppBrowser()) msg = 'আপনি Facebook / Messenger বা অন্য কোনো অ্যাপের ভেতরের ব্রাউজারে আছেন — এখান থেকে অ্যাপ ইনস্টল হয় না, মাইকও ঠিকমতো চলে না।';
+  else if (local && touch) msg = 'ফাইলটা ফোনে ডাউনলোড করে খোলা হয়েছে — এভাবে হোম স্ক্রিনে বসালে "App not installed" বা "অ্যাপ খোলা যাচ্ছে না" দেখায়।';
+  else if (wrongHost) msg = 'এটা GitHub-এর কোড দেখার পেজ, আসল অ্যাপের লিংক নয়।';
+  else if (wrongCase) msg = 'লিংকটা ভুলভাবে লেখা (ছোট হাতের অক্ষর) — এই লিংক থেকে ইনস্টল ঠিকমতো হবে না।';
+  if (!msg) return;
+  const intent = 'intent://' + APP_URL.replace(/^https:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+  el.innerHTML = `<span>⚠️ ${msg} <b>Chrome-এ আসল লিংকটা খুলে তারপর ইনস্টল করুন।</b></span>
+    <div class="envbtns">${android ? `<a class="btn sm primary" href="${intent}">Chrome-এ খুলুন</a>` : `<a class="btn sm primary" href="${APP_URL}">আসল লিংক খুলুন</a>`}<button class="btn sm" id="envCopy" type="button">লিংক কপি</button></div>`;
+  el.classList.remove('hidden');
+  $('envCopy').onclick = async () => {
+    try { await navigator.clipboard.writeText(APP_URL); toast('লিংক কপি হয়েছে — Chrome খুলে পেস্ট করুন', 'success'); }
+    catch (e) { window.prompt('এই লিংকটা কপি করে Chrome-এ খুলুন:', APP_URL); }
+  };
+}
 function setupInstall() {
   const btn = $('btnInstall');
   const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const touch = window.matchMedia('(pointer:coarse)').matches;
+  const blocked = isInAppBrowser() || location.protocol === 'file:' || location.protocol === 'content:';
   let deferred = null;
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; btn.classList.remove('hidden'); });
   window.addEventListener('appinstalled', () => { btn.classList.add('hidden'); toast('✅ ইনস্টল হয়েছে — হোম স্ক্রিনে "TF Music" আইকন থেকে খুলুন', 'success'); });
-  if (!standalone && (isIOS || touch)) btn.classList.remove('hidden');
+  if (!standalone && !blocked && (isIOS || touch)) btn.classList.remove('hidden');
   btn.onclick = async () => {
     if (deferred) {
       deferred.prompt();
@@ -2052,11 +2547,11 @@ function setupInstall() {
     } else if (isIOS) {
       toast('iPhone-এ: Safari-র নিচে Share (⬆️) বাটন চাপুন → "Add to Home Screen" → Add', 'info');
     } else {
-      toast('Chrome-এর ওপরে ডানদিকে ⋮ মেনু চাপুন → "Install app" বা "Add to Home screen"', 'info');
+      toast('Chrome-এর ওপরে ডানদিকে ⋮ মেনু চাপুন → "Install app" বা "Add to Home screen" → Install', 'info');
     }
   };
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {}));
   }
 }
 init();
