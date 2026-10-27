@@ -331,6 +331,168 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
 .me-tabs{width:100%}.me-tabs button{flex:1}
 .me-pane{display:flex;flex-direction:column;gap:7px}
 .medit .btn.sm{height:42px}
+
+/* Collapsible rack modules */
+details.mod>summary{list-style:none;cursor:pointer}
+details.mod>summary::-webkit-details-marker{display:none}
+details.mod>summary::after{content:'▾';margin-left:auto;color:var(--dim);font-size:11px}
+details.mod[open]>summary::after{content:'▴'}
+details.mod:not([open])>summary{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.m-only,.tabbar,.sheet,.sheet-bg{display:none}
+
+/* =====================================================================
+   PHONE APP LAYOUT — one screen, no endless scrolling:
+   header • timeline (always visible) • the chosen tool panel • transport • tabs
+   ===================================================================== */
+html.m,html.m body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.m body{display:flex;flex-direction:column;padding:0;font-size:14px;background:#080c14;
+  padding-top:env(safe-area-inset-top)}
+html.m .app{flex:1;min-height:0;max-width:none;padding:0;gap:0;display:flex;flex-direction:column}
+html.m .m-only{display:revert}
+html.m .d-only{display:none!important}
+html.m .row2{display:contents}
+html.m .card{border-radius:0;border-left:0;border-right:0;box-shadow:none;background:#0c121e}
+
+/* header */
+html.m .topbar{position:static;flex:none;flex-wrap:nowrap;gap:6px;padding:8px 10px;border-top:0;background:#0b111c;backdrop-filter:none}
+html.m .brand{flex:none;min-width:0;gap:0}
+html.m .brand>div:last-child{display:none}
+html.m .logo{width:34px;height:34px;font-size:17px;border-radius:10px}
+html.m .topbar .transport,html.m .topbar .lcd{display:none}
+html.m .ab{order:0;width:auto;flex:1;max-width:220px;margin:0 auto}
+html.m .ab button{flex:1;padding:7px 4px;font-size:12.5px}
+html.m .tb-right{width:auto;order:0;margin:0;flex-wrap:nowrap;gap:4px}
+html.m .tb-right .btn{flex:none}
+html.m .tb-right .btn:not(.icon){display:none}
+html.m .btn.icon{width:38px;height:38px;font-size:17px;border-radius:10px}
+html.m #btnMenu{font-size:20px;font-weight:700}
+
+/* timeline — always on screen */
+html.m .envwarn{order:0}
+html.m .topbar{order:0}
+html.m .tlcard{order:1;flex:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#070b13}
+html.m .tlcard>.card-h{padding:5px 8px;border:0;gap:6px}
+html.m .tlcard>.card-h h2{display:none}
+html.m .tlcard .toolbar{width:100%;justify-content:space-between;padding:0;overflow:visible}
+html.m #btnSplit,html.m #btnDel,html.m #btnRipple,html.m #btnCloseGaps{display:none}
+html.m .tlcard .seg button{height:30px;padding:3px 10px;font-size:12.5px}
+html.m .zoom{height:32px}
+html.m .zoom input{width:70px}
+html.m .tlcard>.card-b{padding:0}
+html.m .tl{border-radius:0;border:0;grid-template-columns:86px 1fr}
+html.m .tl-rh{height:22px;padding:0 8px}
+html.m .th{padding:6px 7px;gap:2px}
+html.m .th-top b{font-size:12px}
+html.m .th-top .dot{display:none}
+html.m .cnt{display:none}
+html.m .mbtn,html.m .xbtn{width:26px;height:24px}
+html.m .th .prm.compact{padding:0}
+html.m .th .prm.compact .prm-top{display:none}
+html.m .th input[type=range]{height:6px}
+html.m .th input[type=range]::-webkit-slider-thumb{width:18px;height:18px;border-width:3px}
+html.m .empty{font-size:12px;line-height:1.5}
+
+/* the tool panel area: only the chosen tab is shown, and it scrolls by itself */
+html.m [data-tab]{display:none;order:2}
+html.m [data-tab].tab-on{display:block;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border-top:0;border-bottom:0;background:transparent;padding-bottom:12px}
+html.m [data-tab]>.card-h{position:sticky;top:0;z-index:2;background:rgba(11,17,28,.96);backdrop-filter:blur(8px);padding:9px 12px}
+html.m [data-tab]>.card-h h2{font-size:14.5px}
+html.m .step{display:none}
+html.m .card-b{padding:10px 12px}
+html.m .stack{gap:8px}
+html.m .fx-note{font-size:12px;margin-bottom:8px}
+
+/* record tab */
+html.m .src{padding:9px 10px;gap:8px}
+html.m .src .btns{gap:6px}
+html.m .src .btns .btn{height:40px}
+html.m .rec-tip{background:#0d1a2b;border:1px solid #1b3550;border-radius:10px;padding:8px 10px;color:#9fb3cc}
+html.m .cleanup,html.m .meter-box{padding:9px 10px}
+
+/* presets tab */
+html.m .presets{grid-template-columns:1fr 1fr;gap:7px}
+html.m .pre .ps{display:none}
+html.m .pre-h{padding:10px 10px 8px}
+html.m .pre:not(.on) .pre-amt{display:none}
+html.m .pre .pt{font-size:13px;line-height:1.3}
+html.m .viz{grid-template-columns:1fr;margin-top:10px}
+html.m #spec{display:none}
+html.m .outm{padding:8px 10px;gap:6px}
+html.m .outm .small{display:none}
+
+/* effects tab */
+html.m .fxgrid{grid-template-columns:1fr;gap:7px}
+html.m .fx-h{padding:9px 10px}
+html.m .fx-ico{width:34px;height:34px;font-size:18px;border-radius:9px}
+html.m .fx-t small{display:none}
+html.m .fx:not(.on) .fx-amt{display:none}
+html.m .fx-amt{padding:0 10px 10px}
+html.m .tune-set{grid-template-columns:1fr 1fr;padding:9px 10px;gap:8px}
+
+/* edit tab */
+html.m #editCard .card-b{padding:10px 12px}
+html.m .medit{display:flex;margin-top:0;padding:0;border:0;background:none}
+html.m .me-head b{display:none}
+html.m .me-head .me-trk{width:100%}
+html.m .me-head .me-trk button{flex:1;height:34px}
+html.m .inspector{margin-top:10px}
+html.m .me-info{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:6px 10px;font-size:12px}
+html.m .me-ph .me-lbl,html.m #mePh{display:none}
+html.m .me-row6 .btn{height:36px}
+html.m .medit{gap:8px}
+html.m .me-tabs button{height:34px;font-size:12.5px;padding:3px 4px}
+html.m .tl-hint{font-size:11.5px}
+
+/* mix tab */
+html.m .mexp{display:grid;grid-template-columns:2fr 1fr;gap:8px;padding:10px 12px 0}
+html.m .mexp .btn{height:46px}
+html.m .rack{grid-template-columns:1fr;gap:8px}
+html.m .mod{padding:0 12px}
+html.m .mod-h{padding:12px 0;margin:0;border-bottom:1px solid var(--line)}
+html.m details.mod[open]>summary{margin-bottom:4px}
+html.m details.mod[open]{padding-bottom:8px}
+
+/* help */
+html.m .help summary{display:none}
+html.m .help-b{padding:14px 14px 20px}
+
+/* transport bar */
+html.m .dock{display:flex;position:static;flex:none;margin:0;border-radius:0;border:0;border-top:1px solid var(--line);
+  background:#0b111c;box-shadow:none;padding:7px 12px;gap:10px;backdrop-filter:none}
+html.m .dock button{width:44px;height:44px;border-radius:12px;font-size:17px}
+html.m .dock .play,html.m .dock .rec{width:52px;height:52px}
+html.m .dock .rec .dot{width:18px;height:18px}
+html.m .dtime b{font-size:18px}
+
+/* tab bar */
+html.m .tabbar{display:flex;flex:none;background:#070b13;border-top:1px solid var(--line);padding:3px 4px calc(3px + env(safe-area-inset-bottom))}
+.tabbar button{flex:1;font:inherit;background:none;border:0;color:#6b7a92;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0 5px;border-radius:10px;cursor:pointer}
+.tabbar i{font-style:normal;font-size:19px;filter:grayscale(1) opacity(.65);transition:.15s}
+.tabbar span{font-size:11.5px;font-weight:600}
+.tabbar button.on{color:#e0f2fe}
+.tabbar button.on i{filter:none;transform:translateY(-1px)}
+.tabbar button.on span{color:var(--accent)}
+.tabbar button .badge{position:absolute}
+
+/* menu sheet */
+html.m .sheet-bg:not(.hidden){display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;backdrop-filter:blur(2px)}
+html.m .sheet:not(.hidden){display:flex;flex-direction:column;gap:2px;position:fixed;left:0;right:0;bottom:0;z-index:151;background:#0f1726;
+  border-top:1px solid var(--line2);border-radius:18px 18px 0 0;padding:8px 10px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.6);animation:sheetUp .2s ease-out}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}}
+.sheet-grip{width:40px;height:4px;border-radius:9px;background:#334155;margin:2px auto 8px}
+.sheet-i{display:flex;align-items:center;gap:12px;font:inherit;color:var(--text);background:none;border:0;border-radius:12px;padding:10px;text-align:left;cursor:pointer}
+.sheet-i:active{background:#16213a}
+.sheet-i i{font-style:normal;font-size:19px;width:40px;height:40px;display:grid;place-items:center;border-radius:11px;background:#16213a;flex:none}
+.sheet-i b{display:block;font-size:14px}
+.sheet-i small{display:block;color:var(--muted);font-size:12px}
+.sheet-i.danger b{color:#fda4af}
+
+html.m .toast{bottom:auto;top:calc(54px + env(safe-area-inset-top));transform:translateX(-50%) translateY(-12px);max-width:92vw;font-size:13px}
+html.m .toast.show{transform:translateX(-50%) translateY(0)}
+html.m [data-tab="fx"] .fx-note{display:none}
+html.m .envwarn{border-radius:0;font-size:12.5px;padding:10px 12px}
+html.m input[type=range]{height:7px}
+html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-width:4px}
 </style>
 </head>
 <body>
@@ -358,6 +520,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
     <div class="tb-right">
       <button class="btn icon" id="btnUndo" title="আনডু (Ctrl+Z)">↶</button>
       <button class="btn icon" id="btnRedo" title="রিডু (Ctrl+Y)">↷</button>
+      <button class="btn icon m-only" id="btnMenu" title="ডাউনলোড ও আরও অপশন">⋯</button>
       <button class="btn hidden" id="btnInstall" title="মোবাইল/কম্পিউটারে অ্যাপ হিসেবে ইনস্টল করুন">📲 ইনস্টল</button>
       <button class="btn" id="btnNew" title="সব মুছে নতুন প্রজেক্ট শুরু করুন">নতুন</button>
       <button class="btn success" id="btnExport" title="মিউজিক + ভোকাল ফাইনাল মিক্স">⬇ মিক্স ডাউনলোড</button>
@@ -367,20 +530,21 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
 
   <div class="row2">
     <!-- ======================= 1. INPUT ======================= -->
-    <section class="card">
+    <section class="card" data-tab="rec">
       <div class="card-h"><h2><span class="step">১</span>অডিও ইনপুট</h2><button class="btn sm" id="btnDemo" title="একটা নমুনা গান লোড করে দেখুন">♫ ডেমো</button></div>
       <div class="card-b stack">
         <div class="src music">
           <div class="src-l"><div class="src-t"><i class="dot music"></i>মিউজিক / কারাওকে ট্র্যাক</div><div class="src-n" id="musicName">কোনো ফাইল নেই</div></div>
-          <div class="btns"><label class="btn sm">+ ফাইল<input type="file" id="fileMusic" accept="audio/*" hidden></label></div>
+          <div class="btns"><label class="btn sm">+ ফাইল<input type="file" id="fileMusic" accept="audio/*,video/mp4,.m4a,.aac,.mp3,.wav,.ogg,.opus,.flac,.3gp,.webm" hidden></label></div>
         </div>
         <div class="src vocal">
           <div class="src-l"><div class="src-t"><i class="dot vocal"></i>ভোকাল (আপনার গলা)</div><div class="src-n" id="vocalName">রেকর্ড করুন বা ফাইল দিন</div></div>
           <div class="btns">
-            <label class="btn sm">+ ফাইল<input type="file" id="fileVocal" accept="audio/*" hidden></label>
+            <label class="btn sm primary">📂 রেকর্ড করা গান আপলোড<input type="file" id="fileVocal" accept="audio/*,video/mp4,.m4a,.aac,.mp3,.wav,.ogg,.opus,.flac,.3gp,.webm" hidden></label>
             <button class="btn sm" id="btnMicTest" title="রেকর্ডের আগে গলার লেভেল চেক করুন">🎚 মাইক টেস্ট</button>
           </div>
         </div>
+        <p class="note rec-tip">💡 ফোনে সরাসরি রেকর্ড কেটে কেটে গেলে: ফোনের নিজের রেকর্ডার অ্যাপে (হেডফোনে মিউজিক শুনে) গেয়ে "📂 রেকর্ড করা গান আপলোড" দিয়ে দিন — এখানে রেকর্ড করার মতোই লাল দাগ থেকে বসবে, নয়েজ পরিষ্কার ও লেভেল ঠিক হবে, তারপর এডিট করতে পারবেন।</p>
         <div class="meter-box">
           <div class="meter-top"><span>ইনপুট লেভেল (গলার জোর)</span><span class="mono" id="inDb">— dB</span></div>
           <div class="meter"><div class="meter-fill" id="inFill"></div><div class="meter-zone" title="সবুজ দাগের মাঝে থাকলে সবচেয়ে ভালো"></div></div>
@@ -409,7 +573,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
     </section>
 
     <!-- ======================= 2. PRESETS ======================= -->
-    <section class="card">
+    <section class="card" data-tab="sound">
       <div class="card-h"><h2><span class="step">২</span>প্রিসেট — এক ক্লিকে প্রফেশনাল সাউন্ড</h2><span class="tag" id="presetTag">রোমান্টিক গান</span></div>
       <div class="card-b">
         <p class="fx-note">একাধিক প্রিসেট একসাথে চালু করা যায় — কার্ডে চাপ দিলে যোগ/বাদ, নিচের বার দিয়ে ঠিক করুন কোনটা কতটুকু থাকবে। যেমন: রোমান্টিক ১০০% + নাশিদ ৪০%।</p>
@@ -435,7 +599,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
   </div>
 
   <!-- ======================= 3. EFFECTS ======================= -->
-  <section class="card">
+  <section class="card" data-tab="fx">
     <div class="card-h"><h2><span class="step">৩</span>ইফেক্ট ও অটো-টিউন</h2><span class="tag off" id="fxCount">কোনো ইফেক্ট চালু নেই</span></div>
     <div class="card-b">
       <p class="fx-note">যতগুলো খুশি ইফেক্ট একসাথে চালু করুন — কার্ডে চাপ দিলেই চালু/বন্ধ। নিচের বার টেনে ঠিক করুন কতটুকু লাগবে। বেগুনি তিনটা (সুর-সংক্রান্ত) প্রথমবার প্লে করার সময় কয়েক সেকেন্ড প্রস্তুত হয়, রেকর্ড শেষ হওয়ার পর শোনা যায়।</p>
@@ -451,7 +615,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
   </section>
 
   <!-- ======================= 4. TIMELINE ======================= -->
-  <section class="card">
+  <section class="card tlcard" id="tlCard">
     <div class="card-h">
       <h2><span class="step">৪</span>টাইমলাইন এডিটর</h2>
       <div class="toolbar">
@@ -485,6 +649,13 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
           <div class="empty" id="tlEmpty">ওপরে <b>&nbsp;মিউজিক ফাইল&nbsp;</b> যোগ করুন, তারপর <b>&nbsp;● রেকর্ড&nbsp;</b> চেপে গান গাওয়া শুরু করুন।<br>অথবা অডিও ফাইল এখানে টেনে এনে ছেড়ে দিন।</div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ======================= CLIP / EDIT ======================= -->
+  <section class="card" data-tab="edit" id="editCard">
+    <div class="card-h d-only"><h2><span class="step">✂</span>ক্লিপ সেটিংস</h2></div>
+    <div class="card-b">
       <div class="inspector hidden" id="insp">
         <span class="ins-n" id="insName"></span>
         <span class="ins-i mono" id="insInfo"></span>
@@ -511,7 +682,7 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
             <button class="btn sm" data-jog="0.1">+০.১</button><button class="btn sm" data-jog="1">+১s</button><button class="btn sm" data-jog="5">+৫s</button>
           </div>
         </div>
-        <div class="seg me-tabs"><button class="on" data-tab="cut" type="button">✂ কাটা ও ছাঁটা</button><button data-tab="range" type="button">▭ অংশ মুছুন</button><button data-tab="move" type="button">↔ সরান</button></div>
+        <div class="seg me-tabs"><button class="on" data-mtab="cut" type="button">✂ কাটা ও ছাঁটা</button><button data-mtab="range" type="button">▭ অংশ মুছুন</button><button data-mtab="move" type="button">↔ সরান</button></div>
         <div class="me-pane" data-pane="cut">
           <div class="me-row2">
             <button class="btn sm" id="meClipPrev" type="button">◀ আগের ক্লিপ</button><button class="btn sm" id="meClipNext" type="button">পরের ক্লিপ ▶</button>
@@ -555,29 +726,33 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
   </section>
 
   <!-- ======================= 4. RACK ======================= -->
-  <section class="card">
+  <section class="card" data-tab="mix">
     <div class="card-h"><h2><span class="step">৫</span>ফাইন টিউনিং র‍্যাক</h2><button class="btn sm" id="btnResetFx" title="বর্তমান প্রিসেটের মানগুলোতে ফিরে যান">↺ প্রিসেটে ফিরুন</button></div>
+    <div class="m-only mexp">
+      <button class="btn success" id="mExport" type="button">⬇ ফাইনাল গান ডাউনলোড</button>
+      <button class="btn" id="mExportVocal" type="button">শুধু ভোকাল</button>
+    </div>
     <div class="card-b rack">
-      <div class="mod"><div class="mod-h eq">ইকুয়ালাইজার (EQ)</div><div id="mod_eq"></div></div>
-      <div class="mod"><div class="mod-h dyn">কম্প্রেসর (গলা সমান রাখে)</div><div id="mod_dyn"></div></div>
-      <div class="mod"><div class="mod-h echo">ইকো ও ডাবলার</div><div id="mod_echo"></div>
+      <details class="mod" open><summary class="mod-h eq">ইকুয়ালাইজার (EQ)</summary><div id="mod_eq"></div></details>
+      <details class="mod" open><summary class="mod-h dyn">কম্প্রেসর (গলা সমান রাখে)</summary><div id="mod_dyn"></div></details>
+      <details class="mod" open><summary class="mod-h echo">ইকো ও ডাবলার</summary><div id="mod_echo"></div>
         <div class="bpm">টেম্পো সিঙ্ক: <input type="number" id="bpm" min="40" max="220" value="90" class="mono"> BPM
           <button class="btn sm" data-div="1">১/৪</button><button class="btn sm" data-div="0.5">১/৮</button><button class="btn sm" data-div="0.75" title="ডটেড ১/৮">১/৮•</button>
         </div>
-      </div>
-      <div class="mod"><div class="mod-h rev">রিভার্ব (হল আবহ)</div><div id="mod_rev"></div></div>
-      <div class="mod"><div class="mod-h mix">মিক্স ও মাস্টার</div><div id="mod_mix"></div>
+      </details>
+      <details class="mod" open><summary class="mod-h rev">রিভার্ব (হল আবহ)</summary><div id="mod_rev"></div></details>
+      <details class="mod" open><summary class="mod-h mix">মিক্স ও মাস্টার</summary><div id="mod_mix"></div>
         <label class="fld inline"><span>আবহ প্যাডের স্কেল (গানের কী অনুযায়ী)</span>
           <select id="p_padKey">
             <option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option>
             <option>F#</option><option>G</option><option>G#</option><option selected>A</option><option>A#</option><option>B</option>
           </select></label>
-      </div>
+      </details>
     </div>
   </section>
 
   <!-- ======================= HELP ======================= -->
-  <details class="card help">
+  <details class="card help" data-tab="help">
     <summary>📖 কীভাবে ব্যবহার করবেন ও কীবোর্ড শর্টকাট</summary>
     <div class="help-b">
       <ol>
@@ -610,6 +785,23 @@ button,label,select,input{touch-action:manipulation;-webkit-tap-highlight-color:
   <button id="dLoop" title="লুপ">🔁</button>
   <div class="dtime mono"><b id="dCur">00:00.0</b><span id="dTot">00:00.0</span></div>
 </nav>
+<nav class="tabbar" id="tabbar">
+  <button data-go="rec" class="on"><i>🎙</i><span>রেকর্ড</span></button>
+  <button data-go="edit"><i>✂</i><span>এডিট</span></button>
+  <button data-go="sound"><i>🎚</i><span>প্রিসেট</span></button>
+  <button data-go="fx"><i>✨</i><span>ইফেক্ট</span></button>
+  <button data-go="mix"><i>🎛</i><span>মিক্স</span></button>
+</nav>
+<div class="sheet-bg hidden" id="sheetBg"></div>
+<div class="sheet hidden" id="sheet">
+  <div class="sheet-grip"></div>
+  <button class="sheet-i" data-act="export"><i>⬇</i><span><b>ফাইনাল গান ডাউনলোড</b><small>মিউজিক + ভোকাল, সব ইফেক্টসহ (WAV)</small></span></button>
+  <button class="sheet-i" data-act="exportVocal"><i>🎤</i><span><b>শুধু ভোকাল ডাউনলোড</b><small>মিউজিক ছাড়া, প্রসেস করা গলা</small></span></button>
+  <button class="sheet-i" data-act="demo"><i>♫</i><span><b>ডেমো গান লোড</b><small>অ্যাপটা কেমন কাজ করে দেখে নিন</small></span></button>
+  <button class="sheet-i hidden" data-act="install" id="sheetInstall"><i>📲</i><span><b>অ্যাপ হিসেবে ইনস্টল</b><small>হোম স্ক্রিনে আইকন, ইন্টারনেট ছাড়াও চলবে</small></span></button>
+  <button class="sheet-i" data-act="help"><i>📖</i><span><b>কীভাবে ব্যবহার করবেন</b><small>ধাপে ধাপে নির্দেশনা</small></span></button>
+  <button class="sheet-i danger" data-act="new"><i>🗑</i><span><b>নতুন প্রজেক্ট</b><small>সব ট্র্যাক মুছে নতুন করে শুরু</small></span></button>
+</div>
 <div class="toast" id="toast"></div>
 <div class="countin hidden" id="countin"></div>
 
@@ -840,7 +1032,10 @@ function markCustom() {
 function getCtx() {
   if (!S.ctx) {
     const AC = window.AudioContext || window.webkitAudioContext;
-    S.ctx = new AC({ latencyHint: 'interactive' });
+    // phones: a bigger audio buffer stops the crackles/dropouts in recording and playback
+    // (the delay this adds is measured and compensated automatically)
+    const phone = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+    try { S.ctx = new AC({ latencyHint: phone ? 'playback' : 'interactive' }); } catch (e) { S.ctx = new AC(); }
     S.analyser = S.ctx.createAnalyser();
     S.analyser.fftSize = 2048;
     S.analyser.smoothingTimeConstant = 0.78;
@@ -1857,7 +2052,7 @@ function scheduleClip(ctx, buf, c, P, t0, dest) {
 function scheduleAll(ctx, G, p, P, t0, o) {
   const srcs = [];
   for (const c of S.tracks.vocal) {
-    const s = scheduleClip(ctx, S.raw ? c.buffer : procBuf(gated(c.buffer, p), p), c, P, t0, G.vocalIn);
+    const s = scheduleClip(ctx, (S.raw || o.lite) ? c.buffer : procBuf(gated(c.buffer, p), p), c, P, t0, G.vocalIn);
     if (s) srcs.push(s);
   }
   if (!o.vocalOnly) {
@@ -1865,7 +2060,7 @@ function scheduleAll(ctx, G, p, P, t0, o) {
       const s = scheduleClip(ctx, c.buffer, c, P, t0, G.musicIn);
       if (s) srcs.push(s);
     }
-    if (!S.raw && p.duck > 0 && !S.muted.vocal && S.tracks.vocal.length && S.tracks.music.length) {
+    if (!S.raw && !o.lite && p.duck > 0 && !S.muted.vocal && S.tracks.vocal.length && S.tracks.music.length) {
       scheduleDuck(G.duck.gain, p, P, t0, contentEnd() + 2);
     }
   }
@@ -1898,10 +2093,13 @@ async function play(opts = {}) {
   const lr = !S.rec && S.loop && loopRange();
   if (lr) { if (S.playhead < lr[0] || S.playhead >= lr[1]) S.playhead = lr[0]; }
   else if (!opts.allowEmpty && S.playhead >= contentEnd() - 0.05) S.playhead = 0;
-  const G = buildGraph(ctx, p, { raw: S.raw, out: S.analyser, preview: S.phonePrev });
-  const t0 = ctx.currentTime + 0.06, P = S.playhead;
-  S.sources = scheduleAll(ctx, G, p, P, t0, {});
-  S.pads = S.raw ? [] : startPad(ctx, G, p, t0, null);
+  // while recording (without monitoring) the music is played through a light, effect-free path,
+  // so the phone has all its power free for capturing the voice without gaps
+  const lite = !!S.rec && !$('optMonitor').checked;
+  const G = buildGraph(ctx, p, { raw: S.raw || lite, out: S.analyser, preview: S.phonePrev && !S.rec });
+  const t0 = ctx.currentTime + (S.rec ? 0.15 : 0.06), P = S.playhead;
+  S.sources = scheduleAll(ctx, G, p, P, t0, { lite });
+  S.pads = (S.raw || lite) ? [] : startPad(ctx, G, p, t0, null);
   if (G.oscs) S.pads.push(...G.oscs);
   S.live = G; S.playStartCtx = t0; S.playStartPos = P; S.playing = true;
   updTransport();
@@ -1965,6 +2163,7 @@ function updTime(pos) {
   updMePh(pos);
 }
 
+let lastFrame = 0;
 function runLoop() {
   cancelAnimationFrame(S.raf);
   const step = () => {
@@ -1976,10 +2175,15 @@ function runLoop() {
       if (lr && pos >= lr[1]) { S.playhead = lr[0]; play(); return; }
       if (!lr && pos >= contentEnd() + (S.raw ? 0.3 : 1.8)) { pause(); S.playhead = 0; updTime(); drawTimeline(); return; }
     }
-    updTime(pos);
-    autoScroll(pos);
-    drawTimeline(pos);
-    drawMeters();
+    const now = performance.now();
+    // recording: redraw ~12 times a second instead of 60, to keep the phone free for audio
+    if (!S.rec || now - lastFrame > 80) {
+      lastFrame = now;
+      updTime(pos);
+      autoScroll(pos);
+      drawTimeline(pos);
+      if (!S.rec && $('outFill').offsetParent) drawMeters();
+    }
     S.raf = requestAnimationFrame(step);
   };
   S.raf = requestAnimationFrame(step);
@@ -2225,7 +2429,8 @@ async function finishRec() {
   S.sel = clip.id; S.playhead = startAt;
   $('vocalName').textContent = `রেকর্ড করা হয়েছে (${S.tracks.vocal.length} পার্ট)`;
   afterEdit();
-  toast(`✅ "${clip.name}" টাইমলাইনে বসেছে — ▶ চেপে শুনুন।`, 'success');
+  goTab('edit');
+  toast(`✅ "${clip.name}" টাইমলাইনে বসেছে — ▶ চেপে শুনুন, দরকার হলে এখানেই কেটে-ছেঁটে নিন।`, 'success');
 }
 
 /* ---------------- File loading ---------------- */
@@ -2242,12 +2447,28 @@ async function loadFile(file, tk) {
     });
     const was = S.playing; if (was) pause();
     pushUndo();
+    const nm = file.name.replace(/\.[^.]+$/, '').slice(0, 28);
+    if (tk === 'vocal') {
+      // a song recorded in the phone's own recorder goes through the same steps as a take
+      // recorded here: placed at the red line, replaces what's under it, cleaned and levelled
+      const c = newClip(buf, nm || `ভোকাল টেক ${S.takeNo + 1}`, S.playhead);
+      S.takeNo++;
+      if ($('optReplace').checked) cutRegion('vocal', c.offset, cEnd(c), false);
+      autoLevelClip(c);
+      S.tracks.vocal.push(c); S.sel = c.id; S.region = null;
+      $('vocalName').textContent = file.name;
+      afterEdit();
+      goTab('edit');
+      toast(`✅ "${file.name}" ভোকাল ট্র্যাকে বসেছে (লাল দাগ থেকে) — লেভেল ঠিক করা হয়েছে${$('p_noiseOn').checked ? ', নয়েজ পরিষ্কার হচ্ছে' : ''}। মিউজিকের সাথে না মিললে "↔ সরান" দিয়ে মিলিয়ে নিন।`, 'success');
+      setTimeout(() => afterTake(c), 300);
+      return;
+    }
     const start = S.tracks[tk].length ? contentEnd([tk]) + 0.2 : 0;
-    const c = newClip(buf, file.name.replace(/\.[^.]+$/, '').slice(0, 28), start);
+    const c = newClip(buf, nm, start);
     S.tracks[tk].push(c); S.sel = c.id;
-    $(tk === 'music' ? 'musicName' : 'vocalName').textContent = file.name;
+    $('musicName').textContent = file.name;
     afterEdit();
-    toast(`✅ "${file.name}" ${tk === 'music' ? 'মিউজিক' : 'ভোকাল'} ট্র্যাকে যুক্ত হয়েছে`, 'success');
+    toast(`✅ "${file.name}" মিউজিক ট্র্যাকে যুক্ত হয়েছে`, 'success');
   } catch (e) {
     toast('ফাইলটি পড়া যায়নি। MP3, WAV, M4A বা OGG ফাইল দিন।', 'error');
   }
@@ -2407,7 +2628,8 @@ function updUI() {
 
 /* ---------------- Timeline drawing ---------------- */
 const tl = $('tl'), tctx = tl.getContext('2d'), wrap = $('tlWrap'), spacer = $('tlSpacer');
-const RULER = 24, TH = 100, TLH = RULER + TH * 2, PR = 200;
+const RULER = 24, PR = 200;
+let TH = 100, TLH = RULER + TH * 2;
 const peakCache = new WeakMap();
 const COARSE = window.matchMedia && matchMedia('(pointer:coarse)').matches;
 function peaksOf(buf) {
@@ -2986,7 +3208,7 @@ function initMobileEdit() {
   $('meTrkM').onclick = () => { meSetTrack('music'); if (S.sel && findClip(S.sel).tk !== 'music') { S.sel = null; updUI(); drawTimeline(); } };
   document.querySelectorAll('.me-tabs button').forEach(b => b.onclick = () => {
     document.querySelectorAll('.me-tabs button').forEach(x => x.classList.toggle('on', x === b));
-    document.querySelectorAll('.me-pane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== b.dataset.tab));
+    document.querySelectorAll('.me-pane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== b.dataset.mtab));
   });
   const sc = $('meScrub');
   sc.addEventListener('input', () => {
@@ -3027,11 +3249,60 @@ function initMobileEdit() {
   $('meGaps').onclick = () => closeGaps();
 }
 
+/* ---------------- Phone app layout: tabs, menu ---------------- */
+const MQ = window.matchMedia ? matchMedia('(max-width: 900px) and (min-height: 520px)') : { matches: false };
+S.tab = 'rec';
+function applyMode() {
+  const m = !!MQ.matches;
+  document.documentElement.classList.toggle('m', m);
+  TH = m ? 78 : 100; TLH = RULER + TH * 2;
+  spacer.style.height = TLH + 'px';
+  document.querySelectorAll('.th').forEach(el => { el.style.height = TH + 'px'; });
+  // rack sections: folded on the phone (open one at a time), all open on a big screen
+  document.querySelectorAll('details.mod').forEach((d, i) => { d.open = !m; });
+  goTab(S.tab, true);
+  requestAnimationFrame(() => { sizeSpec(); refreshLayout(); drawTimeline(S.playing ? curPos() : null); });
+}
+function goTab(t, silent) {
+  S.tab = t;
+  document.querySelectorAll('[data-tab]').forEach(el => el.classList.toggle('tab-on', el.dataset.tab === t));
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.go === t));
+  const on = document.querySelector(`[data-tab="${t}"]`);
+  if (on && !silent) on.scrollTop = 0;
+  if (t === 'sound') requestAnimationFrame(sizeSpec);
+}
+function openSheet(open) {
+  $('sheet').classList.toggle('hidden', !open); $('sheetBg').classList.toggle('hidden', !open);
+  if (open) $('sheetInstall').classList.toggle('hidden', $('btnInstall').classList.contains('hidden'));
+}
+function initAppShell() {
+  document.querySelectorAll('.tabbar button').forEach(b => b.addEventListener('click', () => goTab(b.dataset.go)));
+  $('btnMenu').onclick = () => openSheet(true);
+  $('sheetBg').onclick = () => openSheet(false);
+  document.querySelectorAll('.sheet-i').forEach(b => b.addEventListener('click', () => {
+    openSheet(false);
+    const a = b.dataset.act;
+    if (a === 'export') exportMix(false);
+    else if (a === 'exportVocal') exportMix(true);
+    else if (a === 'demo') { loadDemo(); goTab('edit'); }
+    else if (a === 'install') $('btnInstall').click();
+    else if (a === 'help') goTab('help');
+    else if (a === 'new') { newProject(); goTab('rec'); }
+  }));
+  $('mExport').onclick = () => exportMix(false);
+  $('mExportVocal').onclick = () => exportMix(true);
+  if (MQ.addEventListener) MQ.addEventListener('change', applyMode); else if (MQ.addListener) MQ.addListener(applyMode);
+  // phone "back" closes the menu instead of leaving the app
+  window.addEventListener('popstate', () => { if (!$('sheet').classList.contains('hidden')) openSheet(false); });
+  applyMode();
+}
+
 function init() {
   renderParams();
   renderPresets();
   renderFx();
   initMobileEdit();
+  initAppShell();
   applyPreset('romantic', false);
   $('fileMusic').addEventListener('change', e => { loadFile(e.target.files[0], 'music'); e.target.value = ''; });
   $('fileVocal').addEventListener('change', e => { loadFile(e.target.files[0], 'vocal'); e.target.value = ''; });
@@ -3046,7 +3317,7 @@ function init() {
   $('btnNew').onclick = newProject;
   $('btnExport').onclick = () => exportMix(false);
   $('btnExportVocal').onclick = () => exportMix(true);
-  $('btnDemo').onclick = loadDemo;
+  $('btnDemo').onclick = () => { loadDemo(); goTab('edit'); };
   $('btnMicTest').onclick = toggleMicTest;
   $('btnAutoLevel').onclick = autoLevelAll;
   $('btnDenoise').onclick = () => denoiseCmd();
