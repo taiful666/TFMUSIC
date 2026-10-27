@@ -493,6 +493,24 @@ html.m [data-tab="fx"] .fx-note{display:none}
 html.m .envwarn{border-radius:0;font-size:12.5px;padding:10px 12px}
 html.m input[type=range]{height:7px}
 html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-width:4px}
+
+/* Live mode */
+.live{border:1px solid #4a1d2b;border-radius:12px;background:linear-gradient(135deg,rgba(244,63,94,.10),rgba(99,102,241,.05));padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.live.on{border-color:var(--rec);box-shadow:0 0 0 1px rgba(244,63,94,.35),0 0 24px rgba(244,63,94,.15)}
+.live-top{display:flex;align-items:center;gap:10px}
+.live-t{flex:1;min-width:0}
+.live-t b{display:block;font-size:14.5px}
+.live-t small{display:block;color:var(--muted);font-size:11.5px;line-height:1.4}
+.live-btn{background:#25111a;border-color:#6d2236;color:#ffb3c0;height:40px;flex:none}
+.live-btn .dot{width:10px;height:10px;border-radius:50%;background:var(--rec);box-shadow:0 0 8px var(--rec)}
+.live.on .live-btn{background:var(--rec);color:#fff;border-color:#ff8396;animation:pulse 1.1s infinite}
+.live.on .live-btn .dot{background:#fff;box-shadow:none;border-radius:2px}
+.live-body{display:flex;flex-direction:column;gap:7px}
+.live-stat{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.live.on .live-stat span:first-child{color:#fecdd3}
+.live-tips .note{color:#9fb3cc}
+#btnLiveRec.on{background:var(--rec);color:#fff;border-color:#ff8396}
+.dock .dlive.on{background:var(--rec);border-color:#ff8396;animation:pulse 1.1s infinite}
 </style>
 </head>
 <body>
@@ -533,6 +551,30 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
     <section class="card" data-tab="rec">
       <div class="card-h"><h2><span class="step">১</span>অডিও ইনপুট</h2><button class="btn sm" id="btnDemo" title="একটা নমুনা গান লোড করে দেখুন">♫ ডেমো</button></div>
       <div class="card-b stack">
+        <div class="live" id="liveBox">
+          <div class="live-top">
+            <div class="live-t"><b>🎤 লাইভ মোড</b><small>ফোনকে ইফেক্টসহ মাইক্রোফোন বানান — অনুষ্ঠান, গান, বক্তব্য</small></div>
+            <button class="btn live-btn" id="btnLive" type="button"><span class="dot"></span><span id="liveTxt">লাইভ চালু</span></button>
+          </div>
+          <div class="live-body">
+            <div class="meter"><div class="meter-fill" id="liveFill"></div></div>
+            <div class="live-stat"><span id="liveState">বন্ধ — চালু করলে মাইকের গলা সব ইফেক্টসহ স্পিকারে যাবে</span><span class="mono" id="liveLat"></span></div>
+            <div id="slot_liveGain"></div>
+            <label class="chk"><input type="checkbox" id="liveFb" checked><span><b>ফিডব্যাক গার্ড</b> — স্পিকার থেকে "চিঁচিঁ/বোঁ" শব্দ উঠলে নিজে থেকে সেই সুরটা কেটে দেবে</span></label>
+            <label class="chk"><input type="checkbox" id="liveVox"><span>টাইমলাইনে আগে রেকর্ড করা ভোকালও মিউজিকের সাথে বাজবে</span></label>
+            <div class="cl-btns"><button class="btn sm" id="btnLiveRec" type="button">⏺ অনুষ্ঠানটা রেকর্ড করুন</button><button class="btn sm" id="btnFbReset" type="button">↺ গার্ড রিসেট</button></div>
+            <details class="sub">
+              <summary>💡 কীভাবে ব্যবহার করবেন — স্পিকার, মাইক, ব্লুটুথ</summary>
+              <div class="sub-b live-tips">
+                <p class="note"><b>১.</b> প্রিসেট ও ইফেক্ট ট্যাবে পছন্দের সাউন্ড ঠিক করুন — সেগুলোই লাইভে যাবে। <b>২.</b> গানের জন্য মিউজিক ফাইল দিন। <b>৩.</b> "লাইভ চালু" চাপুন, মিউজিকের জন্য ▶ চাপুন। শুধু বক্তব্য দিলে ▶ লাগবে না।</p>
+                <p class="note"><b>সবচেয়ে ভালো:</b> তারের (AUX/USB) স্পিকার বা মিক্সার, আর তারের হেডফোন/মাইক — গলা সাথে সাথে বের হয়।</p>
+                <p class="note"><b>ব্লুটুথ স্পিকার:</b> মিউজিক বাজানোর জন্য ঠিক আছে, কিন্তু ব্লুটুথে শব্দ প্রায় ০.২–০.৩ সেকেন্ড দেরিতে বের হয় — নিজের গলা দেরিতে শুনে গাওয়া কঠিন হতে পারে। ওপরের "দেরি" সংখ্যাটা ১০০ ms-এর বেশি হলে তারের সংযোগ ব্যবহার করুন। ব্লুটুথ হেডসেটের মাইকের মান কম — গলার জন্য ফোনের মাইক বা তারের মাইক ভালো।</p>
+                <p class="note"><b>চিঁচিঁ শব্দ (ফিডব্যাক) এড়াতে:</b> ফোন/মাইক স্পিকারের সামনে ধরবেন না, স্পিকারের পেছনে বা পাশে থাকুন, মাইকের জোর একটু কমান।</p>
+                <p class="note">🎯 সুর সংশোধন, 🤖 অটো-টিউন ও 🎶 হারমোনি রেকর্ড করা গানে কাজ করে, লাইভে নয়। বাকি সব — প্রিসেট, ইকো, রিভার্ব, কণ্ঠ মসৃণ, কোরাস, মোবাইল মাস্টারিং — লাইভে চলবে।</p>
+              </div>
+            </details>
+          </div>
+        </div>
         <div class="src music">
           <div class="src-l"><div class="src-t"><i class="dot music"></i>মিউজিক / কারাওকে ট্র্যাক</div><div class="src-n" id="musicName">কোনো ফাইল নেই</div></div>
           <div class="btns"><label class="btn sm">+ ফাইল<input type="file" id="fileMusic" accept="audio/*,video/mp4,.m4a,.aac,.mp3,.wav,.ogg,.opus,.flac,.3gp,.webm" hidden></label></div>
@@ -783,6 +825,7 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
   <button id="dPlay" class="play" title="প্লে / পজ">▶</button>
   <button id="dRec" class="rec" title="রেকর্ড"><span class="dot"></span></button>
   <button id="dLoop" title="লুপ">🔁</button>
+  <button id="dLive" class="dlive" title="লাইভ মোড — ইফেক্টসহ মাইক">🎤</button>
   <div class="dtime mono"><b id="dCur">00:00.0</b><span id="dTot">00:00.0</span></div>
 </nav>
 <nav class="tabbar" id="tabbar">
@@ -854,6 +897,7 @@ const PARAMS = [
   { id: 'duck', slot: 'mod_mix', label: 'অটো ডাকিং (গাওয়ার সময় মিউজিক নামবে)', min: 0, max: 12, step: 0.5, def: 3, fmt: v => v > 0 ? '-' + (+v).toFixed(1) + ' dB' : 'বন্ধ', kind: 'restart', color: '#f472b6' },
   { id: 'pocket', slot: 'mod_mix', label: 'ভোকাল পকেট (মিউজিকে গলার জায়গা)', min: 0, max: 100, step: 5, def: 55, fmt: pctFmt, kind: 'live', color: '#f472b6' },
   { id: 'padLevel', slot: 'mod_mix', label: 'আবহ হামিং প্যাড', min: 0, max: 80, step: 1, def: 0, fmt: v => v > 0 ? v + '%' : 'বন্ধ', kind: 'live', color: '#f472b6' },
+  { id: 'liveGain', slot: 'slot_liveGain', label: 'মাইকের জোর (লাইভ)', min: 0, max: 200, step: 5, def: 100, fmt: pctFmt, kind: 'none', color: '#f43f5e' },
   { id: 'mobAmt', slot: 'slot_mob', label: 'কতটুকু প্রয়োগ হবে', min: 0, max: 100, step: 5, def: 60, fmt: pctFmt, kind: 'live', color: '#34d399' },
   { id: 'masterVol', slot: 'mod_mix', label: 'মাস্টার ভলিউম', min: -12, max: 6, step: 0.5, def: 0, fmt: dbFmt, kind: 'live', color: '#f472b6' },
 ];
@@ -1035,7 +1079,9 @@ function getCtx() {
     // phones: a bigger audio buffer stops the crackles/dropouts in recording and playback
     // (the delay this adds is measured and compensated automatically)
     const phone = window.matchMedia && matchMedia('(pointer:coarse)').matches;
-    try { S.ctx = new AC({ latencyHint: phone ? 'playback' : 'interactive' }); } catch (e) { S.ctx = new AC(); }
+    const hint = S.wantMode || (phone ? 'playback' : 'interactive');
+    try { S.ctx = new AC({ latencyHint: hint }); } catch (e) { S.ctx = new AC(); }
+    S.ctxMode = hint;
     S.analyser = S.ctx.createAnalyser();
     S.analyser.fftSize = 2048;
     S.analyser.smoothingTimeConstant = 0.78;
@@ -1043,6 +1089,18 @@ function getCtx() {
   }
   if (S.ctx.state === 'suspended') S.ctx.resume();
   return S.ctx;
+}
+// switch the audio engine between low-delay (live singing) and steady (recording) modes
+async function setCtxMode(mode) {
+  if (S.ctx && S.ctxMode === mode) return;
+  S.wantMode = mode;
+  if (S.ctx) {
+    if (S.playing) pause();
+    stopSources();
+    try { await S.ctx.close(); } catch (e) {}
+    S.ctx = null; S.analyser = null; S.workletOk = undefined; freqBuf = null;
+  }
+  getCtx();
 }
 function bq(ctx, type, f, q, gain) {
   const b = ctx.createBiquadFilter();
@@ -1088,7 +1146,7 @@ function buildGraph(ctx, p, o) {
 
   G.vocalIn = ctx.createGain();
   G.vocalFader = ctx.createGain();
-  G.vocalFader.gain.value = S.muted.vocal ? 0 : p.vocalVol / 100;
+  G.vocalFader.gain.value = (S.muted.vocal && !S.lm) ? 0 : p.vocalVol / 100;
 
   if (raw) {
     G.vocalIn.connect(G.vocalFader);
@@ -1226,7 +1284,7 @@ function applyLive() {
   const set = (prm, v) => prm.setTargetAtTime(v, t, 0.03);
   setMobile(G, p, S.raw, set);
   set(G.master.gain, dbToLin(p.masterVol));
-  set(G.vocalFader.gain, S.muted.vocal ? 0 : p.vocalVol / 100);
+  set(G.vocalFader.gain, (S.muted.vocal && !S.lm) ? 0 : p.vocalVol / 100);
   set(G.musicFader.gain, S.muted.music ? 0 : p.musicVol / 100);
   set(G.pocket.gain, S.raw ? 0 : -(p.pocket / 100 * 4.5));
   set(G.padGain.gain, S.raw ? 0 : p.padLevel / 100 * 0.16);
@@ -2051,7 +2109,8 @@ function scheduleClip(ctx, buf, c, P, t0, dest) {
 }
 function scheduleAll(ctx, G, p, P, t0, o) {
   const srcs = [];
-  for (const c of S.tracks.vocal) {
+  const skipVox = S.lm && !$('liveVox').checked;
+  for (const c of (skipVox ? [] : S.tracks.vocal)) {
     const s = scheduleClip(ctx, (S.raw || o.lite) ? c.buffer : procBuf(gated(c.buffer, p), p), c, P, t0, G.vocalIn);
     if (s) srcs.push(s);
   }
@@ -2060,7 +2119,7 @@ function scheduleAll(ctx, G, p, P, t0, o) {
       const s = scheduleClip(ctx, c.buffer, c, P, t0, G.musicIn);
       if (s) srcs.push(s);
     }
-    if (!S.raw && !o.lite && p.duck > 0 && !S.muted.vocal && S.tracks.vocal.length && S.tracks.music.length) {
+    if (!skipVox && !S.raw && !o.lite && p.duck > 0 && !S.muted.vocal && S.tracks.vocal.length && S.tracks.music.length) {
       scheduleDuck(G.duck.gain, p, P, t0, contentEnd() + 2);
     }
   }
@@ -2102,6 +2161,7 @@ async function play(opts = {}) {
   S.pads = (S.raw || lite) ? [] : startPad(ctx, G, p, t0, null);
   if (G.oscs) S.pads.push(...G.oscs);
   S.live = G; S.playStartCtx = t0; S.playStartPos = P; S.playing = true;
+  if (S.lm) liveAttach();
   updTransport();
   runLoop();
 }
@@ -2109,7 +2169,11 @@ function stopSources() {
   S.sources.forEach(s => { try { s.stop(); } catch (e) {} });
   S.pads.forEach(o => { try { o.stop(); } catch (e) {} });
   S.sources = []; S.pads = [];
-  if (S.live) { try { S.live.lim.disconnect(); } catch (e) {} S.live = null; }
+  if (S.live) {
+    try { S.live.lim.disconnect(); } catch (e) {}
+    (S.live.oscs || []).forEach(o => { try { o.stop(); } catch (e) {} });
+    S.live = null;
+  }
 }
 function pause() {
   S.playToken++;
@@ -2118,6 +2182,7 @@ function pause() {
   stopSources();
   S.playing = false;
   cancelAnimationFrame(S.raf);
+  if (S.lm) liveAttach();
   updTransport(); updTime(); drawTimeline(); clearMeters();
 }
 function stopAll() {
@@ -2129,6 +2194,7 @@ let restartTimer = 0;
 function restartSoon() {
   clearTimeout(restartTimer);
   restartTimer = setTimeout(() => {
+    if (S.lm && !S.playing && !S.rec) { stopSources(); liveAttach(); return; }   // live voice: rebuild with new settings
     if (!S.playing || S.rec) return;
     const pos = curPos();
     stopSources(); S.playing = false; S.playhead = pos;
@@ -2322,7 +2388,9 @@ async function ensureWorklet(ctx) {
 
 async function startRec() {
   if (S.rec) return;
+  if (S.lm) { stopLive(); toast('লাইভ মোড বন্ধ করে রেকর্ড শুরু হচ্ছে', 'info'); }
   stopMicTest();
+  if (window.matchMedia && matchMedia('(pointer:coarse)').matches && S.ctx && S.ctxMode !== 'playback') await setCtxMode('playback');
   if (S.playing) pause();
   const ctx = getCtx();
   await ctx.resume();
@@ -3249,6 +3317,166 @@ function initMobileEdit() {
   $('meGaps').onclick = () => closeGaps();
 }
 
+/* ---------------- Live mode: phone as an effects microphone ----------------
+   mic -> low-cut -> automatic feedback notches -> volume -> the same vocal chain used for
+   playback (preset EQ, compressor, effects, echo, reverb, mobile mastering) -> speaker. */
+S.lm = null;
+async function startLive() {
+  if (S.lm || S.lmBusy) return;
+  if (S.rec) return toast('রেকর্ড চলার সময় লাইভ চালু করা যায় না', 'error');
+  S.lmBusy = true;
+  try {
+    stopMicTest();
+    // phones: switch the engine to its lowest-delay setting so you hear yourself instantly
+    if (window.matchMedia && matchMedia('(pointer:coarse)').matches) await setCtxMode('interactive');
+    const ctx = getCtx(); await ctx.resume();
+    let stream;
+    try { stream = await openMic(); } catch (e) { micError(e); return; }
+    const L = { stream, nIdx: 0, cand: null };
+    L.src = ctx.createMediaStreamSource(stream);
+    L.hp = bq(ctx, 'highpass', 90, 0.7);
+    L.notches = Array.from({ length: 6 }, () => bq(ctx, 'peaking', 1000, 25, 0));
+    L.gain = ctx.createGain(); L.gain.gain.value = getParams().liveGain / 100;
+    L.an = ctx.createAnalyser(); L.an.fftSize = 4096; L.an.smoothingTimeConstant = 0.5;
+    chain(L.src, L.hp, ...L.notches, L.gain);
+    L.fb = new Float32Array(L.an.frequencyBinCount); L.td = new Float32Array(L.an.fftSize);
+    S.lm = L;
+    try { if (navigator.wakeLock) L.wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+    if (S.raw) setRaw(false);
+    liveAttach();
+    L.timer = setInterval(liveTick, 100);
+    updLiveUI();
+    toast('🎤 লাইভ চালু — এখন মাইকে কথা বলুন বা গান, ইফেক্টসহ স্পিকারে যাবে। মিউজিকের জন্য ▶ চাপুন।', 'success');
+  } finally { S.lmBusy = false; }
+}
+// connect the mic to the current sound chain (the playing one, or a standby one when music is stopped)
+function liveAttach() {
+  const L = S.lm; if (!L) return;
+  try { L.gain.disconnect(); } catch (e) {}
+  L.gain.connect(L.an);
+  if (!S.live) {
+    const ctx = getCtx();
+    S.live = buildGraph(ctx, getParams(), { raw: S.raw, out: S.analyser, preview: S.phonePrev });
+  }
+  L.gain.connect(S.live.vocalIn);
+}
+function stopLive() {
+  const L = S.lm; if (!L) return;
+  if (L.rec) stopLiveRec();
+  clearInterval(L.timer);
+  try { L.gain.disconnect(); } catch (e) {}
+  try { L.src.disconnect(); } catch (e) {}
+  L.stream.getTracks().forEach(t => t.stop());
+  if (L.wake) { try { L.wake.release(); } catch (e) {} }
+  S.lm = null;
+  if (!S.playing) stopSources();
+  setMeter('liveFill', 0);
+  updLiveUI();
+  if (S.playing) restartSoon();
+}
+function toggleLive() { S.lm ? (stopLive(), toast('লাইভ বন্ধ হয়েছে', 'info')) : startLive(); }
+function liveLatencyMs() {
+  const c = S.ctx; if (!c) return 0;
+  return Math.round(((c.baseLatency || 0) + (c.outputLatency || 0)) * 1000);
+}
+function liveTick() {
+  const L = S.lm; if (!L || !S.ctx) return;
+  // level meter
+  L.an.getFloatTimeDomainData(L.td);
+  let pk = 0, ss = 0; for (let i = 0; i < L.td.length; i++) { const v = L.td[i]; ss += v * v; if (Math.abs(v) > pk) pk = Math.abs(v); }
+  const db = linToDb(pk), rms = Math.sqrt(ss / L.td.length);
+  setMeter('liveFill', (db + 60) / 60 * 100);
+  const lat = liveLatencyMs();
+  $('liveLat').textContent = lat ? `দেরি ~${bnNum(lat)} ms${lat > 100 ? ' ⚠' : ''}` : '';
+  if (!S.playing && $('outFill').offsetParent) drawMeters();
+  // live ducking: music dips a little while you sing/speak
+  const p = getParams();
+  if (S.playing && S.live && p.duck > 0 && !$('liveVox').checked) {
+    const singing = rms > 0.02;
+    S.live.duck.gain.setTargetAtTime(singing ? dbToLin(-p.duck) : 1, S.ctx.currentTime, singing ? 0.04 : 0.35);
+  }
+  // feedback guard: a loud, very narrow tone that keeps ringing at the same pitch = howl
+  if (!$('liveFb').checked) return;
+  L.an.getFloatFrequencyData(L.fb);
+  const hz = S.ctx.sampleRate / L.an.fftSize, b0 = Math.round(150 / hz), b1 = Math.min(L.fb.length - 50, Math.round(8000 / hz));
+  let mb = b0, mv = -Infinity;
+  for (let b = b0; b < b1; b++) if (L.fb[b] > mv) { mv = L.fb[b]; mb = b; }
+  let sum = 0, n = 0;
+  for (let d = 8; d <= 40; d++) { sum += L.fb[mb - d] + L.fb[mb + d]; n += 2; }
+  const prom = mv - sum / n;
+  if (mv > -24 && prom > 26) {
+    if (L.cand && Math.abs(L.cand.b - mb) <= 2) L.cand.n++; else L.cand = { b: mb, n: 1 };
+    if (L.cand.n >= 6) {
+      const f = mb * hz;
+      let nt = L.notches.find(x => x.gain.value < 0 && Math.abs(x.frequency.value - f) / f < 0.03);
+      if (nt) nt.gain.setTargetAtTime(Math.max(-20, nt.gain.value - 4), S.ctx.currentTime, 0.02);
+      else {
+        nt = L.notches[L.nIdx++ % L.notches.length];
+        nt.frequency.setValueAtTime(f, S.ctx.currentTime);
+        nt.gain.setTargetAtTime(-10, S.ctx.currentTime, 0.02);
+      }
+      L.cand = null;
+      toast(`🔇 চিঁচিঁ শব্দ (ফিডব্যাক) ধরা পড়েছে — ${bnNum(Math.round(f))} Hz কেটে দেওয়া হয়েছে`, 'info');
+    }
+  } else if (L.cand) L.cand = null;
+}
+// record the whole live show (voice with effects + music) straight to a file
+function startLiveRec() {
+  const L = S.lm;
+  if (!L) return toast('আগে লাইভ চালু করুন', 'error');
+  if (!window.MediaRecorder) return toast('এই ব্রাউজারে লাইভ রেকর্ড করা যায় না', 'error');
+  const ctx = getCtx();
+  L.dest = ctx.createMediaStreamDestination();
+  S.analyser.connect(L.dest);
+  const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+  const mime = types.find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+  const mr = new MediaRecorder(L.dest.stream, mime ? { mimeType: mime, audioBitsPerSecond: 192000 } : {});
+  const chunks = [];
+  mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  mr.onstop = () => {
+    const type = mr.mimeType || mime || 'audio/webm', ext = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm';
+    const url = URL.createObjectURL(new Blob(chunks, { type }));
+    const st = new Date(), stamp = `${st.getFullYear()}${String(st.getMonth() + 1).padStart(2, '0')}${String(st.getDate()).padStart(2, '0')}-${String(st.getHours()).padStart(2, '0')}${String(st.getMinutes()).padStart(2, '0')}`;
+    const a = document.createElement('a'); a.href = url; a.download = `TF-Live-${stamp}.${ext}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast('💾 লাইভ অনুষ্ঠানের রেকর্ড ডাউনলোড হয়েছে', 'success');
+  };
+  mr.start(1000);
+  L.rec = mr; L.recT = Date.now();
+  updLiveUI();
+  toast('⏺ লাইভ অনুষ্ঠান রেকর্ড হচ্ছে — আবার চাপলে থেমে ফাইল ডাউনলোড হবে', 'info');
+}
+function stopLiveRec() {
+  const L = S.lm; if (!L || !L.rec) return;
+  try { L.rec.stop(); } catch (e) {}
+  try { S.analyser.disconnect(L.dest); } catch (e) {}
+  L.rec = null; updLiveUI();
+}
+function updLiveUI() {
+  const on = !!S.lm;
+  $('liveBox').classList.toggle('on', on);
+  $('liveTxt').textContent = on ? 'লাইভ বন্ধ' : 'লাইভ চালু';
+  $('dLive').classList.toggle('on', on);
+  $('liveState').textContent = on ? '● লাইভ চলছে — গলা ইফেক্টসহ স্পিকারে যাচ্ছে' : 'বন্ধ — চালু করলে মাইকের গলা সব ইফেক্টসহ স্পিকারে যাবে';
+  if (!on) $('liveLat').textContent = '';
+  const rec = on && S.lm.rec;
+  $('btnLiveRec').classList.toggle('on', !!rec);
+  $('btnLiveRec').textContent = rec ? '■ রেকর্ড থামিয়ে ফাইল নিন' : '⏺ অনুষ্ঠানটা রেকর্ড করুন';
+}
+function initLive() {
+  $('btnLive').onclick = toggleLive;
+  $('dLive').onclick = () => { toggleLive(); if (!S.lm) goTab('rec'); };
+  $('btnLiveRec').onclick = () => (S.lm && S.lm.rec) ? stopLiveRec() : startLiveRec();
+  $('btnFbReset').onclick = () => {
+    if (S.lm) S.lm.notches.forEach(n => n.gain.setTargetAtTime(0, S.ctx.currentTime, 0.05));
+    toast('ফিডব্যাক গার্ড রিসেট — কাটা সুরগুলো আবার স্বাভাবিক', 'info');
+  };
+  $('p_liveGain').addEventListener('input', () => { if (S.lm) S.lm.gain.gain.setTargetAtTime(getParams().liveGain / 100, S.ctx.currentTime, 0.03); });
+  $('liveVox').addEventListener('change', () => { if (S.playing) restartSoon(); });
+  updLiveUI();
+}
+
 /* ---------------- Phone app layout: tabs, menu ---------------- */
 const MQ = window.matchMedia ? matchMedia('(max-width: 900px) and (min-height: 520px)') : { matches: false };
 S.tab = 'rec';
@@ -3303,6 +3531,7 @@ function init() {
   renderFx();
   initMobileEdit();
   initAppShell();
+  initLive();
   applyPreset('romantic', false);
   $('fileMusic').addEventListener('change', e => { loadFile(e.target.files[0], 'music'); e.target.value = ''; });
   $('fileVocal').addEventListener('change', e => { loadFile(e.target.files[0], 'vocal'); e.target.value = ''; });
