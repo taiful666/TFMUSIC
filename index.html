@@ -682,7 +682,7 @@ html.m .help-b ul,html.m .help-b ol{font-size:12.5px;line-height:1.7}
       <div class="tune-set">
         <div class="ts-h">🎼 সুরের সেটিংস</div>
         <label class="fld"><span>গানের কী (মূল সুর)</span><select id="tuneKey"><option value="auto" selected>অটো শনাক্ত</option><option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option></select></label>
-        <label class="fld"><span>স্কেল</span><select id="tuneScale"><option value="chromatic" selected>সব নোট (সবচেয়ে নিরাপদ)</option><option value="major">মেজর (উজ্জ্বল সুর)</option><option value="minor">মাইনর (আবেগী/দুঃখের সুর)</option></select></label>
+        <label class="fld"><span>স্কেল</span><select id="tuneScale"><option value="auto">অটো — গলা থেকে কী ও স্কেল (প্রস্তাবিত)</option><option value="chromatic" selected>সব নোট (সবচেয়ে নিরাপদ)</option><option value="major">মেজর (উজ্জ্বল সুর)</option><option value="minor">মাইনর (আবেগী/দুঃখের সুর)</option></select></label>
         <label class="fld"><span>হারমোনি কণ্ঠের সুর</span><select id="harmMode"><option value="third" selected>ওপরে মিষ্টি তৃতীয় সুর</option><option value="fifth">ওপরে পঞ্চম সুর</option><option value="octdown">এক অষ্টক নিচে (গম্ভীর)</option></select></label>
         <div class="keyinfo" id="keyInfo">শনাক্ত কী: প্লে চাপলে বের হবে</div>
       </div>
@@ -957,11 +957,11 @@ const PRESETS = {
   naat:     { name: 'নাশিদ ও গজল', sub: 'মসজিদ-হল রিভার্ব', v: [95,3,-3.5,2.5,-4,5,-24,4.5,4,420,38,30,42,4.2,45,46,4,60,32,75], speech: true },
   seminar:  { name: 'সেমিনার ও আবৃত্তি', sub: 'অডিটোরিয়াম, স্পষ্ট কথা', v: [90,3.5,-4,4,-4.5,2.5,-25,5,4,240,22,18,20,2.4,30,28,6,75,22,65], speech: true },
   dry:      { name: 'পডকাস্ট / ড্রাই', sub: 'ক্রিস্প রেডিও ভয়েস', v: [80,3.5,-3,3,-4,2.5,-24,5,3.5,250,10,6,10,1.2,20,10,6,65,0,75], speech: true },
-  // Signature: Antares-style hard Auto-Tune Ghazal / Nasheed chain.
-  // Besides the rack values it also switches on the real pitch engine (robotic auto-tune at 100% = retune speed 0,
-  // instant hard snap) locked to F# minor (F# G# A B C# D E), sets presence to 3.8 kHz and the vocal fader to 115%.
-  nasheed:  { name: '🕌 অটো-টিউন গজল (Auto-Tune Nasheed)', sub: 'Hard Pitch-Correction + F# Minor + Lush Hall', v: [110,1.5,-3.5,3.5,-4,5,-24,4.5,3,360,26,20,35,3.6,35,40,4,60,0,75], sig: true,
-              tune: { fx: 'robot', amt: 100, key: 'F#', scale: 'minor', vocalVol: 115, presF: 3800 } },
+  // Signature: Auto-Tune Ghazal / Nasheed chain. Besides the rack values it switches on the pitch engine
+  // (pitch correction 100% + auto-tune sheen 55%) with key AND scale detected from the singer's own voice
+  // and tuning, sets presence to 3.8 kHz and the vocal fader to 115%. Glides between notes, never hard jumps.
+  nasheed:  { name: '🕌 অটো-টিউন গজল (Auto-Tune Nasheed)', sub: 'Auto-Key Pitch-Correction (যেকোনো সুরে) + Lush Hall', v: [110,1.5,-3.5,3.5,-4,5,-24,4.5,3,360,26,20,35,3.6,35,40,4,60,0,75], sig: true,
+              tune: { fx: { tune: 100, robot: 55 }, key: 'auto', scale: 'auto', vocalVol: 115, presF: 3800 } },
 };
 
 /* ---------------- State ---------------- */
@@ -1125,24 +1125,26 @@ function applyPreset(key, announce) {
    off -> put back whatever the user had before */
 function syncTunePreset(k) {
   const P = PRESETS[k], T = P && P.tune;
-  if (!T || typeof S.fx[T.fx] === 'undefined') return;
+  if (!T) return;
+  const ids = Object.keys(T.fx).filter(id => S.fx[id]);
   const on = S.pmix[k].on;
   if (on && !P._saved) {
-    P._saved = { fx: { ...S.fx[T.fx] }, key: $('tuneKey').value, scale: $('tuneScale').value, vocalVol: +$('p_vocalVol').value };
-    S.fx[T.fx] = { on: true, amt: T.amt };
+    P._saved = { fx: Object.fromEntries(ids.map(id => [id, { ...S.fx[id] }])), key: $('tuneKey').value, scale: $('tuneScale').value, vocalVol: +$('p_vocalVol').value };
+    ids.forEach(id => { S.fx[id] = { on: true, amt: T.fx[id] }; });
     $('tuneKey').value = T.key; $('tuneScale').value = T.scale;
     setParam('vocalVol', T.vocalVol);
   } else if (!on && P._saved) {
     const b = P._saved; P._saved = null;
-    S.fx[T.fx] = b.fx; $('tuneKey').value = b.key; $('tuneScale').value = b.scale;
+    ids.forEach(id => { S.fx[id] = b.fx[id]; });
+    $('tuneKey').value = b.key; $('tuneScale').value = b.scale;
     setParam('vocalVol', b.vocalVol);
   } else return;
-  const card = $('fx_' + T.fx);
-  if (card) {
-    const sl = card.querySelector('input'); sl.value = S.fx[T.fx].amt; setFill(sl);
-    card.querySelector('.fx-amt b').textContent = S.fx[T.fx].amt + '%';
-    updFxUI(); updKeyInfo();
-  }
+  ids.forEach(id => {
+    const card = $('fx_' + id); if (!card) return;
+    const sl = card.querySelector('input'); sl.value = S.fx[id].amt; setFill(sl);
+    card.querySelector('.fx-amt b').textContent = S.fx[id].amt + '%';
+  });
+  updFxUI(); updKeyInfo();
   fxChanged({ pitch: true });
 }
 function markCustom() {
@@ -1637,41 +1639,70 @@ function detectKey(hist) {
   }
   return best;
 }
+/* Find the key the person is actually singing in, from their own voice:
+   1) their tuning (how many cents away from A=440 the whole song sits),
+   2) which notes they hold longest -> key + major/minor. */
+function detectVocalKey(As) {
+  let cs = 0, sn = 0, N = 0;
+  const steady = (mm, f) => f > 1 && f < mm.length - 2 && !isNaN(mm[f - 2]) && !isNaN(mm[f + 2]) && Math.abs(mm[f + 2] - mm[f - 2]) < 0.25;
+  for (const A of As) { const mm = A.midi; for (let f = 0; f < mm.length; f++) {
+    if (!steady(mm, f)) continue;
+    const a = 2 * Math.PI * (mm[f] - Math.round(mm[f])); cs += Math.cos(a); sn += Math.sin(a); N++;
+  } }
+  if (N < 30) return null;
+  const R = Math.hypot(cs, sn) / N;
+  const off = R > 0.25 ? Math.atan2(sn, cs) / (2 * Math.PI) : 0;
+  const hist = new Float32Array(12);
+  for (const A of As) { const mm = A.midi; for (let f = 0; f < mm.length; f++) {
+    if (isNaN(mm[f])) continue;
+    hist[pcOf(Math.round(mm[f] - off))] += steady(mm, f) ? 1 : 0.3;
+  } }
+  const k = detectKey(hist);
+  return { tonic: k.tonic, mode: k.mode, r: k.r, off };
+}
 function scaleInfo(p) {
-  const det = S.detKey || { tonic: 0, mode: 'major' };
+  const det = S.detKey || { tonic: 0, mode: 'major', r: 0, off: 0 };
   let tonic, mode;
   if (p.tuneKey === 'auto') {
     tonic = det.tonic; mode = det.mode;
-    if (p.tuneScale !== 'chromatic' && p.tuneScale !== mode) {
+    if ((p.tuneScale === 'major' || p.tuneScale === 'minor') && p.tuneScale !== mode) {
       tonic = mode === 'minor' ? (tonic + 3) % 12 : (tonic + 9) % 12;   // relative major / minor
       mode = p.tuneScale;
     }
   } else {
     tonic = KN.indexOf(p.tuneKey);
-    mode = p.tuneScale === 'minor' ? 'minor' : 'major';
+    mode = p.tuneScale === 'auto' ? det.mode : (p.tuneScale === 'minor' ? 'minor' : 'major');
   }
   const scale = new Array(12).fill(false);
   (mode === 'minor' ? SC_MIN : SC_MAJ).forEach(d => { scale[(tonic + d) % 12] = true; });
-  const chrom = p.tuneScale === 'chromatic';
-  return { tonic, mode, scale, chrom, snap: chrom ? new Array(12).fill(true) : scale, key: `${tonic}${mode}${chrom ? 'c' : 'd'}` };
+  // unsure key detection -> don't force a scale, just help every note (safest)
+  const weak = p.tuneKey === 'auto' && p.tuneScale === 'auto' && (!S.detKey || det.r < 0.55);
+  const chrom = p.tuneScale === 'chromatic' || weak;
+  // follow the singer's own tuning (sa / harmonium may not be exactly A=440) when the key is detected
+  const off = p.tuneKey === 'auto' && S.detKey ? (det.off || 0) : 0;
+  return { tonic, mode, scale, chrom, weak, off, snap: chrom ? new Array(12).fill(true) : scale,
+           key: `${tonic}${mode}${chrom ? 'c' : 'd'}${Math.round(off * 100)}` };
 }
 function updKeyInfo() {
   const p = getParams(), sc = scaleInfo(p);
-  const det = S.detKey ? `শনাক্ত কী: <b>${KN[S.detKey.tonic]} ${S.detKey.mode === 'minor' ? 'মাইনর' : 'মেজর'}</b>` : 'শনাক্ত কী: প্লে চাপলে বের হবে';
-  const use = sc.chrom ? 'সংশোধন: সব নোটে (নিরাপদ)' : `সংশোধন: ${KN[sc.tonic]} ${sc.mode === 'minor' ? 'মাইনর' : 'মেজর'} স্কেলে`;
+  const cents = S.detKey && Math.abs(S.detKey.off || 0) >= 0.05 ? ` <span style="color:#94a3b8">(গলার টিউনিং ${S.detKey.off > 0 ? '+' : ''}${Math.round(S.detKey.off * 100)} সেন্ট — সেভাবেই মেলানো হবে)</span>` : '';
+  const det = S.detKey ? `শনাক্ত কী: <b>${KN[S.detKey.tonic]} ${S.detKey.mode === 'minor' ? 'মাইনর' : 'মেজর'}</b>${cents}` : 'শনাক্ত কী: প্লে চাপলে বের হবে';
+  const use = sc.weak ? 'সংশোধন: কী নিশ্চিত নয়, তাই সব নোটে (নিরাপদ)' : sc.chrom ? 'সংশোধন: সব নোটে (নিরাপদ)' : `সংশোধন: ${KN[sc.tonic]} ${sc.mode === 'minor' ? 'মাইনর' : 'মেজর'} স্কেলে (গলার সুর অনুযায়ী)`;
   $('keyInfo').innerHTML = `${det}<br><span style="color:#a5b4fc">${use}</span>`;
 }
 const pcOf = m => ((m % 12) + 12) % 12;
-function snapNote(m, pcs, prev, hyst) {
+/* Soft snap: go to the nearest note the singer is clearly aiming at.
+   A note outside the scale is kept when the singer sits close to it (ragas/ghazals use such notes on purpose);
+   the scale only decides the in-between, unsure cases. Hysteresis stops flip-flopping between two notes. */
+function snapNote(m, sc, prev, hyst) {
   if (prev != null && Math.abs(m - prev) < hyst) return prev;
   const r = Math.round(m);
-  let best = r, bd = 99;
-  for (let c = r - 2; c <= r + 2; c++) {
-    if (!pcs[pcOf(c)]) continue;
-    const d = Math.abs(c - m);
-    if (d < bd) { bd = d; best = c; }
-  }
-  return best;
+  if (sc.chrom || sc.scale[pcOf(r)] || Math.abs(m - r) < 0.3) return r;
+  const lo = Math.floor(m), hi = lo + 1;
+  const okLo = sc.scale[pcOf(lo)], okHi = sc.scale[pcOf(hi)];
+  if (okLo && !okHi) return lo;
+  if (okHi && !okLo) return hi;
+  return r;
 }
 function harmInterval(t, sc, mode) {
   if (mode === 'fifth') return 7;
@@ -1797,31 +1828,53 @@ function psola(A, rat, widen, muteUnvoiced) {
   return out;
 }
 function synthPitch(A, p) {
-  const sc = scaleInfo(p), m = A.midi, F = m.length;
+  const sc = scaleInfo(p), m = A.midi, F = m.length, off = sc.off;
   const aT = fxA(p, 'tune'), aR = fxA(p, 'robot'), aH = fxA(p, 'harm');
+  const str = Math.max(aT, aR);
+  // retune speed (ms): how fast a new note is reached. Never a hard jump -> no breaking / crackling
+  const retune = aR > 0 ? 70 - 52 * aR : 160 - 110 * aT;
+  const kG = 1 - Math.exp(-10 / retune);           // per 10 ms frame
   const corr = new Float32Array(F), hs = new Float32Array(F);
   for (let k = 0; k < F;) {
     if (isNaN(m[k])) { k++; continue; }
     let e = k; while (e < F && !isNaN(m[e])) e++;
-    const L = e - k, sm = new Float32Array(L), cN = new Float32Array(L), tg = new Float32Array(L);
-    // smoothed pitch (keeps vibrato & expression out of the correction)
+    const L = e - k, sm = new Float32Array(L), tg = new Float32Array(L), c = new Float32Array(L);
+    // note centre (vibrato, murki and wobble averaged out ~ 170 ms)
     for (let i = 0; i < L; i++) {
-      let s = 0, c = 0;
-      for (let j = Math.max(0, i - 4); j <= Math.min(L - 1, i + 4); j++) { s += m[k + j]; c++; }
-      sm[i] = s / c;
+      let s = 0, n = 0;
+      for (let j = Math.max(0, i - 8); j <= Math.min(L - 1, i + 8); j++) { s += m[k + j]; n++; }
+      sm[i] = s / n;
     }
+    // target note per frame, in the singer's own tuning
     let prev = null;
-    for (let i = 0; i < L; i++) { const t = snapNote(sm[i], sc.snap, prev, 0.62); prev = t; tg[i] = t; cN[i] = t - sm[i]; }
-    // retune speed: stronger setting = faster, tighter correction
-    const rad = Math.round(1 + (1 - aT) * 9);
+    for (let i = 0; i < L; i++) { const t = snapNote(sm[i] - off, sc, prev, 0.58); prev = t; tg[i] = t + off; }
+    // drop target flickers shorter than 70 ms (they cause the "kerkar" warble)
+    for (let i = 0; i < L;) {
+      let j = i; while (j < L && tg[j] === tg[i]) j++;
+      if (j - i < 7 && (i > 0 || j < L)) { const v = i > 0 ? tg[i - 1] : tg[j]; for (let q = i; q < j; q++) tg[q] = v; }
+      i = j;
+    }
+    // glide to each target note (forward + backward pass = smooth, centred, no step)
+    const g = new Float32Array(L);
+    let y = tg[0]; for (let i = 0; i < L; i++) { y += (tg[i] - y) * kG; g[i] = y; }
+    y = g[L - 1]; for (let i = L - 1; i >= 0; i--) { y += (g[i] - y) * kG; g[i] = y; }
     for (let i = 0; i < L; i++) {
-      let s = 0, c = 0;
-      for (let j = Math.max(0, i - rad); j <= Math.min(L - 1, i + rad); j++) { s += cN[j]; c++; }
-      const cNs = s / c;
-      const cR = tg[i] - m[k + i];          // hard tune: lock to the note, remove wobble and vibrato
-      const edge = Math.min(1, (i + 1) / 4, (L - i) / 4);
-      corr[k + i] = (cR * aR + (1 - aR) * cNs * aT) * edge;
-      hs[k + i] = harmInterval(tg[i], sc, p.harmMode) + cNs;
+      // fast ornaments / slides: let them through naturally instead of chopping them into steps
+      const a = Math.max(0, i - 2), b = Math.min(L - 1, i + 2);
+      const vel = Math.abs(m[k + b] - m[k + a]) / Math.max(1, b - a);   // semitones per 10 ms
+      const keep = clamp(1 - (vel - 0.06) / 0.12, 0, 1);
+      let v = (g[i] - sm[i]) * str;                                 // pull the note centre in tune
+      v += (sm[i] - m[k + i]) * aR * 0.8 * keep;                    // auto-tune sheen: steadier held notes
+      v = clamp(v, -1, 1) * (0.35 + 0.65 * keep);
+      const edge = Math.min(1, (i + 1) / 6, (L - i) / 6);           // fade in/out at note edges
+      c[i] = v * edge * edge * (3 - 2 * edge);
+    }
+    // light smoothing so the pitch never changes in steps between 10 ms frames
+    for (let i = 0; i < L; i++) {
+      const a = Math.max(0, i - 1), b = Math.min(L - 1, i + 1);
+      let s = 0; for (let j = a; j <= b; j++) s += c[j];
+      corr[k + i] = s / (b - a + 1);
+      hs[k + i] = harmInterval(Math.round(tg[i] - off), sc, p.harmMode) + corr[k + i];
     }
     k = e;
   }
@@ -1876,9 +1929,7 @@ async function doPrep(p) {
       });
       done += b.duration;
     }
-    const hist = new Float32Array(12); let cnt = 0;
-    for (const b of gbs) { const A = anaCache.get(b); for (let i = 0; i < A.midi.length; i++) { const v = A.midi[i]; if (!isNaN(v)) { hist[pcOf(Math.round(v))]++; cnt++; } } }
-    if (cnt > 40) S.detKey = detectKey(hist);
+    S.detKey = detectVocalKey(gbs.map(b => anaCache.get(b))) || S.detKey;
     updKeyInfo();
     const key = pitchKey(p);
     for (const b of gbs) {
