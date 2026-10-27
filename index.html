@@ -559,6 +559,12 @@ html.m input[type=range]::-webkit-slider-thumb{width:22px;height:22px;border-wid
           <div class="live-body">
             <div class="meter"><div class="meter-fill" id="liveFill"></div></div>
             <div class="live-stat"><span id="liveState">বন্ধ — চালু করলে মাইকের গলা সব ইফেক্টসহ স্পিকারে যাবে</span><span class="mono" id="liveLat"></span></div>
+            <label class="fld"><span>লাইভের গতি — শব্দ কেটে গেলে বা "চিঁচিঁ/কড়কড়" শব্দ হলে "আরও স্থির" বাছুন</span>
+              <select id="liveQ">
+                <option value="fast">⚡ দ্রুত — সবচেয়ে কম দেরি (শক্তিশালী ফোনে)</option>
+                <option value="normal" selected>✅ স্বাভাবিক — প্রস্তাবিত</option>
+                <option value="stable">🛡 আরও স্থির — কখনো কাটবে না, একটু বেশি দেরি</option>
+              </select></label>
             <div id="slot_liveGain"></div>
             <label class="chk"><input type="checkbox" id="liveFb" checked><span><b>ফিডব্যাক গার্ড</b> — স্পিকার থেকে "চিঁচিঁ/বোঁ" শব্দ উঠলে নিজে থেকে সেই সুরটা কেটে দেবে</span></label>
             <label class="chk"><input type="checkbox" id="liveVox"><span>টাইমলাইনে আগে রেকর্ড করা ভোকালও মিউজিকের সাথে বাজবে</span></label>
@@ -1502,7 +1508,7 @@ function buildFx(ctx, N, G) {
   chain(N.makeup, N.sComp, N.sBody, N.sCut, N.sShelf);
   // analog warmth (parallel saturation)
   N.satDry = ctx.createGain(); N.satWet = ctx.createGain(); N.satOut = ctx.createGain();
-  const sh = ctx.createWaveShaper(); sh.curve = shaperCurve(2.4); sh.oversample = '4x';
+  const sh = ctx.createWaveShaper(); sh.curve = shaperCurve(2.4); sh.oversample = '2x';
   const shLp = bq(ctx, 'lowpass', 9000, 0.7);
   N.sShelf.connect(N.satDry); N.satDry.connect(N.satOut);
   N.sShelf.connect(sh); sh.connect(shLp); shLp.connect(N.satWet); N.satWet.connect(N.satOut);
@@ -3328,8 +3334,13 @@ async function startLive() {
   try {
     stopMicTest();
     // phones: switch the engine to its lowest-delay setting so you hear yourself instantly
-    if (window.matchMedia && matchMedia('(pointer:coarse)').matches) await setCtxMode('interactive');
-    const ctx = getCtx(); await ctx.resume();
+    // the shortest audio buffer can starve on many phones (voice turns into crackles),
+    // so the user picks speed vs. stability; "normal" is a safe middle ground
+    const q = $('liveQ').value;
+    await setCtxMode(q === 'fast' ? 'interactive' : q === 'stable' ? 0.15 : 0.06);
+    const ctx = getCtx();
+    try { await Promise.race([ctx.resume(), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
+    if (ctx.state !== 'running') { toast('ফোনের অডিও চালু হয়নি — 🎤 লাইভ বাটনটা আরেকবার চাপুন', 'error'); return; }
     let stream;
     try { stream = await openMic(); } catch (e) { micError(e); return; }
     const L = { stream, nIdx: 0, cand: null };
@@ -3474,6 +3485,11 @@ function initLive() {
   };
   $('p_liveGain').addEventListener('input', () => { if (S.lm) S.lm.gain.gain.setTargetAtTime(getParams().liveGain / 100, S.ctx.currentTime, 0.03); });
   $('liveVox').addEventListener('change', () => { if (S.playing) restartSoon(); });
+  try { const q = localStorage.getItem('tf_liveQ'); if (q) $('liveQ').value = q; } catch (e) {}
+  $('liveQ').addEventListener('change', async () => {
+    try { localStorage.setItem('tf_liveQ', $('liveQ').value); } catch (e) {}
+    if (S.lm) { stopLive(); await startLive(); }
+  });
   updLiveUI();
 }
 

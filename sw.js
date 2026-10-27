@@ -1,5 +1,5 @@
 // TF Music — offline support & install. Bump VERSION whenever the app changes.
-const VERSION = 'tfmusic-v6';
+const VERSION = 'tfmusic-v7';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 const FONTS = /^(fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
 
