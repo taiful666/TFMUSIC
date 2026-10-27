@@ -146,6 +146,11 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(
 .pre-int{margin-top:8px;padding:8px 12px;border:1px solid #2e2650;border-radius:10px;background:#0d0b1c}
 .pre.speech .pt{color:#fcd34d}
 .pre.on{border-color:var(--accent);background:linear-gradient(135deg,rgba(34,195,238,.18),rgba(99,102,241,.08));box-shadow:0 0 16px rgba(34,195,238,.15)}
+.pre.sig{grid-column:1/-1;border-color:#3d5a3a;background:linear-gradient(135deg,#0c1a14,#0b111c)}
+.pre.sig .pt{color:#6ee7b7}.pre.sig .ps{color:#fcd34d;font-weight:600}
+.pre.sig.on{border-color:#34d399;background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(250,204,21,.07));box-shadow:0 0 18px rgba(52,211,153,.22)}
+.pre.sig.on .fx-sw{background:#10b981}
+html.m .pre.sig .ps{display:block}
 .viz{display:grid;grid-template-columns:1fr 210px;gap:10px;margin-top:12px}
 @media (max-width:640px){.viz{grid-template-columns:1fr}}
 #spec{width:100%;height:110px;display:block;border-radius:10px;background:#04070d;border:1px solid #1a2436}
@@ -952,6 +957,11 @@ const PRESETS = {
   naat:     { name: 'নাশিদ ও গজল', sub: 'মসজিদ-হল রিভার্ব', v: [95,3,-3.5,2.5,-4,5,-24,4.5,4,420,38,30,42,4.2,45,46,4,60,32,75], speech: true },
   seminar:  { name: 'সেমিনার ও আবৃত্তি', sub: 'অডিটোরিয়াম, স্পষ্ট কথা', v: [90,3.5,-4,4,-4.5,2.5,-25,5,4,240,22,18,20,2.4,30,28,6,75,22,65], speech: true },
   dry:      { name: 'পডকাস্ট / ড্রাই', sub: 'ক্রিস্প রেডিও ভয়েস', v: [80,3.5,-3,3,-4,2.5,-24,5,3.5,250,10,6,10,1.2,20,10,6,65,0,75], speech: true },
+  // Signature: Antares-style hard Auto-Tune Ghazal / Nasheed chain.
+  // Besides the rack values it also switches on the real pitch engine (robotic auto-tune at 100% = retune speed 0,
+  // instant hard snap) locked to F# minor (F# G# A B C# D E), sets presence to 3.8 kHz and the vocal fader to 115%.
+  nasheed:  { name: '🕌 অটো-টিউন গজল (Auto-Tune Nasheed)', sub: 'Hard Pitch-Correction + F# Minor + Lush Hall', v: [110,1.5,-3.5,3.5,-4,5,-24,4.5,3,360,26,20,35,3.6,35,40,4,60,0,75], sig: true,
+              tune: { fx: 'robot', amt: 100, key: 'F#', scale: 'minor', vocalVol: 115, presF: 3800 } },
 };
 
 /* ---------------- State ---------------- */
@@ -1019,6 +1029,7 @@ function getParams() {
   p.mobOn = $('mobOn').checked;
   p.padKey = $('p_padKey').value;
   p.fx = JSON.parse(JSON.stringify(S.fx));
+  p.presF = (S.pmix && S.pmix.nasheed && S.pmix.nasheed.on) ? PRESETS.nasheed.tune.presF : 3200;
   p.tuneKey = $('tuneKey').value; p.tuneScale = $('tuneScale').value; p.harmMode = $('harmMode').value;
   return p;
 }
@@ -1035,7 +1046,7 @@ function renderPresets() {
   const g = $('presetGrid');
   Object.entries(PRESETS).forEach(([k, P]) => {
     const d = document.createElement('div');
-    d.className = 'pre' + (P.speech ? ' speech' : '');
+    d.className = 'pre' + (P.speech ? ' speech' : '') + (P.sig ? ' sig' : '');
     d.id = 'pre_' + k;
     d.innerHTML = `<button class="pre-h" type="button" aria-pressed="false"><span class="pre-tx"><span class="pt">${P.name}</span><span class="ps">${P.sub}</span></span><span class="fx-sw"></span></button>
       <div class="pre-amt"><input type="range" min="0" max="100" step="5" value="100" aria-label="${P.name} মাত্রা"><b class="mono">১০০%</b></div>`;
@@ -1043,13 +1054,16 @@ function renderPresets() {
     const sl = d.querySelector('input'), lbl = d.querySelector('b');
     setFill(sl);
     d.querySelector('.pre-h').addEventListener('click', () => {
+      // signature preset: switching it on gives its exact sound on its own (others can be added on top later)
+      if (P.sig && !S.pmix[k].on) { applyPreset(k); toast(`"${P.name}" চালু — F# মাইনরে হার্ড অটো-টিউন`, 'success'); return; }
       S.pmix[k].on = !S.pmix[k].on;
+      syncTunePreset(k);
       applyBlend();
       toast(S.pmix[k].on ? `"${P.name}" যোগ হয়েছে` : `"${P.name}" বাদ দেওয়া হয়েছে`, S.pmix[k].on ? 'success' : 'info');
     });
     sl.addEventListener('input', () => {
       S.pmix[k].amt = +sl.value; lbl.textContent = bnNum(sl.value) + '%'; setFill(sl);
-      if (!S.pmix[k].on) S.pmix[k].on = true;
+      if (!S.pmix[k].on) { S.pmix[k].on = true; syncTunePreset(k); }
       applyBlend(false, true);
     });
     sl.addEventListener('change', () => restartSoon());
@@ -1099,10 +1113,37 @@ function applyBlend(announce, live) {
 }
 // switch to just one preset at 100% (used for new project / demo)
 function applyPreset(key, announce) {
+  const wasOn = Object.keys(PRESETS).filter(k => S.pmix[k].on);
   Object.keys(PRESETS).forEach(k => { S.pmix[k] = { on: k === key, amt: 100 }; });
+  new Set([...wasOn, key]).forEach(k => syncTunePreset(k));
   S.pInt = 100; $('presetInt').value = 100; $('presetIntV').textContent = '১০০%'; setFill($('presetInt'));
   S.preset = key;
   applyBlend(announce);
+}
+/* Presets with a "tune" block (🕌 Auto-Tune Nasheed) also drive the pitch engine:
+   on  -> robotic auto-tune at full strength (instant hard snap), fixed key + scale, fader + presence
+   off -> put back whatever the user had before */
+function syncTunePreset(k) {
+  const P = PRESETS[k], T = P && P.tune;
+  if (!T || typeof S.fx[T.fx] === 'undefined') return;
+  const on = S.pmix[k].on;
+  if (on && !P._saved) {
+    P._saved = { fx: { ...S.fx[T.fx] }, key: $('tuneKey').value, scale: $('tuneScale').value, vocalVol: +$('p_vocalVol').value };
+    S.fx[T.fx] = { on: true, amt: T.amt };
+    $('tuneKey').value = T.key; $('tuneScale').value = T.scale;
+    setParam('vocalVol', T.vocalVol);
+  } else if (!on && P._saved) {
+    const b = P._saved; P._saved = null;
+    S.fx[T.fx] = b.fx; $('tuneKey').value = b.key; $('tuneScale').value = b.scale;
+    setParam('vocalVol', b.vocalVol);
+  } else return;
+  const card = $('fx_' + T.fx);
+  if (card) {
+    const sl = card.querySelector('input'); sl.value = S.fx[T.fx].amt; setFill(sl);
+    card.querySelector('.fx-amt b').textContent = S.fx[T.fx].amt + '%';
+    updFxUI(); updKeyInfo();
+  }
+  fxChanged({ pitch: true });
 }
 function markCustom() {
   if (S.presetDirty) return;
@@ -1194,7 +1235,7 @@ function buildGraph(ctx, p, o) {
     N.hp = bq(ctx, 'highpass', p.hpFreq, 0.707);
     N.warm = bq(ctx, 'peaking', 220, 1.1, p.warmth);
     N.mud = bq(ctx, 'peaking', 350, 1.6, p.mud);
-    N.pres = bq(ctx, 'peaking', 3200, 1.2, p.presence);
+    N.pres = bq(ctx, 'peaking', p.presF || 3200, 1.2, p.presence);
     N.ess = bq(ctx, 'peaking', 6800, 2.5, p.deEss);
     N.air = bq(ctx, 'highshelf', 10000, null, p.air);
     N.comp = ctx.createDynamicsCompressor();
@@ -1331,7 +1372,7 @@ function applyLive() {
   if (!N) return;
   setFx(N, p, set);
   set(N.hp.frequency, p.hpFreq); set(N.warm.gain, p.warmth); set(N.mud.gain, p.mud);
-  set(N.pres.gain, p.presence); set(N.ess.gain, p.deEss); set(N.air.gain, p.air);
+  set(N.pres.gain, p.presence); set(N.pres.frequency, p.presF || 3200); set(N.ess.gain, p.deEss); set(N.air.gain, p.air);
   set(N.comp.threshold, p.compThresh); set(N.comp.ratio, p.compRatio);
   set(N.makeup.gain, dbToLin(p.makeup)); set(N.dbl.gain, p.width / 100 * 0.45);
   set(N.dly.delayTime, p.delayTime / 1000); set(N.fb.gain, p.delayFb / 100);
