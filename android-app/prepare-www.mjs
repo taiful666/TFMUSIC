@@ -48,10 +48,13 @@ patch("tk === 'vocal' ? 'rgba(56,189,248,.13)' : 'rgba(52,211,153,.12)'", "tk ==
 patch("S.rec ? '#f43f5e' : '#fb7185'", "S.rec ? '#FF4D6D' : '#FF5C7A'", true);
 patch("g.fillStyle = sel ? '#ffffff' : 'rgba(251,191,36,.85)';", "g.fillStyle = sel ? '#ffffff' : 'rgba(255,255,255,.45)';");
 
+// 5) lyrics (karaoke) screen — runs after the website's own script
+patch('</body>', '<script src="lyrics.js"></script>\n</body>');
+
 writeFileSync(join(www, 'index.html'), html);
 
 // app files
-for (const f of ['native-bridge.js', 'app-theme.css']) copyFileSync(join(here, f), join(www, f));
+for (const f of ['native-bridge.js', 'app-theme.css', 'lyrics.js']) copyFileSync(join(here, f), join(www, f));
 copyFileSync(join(here, 'logo.png'), join(www, 'logo-mark.png'));
 for (const f of ['manifest.webmanifest']) if (existsSync(join(root, f))) copyFileSync(join(root, f), join(www, f));
 mkdirSync(join(www, 'icons'), { recursive: true });

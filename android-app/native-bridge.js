@@ -104,7 +104,7 @@
   }
 
   /* ---------- light vibration on taps ---------- */
-  var TAP_SEL = '.tabbar button, .dock button, .pre-h, .fx-h, .switch, .seg button, .ab button, .sheet-i, .btn.primary, .btn.success, .live-btn';
+  var TAP_SEL = '.tabbar button, .dock button, .lyr-tap, .lyr-run, .lyr-grp button, .pre-h, .fx-h, .switch, .seg button, .ab button, .sheet-i, .btn.primary, .btn.success, .live-btn';
   document.addEventListener('pointerdown', function (e) {
     var t = e.target && e.target.closest && e.target.closest(TAP_SEL);
     if (t && Haptics && Haptics.impact) { try { Haptics.impact({ style: 'LIGHT' }); } catch (x) {} }
@@ -223,6 +223,7 @@
   if (App && App.addListener) {
     App.addListener('backButton', function () {
       if (dialogOpen) { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); return; }
+      if (typeof window.TF_BACK === 'function' && window.TF_BACK()) return;
       if (visible('sheet')) { $('sheetBg').click(); return; }
       var on = document.querySelector('.tabbar button.on');
       if (on && on.dataset.go !== 'rec') { document.querySelector('.tabbar button[data-go="rec"]').click(); return; }

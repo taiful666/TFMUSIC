@@ -282,3 +282,58 @@ html.tfa .countin{color:rgba(255,77,109,.9);text-shadow:none;font-weight:700}
 /* safe areas (newer Android draws the app under the system bars) */
 html.tfa.m body{padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))}
 html.tfa.m .tabbar{padding-bottom:calc(6px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+
+/* ===================== LYRICS (karaoke) ===================== */
+html.tfa.m.lyr-on .tlcard{display:none}
+html.tfa.m [data-tab="lyr"].tab-on{display:flex;flex-direction:column;overflow:hidden;padding:0}
+html.tfa .lyr-top{display:flex;align-items:center;gap:4px;padding:10px 10px 6px 16px;flex:none}
+html.tfa .lyr-song{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:none;border:0;color:var(--text);font:700 20px 'Hind Siliguri',sans-serif;padding:4px 0;text-align:left}
+html.tfa .lyr-song span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.tfa .lyr-song i{font-style:normal;color:var(--dim);font-size:13px}
+html.tfa .lyr-live{display:none;align-items:center;height:28px;padding:0 10px;border-radius:99px;background:var(--rec);color:#fff;font-size:12px;font-weight:600;animation:tfaPulse 1.4s infinite}
+html.tfa .lyr-live.on{display:inline-flex}
+html.tfa .lyr-mode{margin:0 16px 4px;flex:none}
+html.tfa .lyr-mode button{flex:1}
+html.tfa .lyr-view{position:relative;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 22px;
+  -webkit-mask-image:linear-gradient(transparent 0,#000 16%,#000 78%,transparent 100%);mask-image:linear-gradient(transparent 0,#000 16%,#000 78%,transparent 100%)}
+html.tfa .lyr-lines{padding:34vh 0 58vh;text-align:center;--lf:24px}
+html.tfa .lyr-l{font-size:var(--lf);line-height:1.42;font-weight:600;color:rgba(255,255,255,.30);padding:.26em 0;transition:color .35s,transform .35s,text-shadow .35s;transform-origin:center;word-break:break-word}
+html.tfa .lyr-l.past{color:rgba(255,255,255,.20)}
+html.tfa .lyr-l.next{color:rgba(255,255,255,.58)}
+html.tfa .lyr-l.cur{color:#fff;font-weight:700;transform:scale(1.07);text-shadow:0 0 26px rgba(139,124,255,.45)}
+html.tfa .tapping .lyr-l.done{color:var(--accent2)}
+html.tfa .lyr-gap{height:calc(var(--lf) * .9)}
+html.tfa .lyr-bar{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px 8px;overflow-x:auto}
+html.tfa .lyr-grp{display:inline-flex;align-items:center;background:var(--s1);border-radius:12px;flex:none}
+html.tfa .lyr-grp button{width:42px;height:40px;border:0;background:none;color:var(--text);font:700 15px 'Hind Siliguri',sans-serif;border-radius:12px}
+html.tfa .lyr-grp button:active{background:var(--s2)}
+html.tfa .lyr-grp span{font-size:13px;color:var(--muted);min-width:44px;text-align:center}
+html.tfa .lyr-run,html.tfa .lyr-sync{flex:none;margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border:0;border-radius:12px;background:var(--s1);color:var(--text);font:600 13.5px 'Hind Siliguri',sans-serif}
+html.tfa .lyr-run.on,html.tfa .lyr-sync.on{background:var(--tint);color:var(--accent2)}
+html.tfa .lyr-sync svg{width:18px;height:18px}
+html.tfa .lyr-tapbar{flex:none;display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px;padding:6px 12px 8px}
+html.tfa .lyr-tapbar .btn{height:54px;padding:0 6px}
+html.tfa .lyr-tap{font-size:16px!important}
+html.tfa .lyr-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px 32px;text-align:center}
+html.tfa .lyr-empty.hidden{display:none}
+html.tfa .lyr-empty b{font-size:19px}
+html.tfa .lyr-empty span{color:var(--muted);line-height:1.7;font-size:14px}
+html.tfa .lyr-exit{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:60;width:42px;height:42px;border-radius:50%;border:0;background:rgba(38,40,50,.85);color:#fff;display:grid;place-items:center}
+html.tfa .lyr-exit svg{width:20px;height:20px}
+html.tfa.lyr-stage .topbar,html.tfa.lyr-stage .tabbar,html.tfa.lyr-stage .lyr-top,html.tfa.lyr-stage .lyr-mode{display:none!important}
+html.tfa.lyr-stage .lyr-view{padding-top:8px}
+/* song list / editor */
+.lyr-modal{position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}
+.lyr-modal.hidden{display:none}
+.lyr-sheet{width:100%;max-height:90vh;overflow-y:auto;background:#13141A;border-radius:26px 26px 0 0;padding:8px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;animation:sheetUp .2s ease-out}
+.lyr-sheet h3{margin:4px 0 2px;font-size:19px}
+.lyr-p{margin:0;color:#9298A4;font-size:14px;line-height:1.6}
+.lyr-in{width:100%;background:#1B1C23;border:0;border-radius:12px;color:#F4F5F7;font:500 15px/1.6 'Hind Siliguri',sans-serif;padding:12px 14px;outline:none;-webkit-user-select:text;user-select:text}
+.lyr-in:focus{box-shadow:0 0 0 1.5px #8B7CFF inset}
+.lyr-ta{min-height:38vh;resize:vertical}
+.lyr-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lyr-item{display:block;width:100%;text-align:left;background:#1B1C23;border:0;border-radius:14px;padding:12px 14px;color:#F4F5F7;font:inherit}
+.lyr-item b{display:block;font-size:15px;font-weight:600}
+.lyr-item small{display:block;color:#9298A4;font-size:12.5px;margin-top:2px}
+.lyr-item.on{box-shadow:0 0 0 1.5px #8B7CFF inset}
+html.tfa.m .tabbar span{font-size:10.5px}
