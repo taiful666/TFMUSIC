@@ -283,55 +283,102 @@ html.tfa .countin{color:rgba(255,77,109,.9);text-shadow:none;font-weight:700}
 html.tfa.m body{padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))}
 html.tfa.m .tabbar{padding-bottom:calc(6px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
 
-/* ===================== LYRICS (karaoke) ===================== */
-html.tfa.m.lyr-on .tlcard{display:none}
-html.tfa.m [data-tab="lyr"].tab-on{display:flex;flex-direction:column;overflow:hidden;padding:0}
-html.tfa .lyr-top{display:flex;align-items:center;gap:4px;padding:10px 10px 6px 16px;flex:none}
-html.tfa .lyr-song{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:none;border:0;color:var(--text);font:700 20px 'Hind Siliguri',sans-serif;padding:4px 0;text-align:left}
-html.tfa .lyr-song span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-html.tfa .lyr-song i{font-style:normal;color:var(--dim);font-size:13px}
-html.tfa .lyr-live{display:none;align-items:center;height:28px;padding:0 10px;border-radius:99px;background:var(--rec);color:#fff;font-size:12px;font-weight:600;animation:tfaPulse 1.4s infinite}
-html.tfa .lyr-live.on{display:inline-flex}
-html.tfa .lyr-mode{margin:0 16px 4px;flex:none}
-html.tfa .lyr-mode button{flex:1}
-html.tfa .lyr-view{position:relative;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 22px;
-  -webkit-mask-image:linear-gradient(transparent 0,#000 16%,#000 78%,transparent 100%);mask-image:linear-gradient(transparent 0,#000 16%,#000 78%,transparent 100%)}
-html.tfa .lyr-lines{padding:34vh 0 58vh;text-align:center;--lf:24px}
-html.tfa .lyr-l{font-size:var(--lf);line-height:1.42;font-weight:600;color:rgba(255,255,255,.30);padding:.26em 0;transition:color .35s,transform .35s,text-shadow .35s;transform-origin:center;word-break:break-word}
-html.tfa .lyr-l.past{color:rgba(255,255,255,.20)}
-html.tfa .lyr-l.next{color:rgba(255,255,255,.58)}
-html.tfa .lyr-l.cur{color:#fff;font-weight:700;transform:scale(1.07);text-shadow:0 0 26px rgba(139,124,255,.45)}
-html.tfa .tapping .lyr-l.done{color:var(--accent2)}
+/* ===================== "গান" — SING SCREEN (start screen) ===================== */
+html.tfa.m.lyr-on .tlcard,html.tfa.m.lyr-on .topbar,html.tfa.m.lyr-on .dock{display:none!important}
+html.tfa.m [data-tab="lyr"].tab-on{display:flex;flex-direction:column;overflow:hidden;padding:0;position:relative;
+  background:radial-gradient(130% 60% at 100% 0%,rgba(139,124,255,.20),transparent 62%),
+             radial-gradient(120% 70% at 0% 100%,rgba(255,77,109,.20),transparent 60%),
+             linear-gradient(180deg,#14101A,#0F0B10)!important}
+html.tfa.m.lyr-on body{background:#14101A!important}
+html.tfa.m.lyr-on .tabbar{background:#0F0B10!important;border-top-color:rgba(255,255,255,.05)!important}
+html.tfa .ly-head{flex:none;display:flex;align-items:center;gap:6px;padding:10px 10px 4px 14px}
+html.tfa .ly-title{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;background:none;border:0;color:#fff;font:600 16px 'Hind Siliguri',sans-serif;height:44px;padding:0 8px 0 46px}
+html.tfa .ly-title svg{width:22px;height:22px;flex:none}
+html.tfa .ly-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.tfa .ly-title i{font-style:normal;color:rgba(255,255,255,.45);font-size:12px}
+html.tfa .ly-ibtn{width:40px;height:40px;border:0;border-radius:12px;background:none;color:#fff;display:grid;place-items:center;flex:none}
+html.tfa .ly-ibtn svg{width:22px;height:22px}
+html.tfa .ly-stage{flex:1;min-height:0;position:relative;display:flex;flex-direction:column}
+html.tfa .lyr-view{position:relative;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 66px 0 58px;
+  -webkit-mask-image:linear-gradient(transparent 0,#000 12%,#000 80%,transparent 100%);mask-image:linear-gradient(transparent 0,#000 12%,#000 80%,transparent 100%)}
+html.tfa .lyr-view.hidden{display:none}
+html.tfa .lyr-lines{padding:32vh 0 56vh;text-align:center;--lf:25px}
+html.tfa .lyr-l{font-size:var(--lf);line-height:1.38;font-weight:500;color:rgba(255,255,255,.72);padding:.36em 0;transition:color .35s,transform .35s,text-shadow .35s;transform-origin:center;word-break:break-word}
+html.tfa .lyr-l.past{color:rgba(255,255,255,.36)}
+html.tfa .lyr-l.cur{color:#fff;font-weight:700;transform:scale(1.05);text-shadow:0 0 22px rgba(255,92,122,.45)}
+html.tfa .tapping .lyr-l.done{color:#FF8FA3}
 html.tfa .lyr-gap{height:calc(var(--lf) * .9)}
-html.tfa .lyr-bar{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px 8px;overflow-x:auto}
-html.tfa .lyr-grp{display:inline-flex;align-items:center;background:var(--s1);border-radius:12px;flex:none}
-html.tfa .lyr-grp button{width:42px;height:40px;border:0;background:none;color:var(--text);font:700 15px 'Hind Siliguri',sans-serif;border-radius:12px}
-html.tfa .lyr-grp button:active{background:var(--s2)}
-html.tfa .lyr-grp span{font-size:13px;color:var(--muted);min-width:44px;text-align:center}
-html.tfa .lyr-run,html.tfa .lyr-sync{flex:none;margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border:0;border-radius:12px;background:var(--s1);color:var(--text);font:600 13.5px 'Hind Siliguri',sans-serif}
-html.tfa .lyr-run.on,html.tfa .lyr-sync.on{background:var(--tint);color:var(--accent2)}
-html.tfa .lyr-sync svg{width:18px;height:18px}
-html.tfa .lyr-tapbar{flex:none;display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px;padding:6px 12px 8px}
-html.tfa .lyr-tapbar .btn{height:54px;padding:0 6px}
-html.tfa .lyr-tap{font-size:16px!important}
-html.tfa .lyr-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px 32px;text-align:center}
+html.tfa .lyr-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px 64px;text-align:center}
 html.tfa .lyr-empty.hidden{display:none}
-html.tfa .lyr-empty b{font-size:19px}
-html.tfa .lyr-empty span{color:var(--muted);line-height:1.7;font-size:14px}
-html.tfa .lyr-exit{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:60;width:42px;height:42px;border-radius:50%;border:0;background:rgba(38,40,50,.85);color:#fff;display:grid;place-items:center}
+html.tfa .lyr-empty b{font-size:20px;color:#fff}
+html.tfa .lyr-empty span{color:rgba(255,255,255,.6);line-height:1.7;font-size:14px}
+html.tfa .ly-pill{height:44px;padding:0 20px;border:0;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:600 14.5px 'Hind Siliguri',sans-serif}
+/* side tools */
+html.tfa .ly-left{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:3}
+html.tfa .ly-left button{width:38px;height:38px;border:0;border-radius:10px;background:rgba(255,255,255,.10);color:#fff;font:600 21px/1 'Hind Siliguri',sans-serif}
+html.tfa .ly-right{position:absolute;right:6px;bottom:10px;display:flex;flex-direction:column;align-items:center;gap:10px;z-index:3}
+html.tfa .ly-tool{width:56px;border:0;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0}
+html.tfa .ly-tool i,html.tfa .ly-tool>svg{width:26px;height:26px;display:grid;place-items:center}
+html.tfa .ly-tool svg{width:26px;height:26px}
+html.tfa .ly-tool small{font-size:10.5px;line-height:1.2;color:rgba(255,255,255,.75);text-align:center}
+html.tfa .ly-tool.on{color:#FF8FA3}
+html.tfa .ly-tool.hidden,html.tfa .ly-spd.hidden{display:none}
+html.tfa .ly-spd{display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(255,255,255,.08);border-radius:12px;padding:2px}
+html.tfa .ly-spd button{width:38px;height:34px;border:0;background:none;color:#fff;font:600 20px/1 'Hind Siliguri',sans-serif}
+html.tfa .ly-spd small{font-size:10.5px;color:rgba(255,255,255,.75)}
+/* bottom: bars + buttons */
+html.tfa .ly-bottom{flex:none;padding:6px 16px 10px;display:flex;flex-direction:column;gap:8px}
+html.tfa .ly-row{display:grid;grid-template-columns:46px 1fr 92px;align-items:center;gap:10px;height:22px}
+html.tfa .ly-row.hidden{display:none}
+html.tfa .ly-lbl{font-size:11.5px;color:rgba(255,255,255,.6);font-weight:600}
+html.tfa .ly-lbl.rec{color:#FF8FA3}
+html.tfa .ly-time{font-size:11.5px;color:rgba(255,255,255,.7);text-align:right;white-space:nowrap}
+html.tfa .ly-time.on{color:#FF5C7A;font-weight:700}
+html.tfa .ly-bar{position:relative;height:4px;border-radius:99px;background:rgba(255,255,255,.14);touch-action:none}
+html.tfa #lyMusicBar{height:4px;cursor:pointer}
+html.tfa #lyMusicBar::before{content:'';position:absolute;inset:-12px 0}
+html.tfa .ly-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#fff;width:0}
+html.tfa .ly-knob{position:absolute;top:50%;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.5);left:0}
+html.tfa #lyRecSegs i,html.tfa .ly-recnow{position:absolute;top:0;bottom:0;border-radius:99px;background:rgba(255,77,109,.55)}
+html.tfa .ly-recnow{display:none;background:#FF4D6D;box-shadow:0 0 8px rgba(255,77,109,.6)}
+html.tfa .ly-addm{display:flex;align-items:center;justify-content:center;gap:8px;height:34px;border:1px dashed rgba(255,255,255,.22);border-radius:12px;background:none;color:rgba(255,255,255,.85);font:500 13px 'Hind Siliguri',sans-serif}
+html.tfa .ly-addm.hidden{display:none}
+html.tfa .ly-addm svg{width:16px;height:16px}
+html.tfa .ly-kind{align-self:center;display:flex;gap:2px;padding:3px;border-radius:99px;background:rgba(0,0,0,.25);box-shadow:0 0 0 1px rgba(255,255,255,.14) inset;margin-top:2px}
+html.tfa .ly-kind.hidden{display:none}
+html.tfa .ly-kind button{width:46px;height:32px;border:0;border-radius:99px;background:none;color:rgba(255,255,255,.55);display:grid;place-items:center}
+html.tfa .ly-kind button svg{width:19px;height:19px}
+html.tfa .ly-kind button.on{background:rgba(255,255,255,.16);color:#fff}
+html.tfa .ly-ctrl{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:16px;padding:0 4px}
+html.tfa .ly-ctrl.hidden{display:none}
+html.tfa .ly-round{width:52px;height:52px;border:0;border-radius:50%;background:rgba(255,255,255,.10);color:#fff;display:grid;place-items:center;font:600 13px 'Hind Siliguri',sans-serif}
+html.tfa .ly-round svg{width:22px;height:22px}
+html.tfa .ly-round.wide{border-radius:16px;width:auto}
+html.tfa .ly-big{height:56px;border:0;border-radius:99px;background:#FF4D72;color:#fff;font:600 18px 'Hind Siliguri',sans-serif;box-shadow:0 8px 24px rgba(255,77,114,.35);transition:transform .1s,background .2s}
+html.tfa .ly-big:active{transform:scale(.97)}
+html.tfa .ly-big.live{background:#8B7CFF;box-shadow:0 8px 24px rgba(139,124,255,.35)}
+html.tfa .ly-big.on{background:#2A1D24;color:#FF8FA3;box-shadow:0 0 0 2px #FF4D72 inset;animation:tfaPulse 1.4s infinite}
+html.tfa .ly-big.live.on{background:#1E1A33;color:#C9C1FF;box-shadow:0 0 0 2px #8B7CFF inset}
+html.tfa .ly-tapbar{grid-template-columns:72px 1fr 72px}
+/* full screen */
+html.tfa .lyr-exit{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:60;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center}
+html.tfa .lyr-exit.hidden{display:none}
 html.tfa .lyr-exit svg{width:20px;height:20px}
-html.tfa.lyr-stage .topbar,html.tfa.lyr-stage .tabbar,html.tfa.lyr-stage .lyr-top,html.tfa.lyr-stage .lyr-mode{display:none!important}
-html.tfa.lyr-stage .lyr-view{padding-top:8px}
-/* song list / editor */
+html.tfa.lyr-stage .tabbar,html.tfa.lyr-stage .ly-head{display:none!important}
+html.tfa.lyr-stage .ly-stage{padding-top:56px}
+/* song list / editor sheet */
 .lyr-modal{position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}
 .lyr-modal.hidden{display:none}
 .lyr-sheet{width:100%;max-height:90vh;overflow-y:auto;background:#13141A;border-radius:26px 26px 0 0;padding:8px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;animation:sheetUp .2s ease-out}
-.lyr-sheet h3{margin:4px 0 2px;font-size:19px}
+.lyr-sheet h3{margin:4px 0 2px;font-size:19px;color:#F4F5F7}
 .lyr-p{margin:0;color:#9298A4;font-size:14px;line-height:1.6}
 .lyr-in{width:100%;background:#1B1C23;border:0;border-radius:12px;color:#F4F5F7;font:500 15px/1.6 'Hind Siliguri',sans-serif;padding:12px 14px;outline:none;-webkit-user-select:text;user-select:text}
 .lyr-in:focus{box-shadow:0 0 0 1.5px #8B7CFF inset}
 .lyr-ta{min-height:38vh;resize:vertical}
 .lyr-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ly-sbtn{width:100%;height:46px;border:0;border-radius:12px;background:#1B1C23;color:#F4F5F7;font:600 14.5px 'Hind Siliguri',sans-serif}
+.ly-sbtn.primary{background:#8B7CFF;color:#fff}
+.ly-sbtn.danger{background:rgba(255,77,109,.10);color:#FF8FA3}
 .lyr-item{display:block;width:100%;text-align:left;background:#1B1C23;border:0;border-radius:14px;padding:12px 14px;color:#F4F5F7;font:inherit}
 .lyr-item b{display:block;font-size:15px;font-weight:600}
 .lyr-item small{display:block;color:#9298A4;font-size:12.5px;margin-top:2px}

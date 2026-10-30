@@ -90,7 +90,7 @@
     // shorter, calmer labels for the app
     var lab = { abRaw: 'আসল', abFx: 'স্টুডিও' };
     Object.keys(lab).forEach(function (id) { var el = $(id); if (el) el.textContent = lab[id]; });
-    var t = document.querySelector('[data-tab="rec"] .card-h h2'); if (t) t.lastChild.nodeValue = 'রেকর্ড';
+    var t = document.querySelector('[data-tab="rec"] .card-h h2'); if (t) t.lastChild.nodeValue = 'ইনপুট ও মাইক';
     setPlayIcon();
     cleanAll();
     // re-clean only when buttons/labels change (not on the running clock or meters)
@@ -104,7 +104,7 @@
   }
 
   /* ---------- light vibration on taps ---------- */
-  var TAP_SEL = '.tabbar button, .dock button, .lyr-tap, .lyr-run, .lyr-grp button, .pre-h, .fx-h, .switch, .seg button, .ab button, .sheet-i, .btn.primary, .btn.success, .live-btn';
+  var TAP_SEL = '.tabbar button, .dock button, .ly-big, .ly-round, .ly-kind button, .ly-left button, .ly-tool, .pre-h, .fx-h, .switch, .seg button, .ab button, .sheet-i, .btn.primary, .btn.success, .live-btn';
   document.addEventListener('pointerdown', function (e) {
     var t = e.target && e.target.closest && e.target.closest(TAP_SEL);
     if (t && Haptics && Haptics.impact) { try { Haptics.impact({ style: 'LIGHT' }); } catch (x) {} }
@@ -226,7 +226,8 @@
       if (typeof window.TF_BACK === 'function' && window.TF_BACK()) return;
       if (visible('sheet')) { $('sheetBg').click(); return; }
       var on = document.querySelector('.tabbar button.on');
-      if (on && on.dataset.go !== 'rec') { document.querySelector('.tabbar button[data-go="rec"]').click(); return; }
+      var home = window.TF_HOME || 'rec';
+      if (on && on.dataset.go !== home) { document.querySelector('.tabbar button[data-go="' + home + '"]').click(); return; }
       var now = Date.now();
       if (now - lastBack < 2000) { App.minimizeApp ? App.minimizeApp() : App.exitApp(); return; }
       lastBack = now;
