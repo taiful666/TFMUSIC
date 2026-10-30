@@ -1,0 +1,25 @@
+{
+  "name": "tf-music-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android app for TF Music (built automatically by GitHub Actions)",
+  "scripts": {
+    "prepare-www": "node prepare-www.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/share": "8.0.3",
+    "@capacitor/splash-screen": "8.0.2",
+    "@capacitor/status-bar": "8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "8.6.0",
+    "@fontsource/hind-siliguri": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0"
+  }
+}

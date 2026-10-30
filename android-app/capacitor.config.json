@@ -1,0 +1,25 @@
+{
+  "appId": "com.taiful.tfmusic",
+  "appName": "TF Music",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#0A0B0F",
+    "allowMixedContent": false,
+    "captureInput": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 250,
+      "backgroundColor": "#0A0B0F",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0A0B0F",
+      "overlaysWebView": false
+    }
+  }
+}
