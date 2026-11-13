@@ -776,6 +776,7 @@ html.m .countin{font-size:100px}
       <!-- MIX -->
       <section class="pane" data-tab="mix" data-title="মিক্স">
         <div class="box"><div class="box-h">মাস্টার মিক্স<label class="switch" style="margin-left:auto"><input type="checkbox" id="mmOn" aria-label="মাস্টার মিক্স"><span></span></label></div></div>
+        <div class="box"><div class="box-h"><span class="at-t">গানের শেষে মিলিয়ে যাওয়া<small>শেষ লাইনের কণ্ঠ ইকো-রিভার্বে ভেসে মিউজিকে মেশে; হঠাৎ থামা মিউজিক আলতো করে মিলিয়ে যায়</small></span><label class="switch"><input type="checkbox" id="outroOn" aria-label="গানের শেষে মিলিয়ে যাওয়া" checked><span></span></label></div></div>
         <div style="display:flex;justify-content:flex-end"><button class="btn sm ghost" id="btnResetFx" type="button" title="সব সেটিং বর্তমান প্রিসেটে ফেরান">সব রিসেট</button></div>
         <details class="mod" open><summary class="mod-h bus">ভোকাল ও মিউজিক বাস</summary><div id="slot_vocalVol"></div><div id="slot_musicVol"></div></details>
         <details class="mod" open><summary class="mod-h eq">ইকুয়ালাইজার (EQ)</summary><div id="mod_eq"></div></details>
@@ -1362,7 +1363,8 @@ function buildGraph(ctx, p, o) {
   G.musicFader = ctx.createGain(); G.musicFader.gain.value = p.musicVol / 100 * mmGain('music');
   // master mix: room for the voice in the music, only while you sing (driven by the vocal, see schedulePocket)
   G.dp1 = bq(ctx, 'peaking', 2500, 0.9, 0); G.dp2 = bq(ctx, 'peaking', 320, 1.0, 0);
-  chain(G.musicIn, G.pocket, G.dp1, G.dp2, G.duck, G.musicFader, G.master);
+  G.mEnd = ctx.createGain();                                   // song ending: music fade (see scheduleOutro)
+  chain(G.musicIn, G.pocket, G.dp1, G.dp2, G.duck, G.musicFader, G.mEnd, G.master);
 
   // Ambient pad bus
   G.padLp = bq(ctx, 'lowpass', 520, 0.7);
@@ -1550,10 +1552,10 @@ function gated(buf) { return buf; }
 const FX = [
   { id: 'tune', name: 'অটো-টিউন', def: 100, pitch: true, at: true },      // shown as the Auto-Tune box, not a card
   { id: 'robot', name: 'অটো-টিউন স্টাইল', def: 75, pitch: true, at: true },
-  { id: 'harm', ico: '🎶', name: 'হারমোনি কণ্ঠ', sub: 'আপনার সাথে আরেকটা সুরে দ্বিতীয় কণ্ঠ গায় — গান ভরাট শোনায়', def: 35, pitch: true },
-  { id: 'smooth', ico: '✨', name: 'কণ্ঠ মসৃণ', sub: 'খসখসে, ভাঙা বা কর্কশ কণ্ঠ নরম ও মিষ্টি করে', def: 50 },
-  { id: 'chorus', ico: '🌊', name: 'কোরাস', sub: 'কয়েকজন একসাথে গাইছে এমন চওড়া, ভাসমান ভাব', def: 40 },
-  { id: 'warm', ico: '🔥', name: 'অ্যানালগ উষ্ণতা', sub: 'পুরনো স্টুডিও টেপের মতো ভরাট ও উষ্ণ কণ্ঠ', def: 35 },
+  { id: 'harm', ico: '🎶', name: 'হারমোনি কণ্ঠ', sub: 'আপনার সাথে আরেকটা সুরে দ্বিতীয় কণ্ঠ গায় — গান ভরাট শোনায়', def: 55, pitch: true },
+  { id: 'smooth', ico: '✨', name: 'কণ্ঠ মসৃণ', sub: 'খসখসে, ভাঙা বা কর্কশ কণ্ঠ নরম ও মিষ্টি করে', def: 40 },
+  { id: 'chorus', ico: '🌊', name: 'কোরাস', sub: 'কয়েকজন একসাথে গাইছে এমন চওড়া, ভাসমান ভাব', def: 20 },
+  { id: 'warm', ico: '🔥', name: 'অ্যানালগ উষ্ণতা', sub: 'পুরনো স্টুডিও টেপের মতো ভরাট ও উষ্ণ কণ্ঠ', def: 25 },
   { id: 'radio', ico: '📻', name: 'রেডিও / টেলিফোন', sub: 'পুরনো রেডিও বা ফোনের মতো সরু কণ্ঠ — ইন্ট্রোর জন্য দারুণ', def: 70 },
 ];
 const PITCH_FX = ['tune', 'robot', 'harm'];
@@ -1720,10 +1722,12 @@ function setFx(N, p, set) {
   if (!N.sComp) return;
   const s = fxA(p, 'smooth'), w = fxA(p, 'warm'), r = fxA(p, 'radio'), c = fxA(p, 'chorus');
   set(N.sComp.threshold, -4 - s * 24); set(N.sComp.ratio, 1 + s * 2.5);
-  set(N.sTrim.gain, dbToLin(-hiddenMakeup(-4 - s * 24, 1 + s * 2.5, 24)));
-  set(N.sCut.gain, -s * 5); set(N.sShelf.gain, -s * 2.5); set(N.sBody.gain, s * 1.5);
-  set(N.satDry.gain, 1 - w * 0.5); set(N.satWet.gain, w * 0.7);
-  set(N.radDry.gain, 1 - r); set(N.radWet.gain, r * 0.75);                 // was 1.3: peaked at -0.7 dB
+  // voiced for the owner's dark, full voice: even it out, take only the edge off 3.3 kHz, barely touch the top,
+  // little extra body, and give back the level the compressor takes (was -2.3 dB at 100%, 2-4 kHz -4.2 dB)
+  set(N.sTrim.gain, dbToLin(-hiddenMakeup(-4 - s * 24, 1 + s * 2.5, 24) + 2.9 * s * s));
+  set(N.sCut.gain, -s * 2); set(N.sShelf.gain, -s * 0.8); set(N.sBody.gain, s * 0.6);
+  set(N.satDry.gain, 1 - w * 0.4); set(N.satWet.gain, w * 0.7);
+  set(N.radDry.gain, 1 - r); set(N.radWet.gain, r * 0.29);                 // 0.75 made the voice 4-6 dB louder; 0.29 keeps it level
   set(N.chWet.gain, c * 0.6);
 }
 
@@ -1957,10 +1961,11 @@ function synthPitch(A, p) {
     if (isNaN(m[k])) { k++; continue; }
     let e = k; while (e < F && !isNaN(m[e])) e++;
     const L = e - k, sm = new Float32Array(L), tg = new Float32Array(L), c = new Float32Array(L);
-    // note centre (vibrato, murki and wobble averaged out ~ 170 ms)
+    // note centre (wobble averaged out over ~90 ms). 170 ms mixed the notes of fast murki / meend
+    // (C#-D, F#-G, G#-G in "অনেক সাধনার") and pulled the voice to the wrong neighbour: "kirkir"
     for (let i = 0; i < L; i++) {
       let s = 0, n = 0;
-      for (let j = Math.max(0, i - 8); j <= Math.min(L - 1, i + 8); j++) { s += m[k + j]; n++; }
+      for (let j = Math.max(0, i - 4); j <= Math.min(L - 1, i + 4); j++) { s += m[k + j]; n++; }
       sm[i] = s / n;
     }
     // target note per frame, in the singer's own tuning
@@ -1981,7 +1986,11 @@ function synthPitch(A, p) {
       const a = Math.max(0, i - 2), b = Math.min(L - 1, i + 2);
       const vel = Math.abs(m[k + b] - m[k + a]) / Math.max(1, b - a);   // semitones per 10 ms
       const keep = clamp(1 - (vel - 0.06) / 0.12, 0, 1), keepS = clamp(1 - (vel - 0.09) / 0.12, 0, 1);
-      let v = (g[i] - sm[i]) * str;                                 // pull the note centre in tune
+      // pull the note centre in tune; a pull bigger than ~1/3 semitone is an ornament or a slide, not a
+      // flat note, so it is eased off (gone at 0.55): measured on the owner's voice, wrong-note pulls
+      // 10% -> 0.1-0.4% of frames, and notes land closer (71 -> 78% / 77 -> 83% within 20 cents)
+      const dv = Math.abs(g[i] - sm[i]);
+      let v = (g[i] - sm[i]) * str * (1 - clamp((dv - 0.3) / 0.25, 0, 1));
       v += (sm[i] - m[k + i]) * aR * 0.92 * keepS;                 // auto-tune sheen: steadier held notes (tuned on the owner's wobbly long notes: 74 -> 79% within 20 cents)
       v = clamp(v, -1, 1) * (0.35 + 0.65 * keep);
       const edge = Math.min(1, (i + 1) / 6, (L - i) / 6);           // fade in/out at note edges
@@ -2333,6 +2342,61 @@ function scheduleDuck(param, p, P, t0, until) {
   try { param.setValueCurveAtTime(curve, t0, (n - 1) * EH); } catch (e) { /* ignore */ }
 }
 
+/* ---------------- Song ending: the voice melts into the music ----------------
+   1) the last sung line "floats": from 1.5 s before the last word the reverb and echo sends swell
+      (+5 dB reverb, +4 dB echo, a few more repeats), so the final word blooms into the music
+   2) a music track that stops abruptly (last half second still loud) fades out over its last
+      2.5-6 s; a track with its own ending (fade or ringing last chord) is left as it is */
+S.outro = true;
+function outroPlan() {
+  const voc = [], mus = [];
+  for (const l of S.lanes) if (inMix(l) && audible(l)) for (const c of l.clips) (l.kind === 'vocal' ? voc : mus).push(c);
+  let lastVox = null;
+  for (const c of voc) {
+    const env = envOf(c.buffer); let mx = 0;
+    for (const v of env) if (v > mx) mx = v;
+    const k0 = Math.floor(c.trimStart / EH), k1 = Math.min(env.length, Math.floor((c.buffer.duration - c.trimEnd) / EH));
+    for (let k = k1 - 1; k >= k0; k--) if (env[k] > mx * 0.12) { const t = c.offset + k * EH - c.trimStart; if (lastVox == null || t > lastVox) lastVox = t; break; }
+  }
+  let musicEnd = 0, abrupt = false, musicLen = 0;
+  for (const c of mus) {
+    const e = cEnd(c); if (e < musicEnd) continue;
+    musicEnd = e; musicLen = dur(c);
+    const env = envOf(c.buffer), k1 = Math.min(env.length, Math.floor((c.buffer.duration - c.trimEnd) / EH)), k0 = Math.floor(c.trimStart / EH);
+    const loud = []; for (let k = k0; k < k1; k += 2) loud.push(env[k]); loud.sort((a, b) => a - b);
+    const ref = loud.length ? loud[Math.floor(loud.length * 0.75)] : 0;
+    let tail = 0, n = 0; for (let k = Math.max(k0, k1 - 25); k < k1; k++) { tail += env[k] * env[k]; n++; }
+    abrupt = ref > 0 && n > 0 && Math.sqrt(tail / n) > ref * 0.25;          // last 0.5 s within 12 dB of the loud part
+  }
+  return { lastVox, musicEnd, abrupt, fade: clamp(musicLen * 0.08, 2.5, 6) };
+}
+// ramp an AudioParam from a to b between song times tA..tB (playback starts at song time P = ctx time t0)
+function songRamp(param, a, b, tA, tB, P, t0) {
+  const ca = t0 + (tA - P), cb = t0 + (tB - P);
+  if (cb <= t0) { param.setValueAtTime(b, t0); return; }
+  if (ca < t0) { param.setValueAtTime(a + (b - a) * (t0 - ca) / (cb - ca), t0); }
+  else param.setValueAtTime(a, ca);
+  param.linearRampToValueAtTime(b, cb);
+}
+function scheduleOutro(G, p, P, t0, o) {
+  const pl = outroPlan(), N = G.N;
+  if (N && pl.lastVox != null && pl.lastVox > 2) {
+    const tA = pl.lastVox - 1.5, tB = pl.lastVox;
+    const rw = N.rwet.gain.value, dw = N.dwet.gain.value, fb = N.fb.gain.value;
+    songRamp(N.rwet.gain, rw, Math.min(0.95, rw * 1.8 + 0.05), tA, tB, P, t0);
+    songRamp(N.dwet.gain, dw, Math.min(0.6, dw * 1.6 + 0.04), tA, tB, P, t0);
+    songRamp(N.fb.gain, fb, Math.min(0.55, fb + 0.12), tA, tB, P, t0);
+  }
+  if (!o.vocalOnly && pl.abrupt && pl.musicEnd > pl.fade + 1) {
+    // gentle S-shaped fade (sounds even, no sudden drop at the end)
+    const tA = pl.musicEnd - pl.fade, ca = t0 + (tA - P), n = 64, curve = new Float32Array(n);
+    const from = Math.max(0, (P - tA) / pl.fade);
+    for (let i = 0; i < n; i++) { const x = from + (1 - from) * i / (n - 1); curve[i] = Math.pow(Math.cos(x * Math.PI / 2), 1.6); }
+    const start = Math.max(t0, ca), len = t0 + (pl.musicEnd - P) - start;
+    if (len > 0.05) try { G.mEnd.gain.setValueCurveAtTime(curve, start, len); } catch (e) {}
+  }
+}
+
 /* ---------------- Pad ---------------- */
 const KEYS = { C: 130.81, 'C#': 138.59, D: 146.83, 'D#': 155.56, E: 164.81, F: 174.61, 'F#': 185.0, G: 98.0, 'G#': 103.83, A: 110.0, 'A#': 116.54, B: 123.47 };
 function startPad(ctx, G, p, t0, stopAt) {
@@ -2390,6 +2454,7 @@ function scheduleAll(ctx, G, p, P, t0, o) {
   if (G.X) scheduleEchoGate(G.X.gate.gain, P, t0, contentEnd() + 2);
   if (S.mm && !S.raw && !o.lite && !o.vocalOnly && !skipVox) schedulePocket(G, P, t0, contentEnd() + 2);
   if (G.dsShelf && !S.lm) scheduleDeEss(G.dsShelf.gain, P, t0, contentEnd() + 2);
+  if (S.outro && !S.raw && !o.lite && !S.lm && !skipVox) scheduleOutro(G, p, P, t0, o);
   if (!o.vocalOnly) {
     if (!skipVox && !S.raw && !o.lite && p.duck > 0 && audibleClips('vocal').length && audibleClips('music').length) {
       scheduleDuck(G.duck.gain, p, P, t0, contentEnd() + 2);
@@ -3517,7 +3582,7 @@ async function exportMix(vocalOnly) {
     let p = getParams();
     if (needsPitch(p) && S.tracks.vocal.length) { await prepareVocals(p); p = getParams(); }
     const end = contentEnd(which);
-    const tail = S.raw ? 0.3 : Math.min(p.revDecay, 4.5) + 1.2;
+    const tail = S.raw ? 0.3 : Math.min(p.revDecay, 4.5) + 1.2 + (S.outro ? 1.5 : 0);
     const sr = 44100, total = end + tail;
     const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     const oc = new OAC(2, Math.ceil(total * sr), sr);
@@ -4863,7 +4928,7 @@ function saveSettings() {
   clearTimeout(setT);
   setT = setTimeout(() => {
     const params = {}; PARAMS.forEach(s => { params[s.id] = +$('p_' + s.id).value; });
-    lsSet(SET_KEY, JSON.stringify({ ver: 3, at: S.atStyle, pmix: S.pmix, pInt: S.pInt, params, fx: S.fx, dirty: S.presetDirty, mm: S.mm,
+    lsSet(SET_KEY, JSON.stringify({ ver: 4, at: S.atStyle, outro: S.outro, pmix: S.pmix, pInt: S.pInt, params, fx: S.fx, dirty: S.presetDirty, mm: S.mm,
       padKey: $('p_padKey').value, tune: [$('tuneKey').value, $('tuneScale').value, $('harmMode').value] }));
   }, 300);
 }
@@ -4881,6 +4946,9 @@ function restoreSettings() {
     // (the presets were measured with it), the user can turn it off again
     if (!(o.ver >= 2)) S.mm = true;
     if (AT_STYLES[o.at]) S.atStyle = o.at;
+    if (typeof o.outro === 'boolean') S.outro = o.outro;
+    // v4: effect amounts were measured on the owner's voice; older saved amounts move to the new defaults
+    if (!(o.ver >= 4)) FX.forEach(f => { if (!f.at && S.fx[f.id]) S.fx[f.id].amt = f.def; });
     // before v3 the scale defaulted to "all notes"; Auto-Tune now follows the key found in the voice
     if (!(o.ver >= 3) && $('tuneScale').value === 'chromatic') $('tuneScale').value = 'auto';
     // presets that were not changed by hand always use the current preset values (so updates reach the phone)
@@ -4890,6 +4958,7 @@ function restoreSettings() {
   }
   restoring = false;
   const sw = $('mmOn'); if (sw) sw.checked = S.mm;
+  const os = $('outroOn'); if (os) os.checked = S.outro;
   updPresetUI(); updFxUI(); updKeyInfo(); applyLive();
 }
 const rstBtn = label => `<button class="rst" type="button" title="রিসেট" aria-label="${label} রিসেট"><svg aria-hidden="true" class="i"><use href="#i-reset"/></svg></button>`;
@@ -4929,6 +4998,11 @@ function initResets() {
   // whatever changes in the panel is kept
   ['input', 'change'].forEach(ev => $('panel').addEventListener(ev, saveSettings));
   $('mmOn').addEventListener('change', e => setMM(e.target.checked));
+  $('outroOn').addEventListener('change', e => {
+    S.outro = e.target.checked; saveSettings();
+    if (S.playing && !S.rec) restartSoon();
+    toast(S.outro ? 'গানের শেষে মিলিয়ে যাওয়া চালু' : 'গানের শেষে মিলিয়ে যাওয়া বন্ধ', S.outro ? 'success' : 'info');
+  });
 }
 
 function init() {
