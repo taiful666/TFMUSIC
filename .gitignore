@@ -1,0 +1,13 @@
+# song samples used for tuning (copyrighted, large) — never upload
+*.wav
+*.mp3
+*.m4a
+
+# local tools
+graphify-out/
+.claude/
+CLAUDE.md
+
+# Android build output
+android-app/node_modules/
+android-app/www/

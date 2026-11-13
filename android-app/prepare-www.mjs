@@ -22,39 +22,37 @@ function patch(from, to, all = false) {
   html = all ? html.split(from).join(to) : html.replace(from, to);
 }
 
-// 1) bridge first in <head>, app design after the website's own styles
+// The website now has its own design (stage + multitrack) and its own lyrics stage, so the
+// app uses that design as it is. The old app-theme.css and lyrics.js were written for the
+// previous layout and are no longer injected; only the app-only bits are added here.
+const APP_CSS = `<style>
+.tfa-snack{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:2147483000;display:flex;align-items:center;gap:12px;
+  background:#2A2B32;color:#ECE7DF;border:1px solid #383943;border-radius:12px;padding:12px 12px 12px 16px;font:500 13.5px/1.45 'Hind Siliguri',sans-serif;
+  box-shadow:0 12px 34px rgba(0,0,0,.55);transform:translateY(16px);opacity:0;transition:.22s}
+.tfa-snack.show{transform:none;opacity:1}
+.tfa-snack span{flex:1;min-width:0;word-break:break-word}
+.tfa-snack small{display:block;color:#9A958E;font-size:12px}
+.tfa-snack button{flex:none;border:0;border-radius:8px;background:#8B7CFF;color:#0F0A26;font:600 13.5px 'Hind Siliguri',sans-serif;height:38px;padding:0 14px}
+html.tfa body{padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))}
+html.tfa.m .tabbar{padding-bottom:calc(4px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+</style>`;
+
+// 1) bridge first in <head>, app-only styles after the website's own styles
 patch('<head>', '<head>\n<script src="native-bridge.js"></script>');
-patch('</head>', '<link rel="stylesheet" href="fonts/fonts.css">\n<link rel="stylesheet" href="app-theme.css">\n</head>');
+patch('</head>', '<link rel="stylesheet" href="fonts/fonts.css">\n' + APP_CSS + '\n</head>');
 
 // 2) fonts come from inside the app (no internet needed)
 html = html.replace(/<link[^>]+fonts\.(googleapis|gstatic)\.com[^>]*>\s*/g, '');
 
 // 3) the app always uses the phone layout; it is not an "in-app browser"; no web install button
-patch("matchMedia('(max-width: 900px) and (min-height: 520px)')", "matchMedia('all')");
+patch("matchMedia('(max-width: 760px)')", "matchMedia('all')");
 patch('function isInAppBrowser() {', 'function isInAppBrowser() { if (window.TF_APP) return false;');
 patch('function setupInstall() {', 'function setupInstall() { if (window.TF_APP) return;');
-patch('<meta name="theme-color" content="#0b111c">', '<meta name="theme-color" content="#0A0B0F">');
-
-// 4) timeline colours that match the app design
-patch("g.fillStyle = '#0a101a'; g.fillRect(0, RULER, vw, TH);", "g.fillStyle = '#121319'; g.fillRect(0, RULER, vw, TH);");
-patch("g.fillStyle = '#080d16'; g.fillRect(0, RULER + TH, vw, TH);", "g.fillStyle = '#0F1015'; g.fillRect(0, RULER + TH, vw, TH);");
-patch("g.fillStyle = '#0d1422'; g.fillRect(0, 0, vw, RULER);", "g.fillStyle = '#13141A'; g.fillRect(0, 0, vw, RULER);");
-patch("g.strokeStyle = '#334155'; g.beginPath(); g.moveTo(x, 14);", "g.strokeStyle = '#30323C'; g.beginPath(); g.moveTo(x, 14);");
-patch("g.strokeStyle = 'rgba(30,41,59,.55)';", "g.strokeStyle = 'rgba(255,255,255,.035)';");
-patch("g.fillStyle = '#7b8aa3';", "g.fillStyle = '#6A707C';");
-patch("g.strokeStyle = '#1e293b'; g.beginPath();", "g.strokeStyle = 'rgba(255,255,255,.06)'; g.beginPath();");
-patch("col = tk === 'vocal' ? '#38bdf8' : '#34d399'", "col = tk === 'vocal' ? '#8B7CFF' : '#3DDC97'");
-patch("tk === 'vocal' ? 'rgba(56,189,248,.13)' : 'rgba(52,211,153,.12)'", "tk === 'vocal' ? 'rgba(139,124,255,.15)' : 'rgba(61,220,151,.12)'");
-patch("S.rec ? '#f43f5e' : '#fb7185'", "S.rec ? '#FF4D6D' : '#FF5C7A'", true);
-patch("g.fillStyle = sel ? '#ffffff' : 'rgba(251,191,36,.85)';", "g.fillStyle = sel ? '#ffffff' : 'rgba(255,255,255,.45)';");
-
-// 5) lyrics (karaoke) screen — runs after the website's own script
-patch('</body>', '<script src="lyrics.js"></script>\n</body>');
 
 writeFileSync(join(www, 'index.html'), html);
 
 // app files
-for (const f of ['native-bridge.js', 'app-theme.css', 'lyrics.js']) copyFileSync(join(here, f), join(www, f));
+for (const f of ['native-bridge.js']) copyFileSync(join(here, f), join(www, f));
 copyFileSync(join(here, 'logo.png'), join(www, 'logo-mark.png'));
 for (const f of ['manifest.webmanifest']) if (existsSync(join(root, f))) copyFileSync(join(root, f), join(www, f));
 mkdirSync(join(www, 'icons'), { recursive: true });
