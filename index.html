@@ -1932,7 +1932,15 @@ function psola(A, rat, widen, muteUnvoiced) {
       const w = 0.5 - 0.5 * Math.cos(Math.PI * (j + half) / half);
       out[o + j] += x[c + j] * w * amp; ws[o + j] += w;
     }
-    ts += Math.max(8, T / r);
+    // Step by the REAL spacing of the analysis marks, not the estimated period. Stepping by the estimate
+    // drifted off the marks, and every snap back to the nearest mark put a tiny pitch jump in the voice
+    // (the robotic "kerkar": +2.8 dB rebuild error and +50% pitch jitter even with no correction at all).
+    // Unvoiced / silent parts are never shifted: go straight to the next mark, so each phrase starts in
+    // sync. With no correction the voice now comes back as it went in (error -35 dB).
+    let Tl = T;
+    if (v && i < M - 1 && vf[i + 1]) { const d = marks[i + 1] - c; if (d > 0.6 * T && d < 1.6 * T) Tl = d; }
+    if (!v && i < M - 1) ts = Math.max(ts + 8, marks[i + 1]);
+    else ts += Math.max(8, Tl / r);
   }
   for (let j = 0; j < n; j++) out[j] /= Math.max(ws[j], 0.5);
   return out;
@@ -2809,12 +2817,17 @@ function videoDuration(url) {
     v.src = url;
   });
 }
-async function decodeFile(ctx, file) {
-  const ab = await file.arrayBuffer();
+function decodeOnce(ctx, ab) {
   return new Promise((res, rej) => {
     const pr = ctx.decodeAudioData(ab, res, rej);
     if (pr && pr.then) pr.then(res, rej);
   });
+}
+// the very first decode right after the page opens sometimes fails once ("ফাইলটি পড়া যায়নি") although
+// the file is fine; a second try with a fresh copy of the bytes always worked, so retry before giving up
+async function decodeFile(ctx, file) {
+  try { return await decodeOnce(ctx, await file.arrayBuffer()); }
+  catch (e) { await new Promise(r => setTimeout(r, 120)); return decodeOnce(getCtx(), await file.arrayBuffer()); }
 }
 // laneId: the lane to put it on. A video always lands on a music lane (its sound plays
 // there and the picture shows on the stage).
@@ -4739,11 +4752,13 @@ function voiceMatchGains() {
 }
 /* master-mix vocal stage: voice match EQ -> de-esser -> ultrasonic trim.
    The brightening is capped by what the preset already adds (preset air +4 dB and voice match
-   +6 dB together made "স/শ" sharp and lifted the mic hiss: +3.3 dB at 5–10 kHz, +8.5 dB hiss). */
+   +6 dB together made "স/শ" sharp and lifted the mic hiss: +3.3 dB at 5–10 kHz, +8.5 dB hiss).
+   Air: preset + voice match up to 11 dB (the owner's takes are clean, floor -82 dB, but ~15 dB short on air;
+   the per-take de-esser keeps "স/শ" soft: sharpness +0.4..0.9 dB, still far from harsh). */
 function mmVocalStage(ctx, p, G) {
   if (!S.mm) return null;
   const g = voiceMatchGains() || { low: 0, lowmid: 0, clar: 0, pres: 0, air: 0 };
-  const air = Math.min(g.air, Math.max(0, 5 - p.air)), pres = Math.min(g.pres, Math.max(0, 4 - p.presence));
+  const air = Math.min(g.air, Math.max(0, 11 - p.air)), pres = Math.min(g.pres, Math.max(0, 4 - p.presence));
   const eq = [bq(ctx, 'lowshelf', 140, null, g.low), bq(ctx, 'peaking', 400, 1.0, g.lowmid), bq(ctx, 'peaking', 1500, 0.9, Math.min(3, g.clar)),
     bq(ctx, 'peaking', 2800, 1.2, Math.min(2, pres)), bq(ctx, 'highshelf', 7000, null, Math.min(2.5, air)), bq(ctx, 'lowpass', 16000, 0.7)];
   // de-esser: a high shelf that dips ONLY on the "স/শ" moments, planned from the take itself
