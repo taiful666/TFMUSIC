@@ -939,16 +939,16 @@ const PARAMS = [
   { id: 'noiseAmt', slot: 'slot_noise', label: 'নয়েজ কমানোর মাত্রা', min: 10, max: 100, step: 1, def: 55, fmt: pctFmt, kind: 'none' },
   { id: 'latency', slot: 'slot_latency', label: 'রেকর্ড সিঙ্ক সংশোধন', min: 0, max: 400, step: 1, def: 40, fmt: v => v + ' ms', kind: 'none' },
   // EQ
-  { id: 'hpFreq', slot: 'mod_eq', label: 'লো-কাট (গুমগুম শব্দ বাদ)', min: 40, max: 200, step: 1, def: 95, fmt: v => v + ' Hz', kind: 'live' },
-  { id: 'warmth', slot: 'mod_eq', label: 'উষ্ণতা / বডি (220 Hz)', min: -6, max: 8, step: 0.5, def: 2.5, fmt: dbFmt, kind: 'live' },
-  { id: 'mud', slot: 'mod_eq', label: 'ঘোলাটে ভাব কমান (350 Hz)', min: -10, max: 0, step: 0.5, def: -3, fmt: dbFmt, kind: 'live' },
-  { id: 'presence', slot: 'mod_eq', label: 'কথার স্পষ্টতা (3.2 kHz)', min: -4, max: 8, step: 0.5, def: 2, fmt: dbFmt, kind: 'live' },
-  { id: 'deEss', slot: 'mod_eq', label: 'ডি-এসার ("স/শ" নরম করে)', min: -12, max: 0, step: 0.5, def: -3.5, fmt: dbFmt, kind: 'live' },
-  { id: 'air', slot: 'mod_eq', label: 'এয়ার / ঝকঝকে ভাব (10 kHz)', min: 0, max: 10, step: 0.5, def: 4, fmt: dbFmt, kind: 'live' },
+  { id: 'hpFreq', slot: 'mod_eq', label: 'লো-কাট (গুমগুম শব্দ বাদ)', min: 40, max: 200, step: 1, def: 100, fmt: v => v + ' Hz', kind: 'live' },
+  { id: 'warmth', slot: 'mod_eq', label: 'উষ্ণতা / বডি (220 Hz)', min: -6, max: 8, step: 0.5, def: 0.5, fmt: dbFmt, kind: 'live' },
+  { id: 'mud', slot: 'mod_eq', label: 'ঘোলাটে ভাব কমান (350 Hz)', min: -10, max: 0, step: 0.5, def: -9, fmt: dbFmt, kind: 'live' },
+  { id: 'presence', slot: 'mod_eq', label: 'কথার স্পষ্টতা (প্রিসেট অনুযায়ী 1.8–3.2 kHz)', min: -4, max: 8, step: 0.5, def: 4, fmt: dbFmt, kind: 'live' },
+  { id: 'deEss', slot: 'mod_eq', label: 'ডি-এসার ("স/শ" নরম করে)', min: -12, max: 0, step: 0.5, def: -2, fmt: dbFmt, kind: 'live' },
+  { id: 'air', slot: 'mod_eq', label: 'এয়ার / ঝকঝকে ভাব (10 kHz)', min: 0, max: 10, step: 0.5, def: 8.5, fmt: dbFmt, kind: 'live' },
   // Dynamics
-  { id: 'compThresh', slot: 'mod_dyn', label: 'থ্রেশহোল্ড (কতটা জোরে চাপবে)', min: -45, max: -6, step: 1, def: -22, fmt: v => v + ' dB', kind: 'live', color: '#fbbf24' },
+  { id: 'compThresh', slot: 'mod_dyn', label: 'থ্রেশহোল্ড (কতটা জোরে চাপবে)', min: -45, max: -6, step: 1, def: -24, fmt: v => v + ' dB', kind: 'live', color: '#fbbf24' },
   { id: 'compRatio', slot: 'mod_dyn', label: 'রেশিও (চাপের মাত্রা)', min: 1.5, max: 10, step: 0.5, def: 4, fmt: v => (+v).toFixed(1) + ' : 1', kind: 'live', color: '#fbbf24' },
-  { id: 'makeup', slot: 'mod_dyn', label: 'মেকআপ গেইন', min: -6, max: 12, step: 0.5, def: 3, fmt: dbFmt, kind: 'live', color: '#fbbf24' },
+  { id: 'makeup', slot: 'mod_dyn', label: 'মেকআপ গেইন', min: -6, max: 12, step: 0.5, def: 6, fmt: dbFmt, kind: 'live', color: '#fbbf24' },
   // Echo
   { id: 'delayTime', slot: 'mod_echo', label: 'ইকোর সময়', min: 80, max: 1000, step: 5, def: 400, fmt: v => v + ' ms', kind: 'live', color: '#34d399' },
   { id: 'delayFb', slot: 'mod_echo', label: 'ইকো কতবার ফিরবে', min: 0, max: 75, step: 1, def: 32, fmt: pctFmt, kind: 'live', color: '#34d399' },
@@ -957,10 +957,10 @@ const PARAMS = [
   // Reverb
   { id: 'revDecay', slot: 'mod_rev', label: 'রিভার্বের দৈর্ঘ্য', min: 0.5, max: 6, step: 0.1, def: 3.2, fmt: v => (+v).toFixed(1) + ' s', kind: 'restart', color: '#a78bfa' },
   { id: 'preDelay', slot: 'mod_rev', label: 'প্রি-ডিলে (কথা স্পষ্ট রাখে)', min: 0, max: 120, step: 5, def: 40, fmt: v => v + ' ms', kind: 'restart', color: '#a78bfa' },
-  { id: 'revMix', slot: 'mod_rev', label: 'রিভার্বের মাত্রা', min: 0, max: 85, step: 1, def: 34, fmt: pctFmt, kind: 'live', color: '#a78bfa' },
+  { id: 'revMix', slot: 'mod_rev', label: 'রিভার্বের মাত্রা', min: 0, max: 85, step: 1, def: 32, fmt: pctFmt, kind: 'live', color: '#a78bfa' },
   // Mix
   { id: 'duck', slot: 'mod_mix', label: 'অটো ডাকিং (গাওয়ার সময় মিউজিক নামবে)', min: 0, max: 12, step: 0.5, def: 3, fmt: v => v > 0 ? '-' + (+v).toFixed(1) + ' dB' : 'বন্ধ', kind: 'restart', color: '#f472b6' },
-  { id: 'pocket', slot: 'mod_mix', label: 'ভোকাল পকেট (মিউজিকে গলার জায়গা)', min: 0, max: 100, step: 5, def: 55, fmt: pctFmt, kind: 'live', color: '#f472b6' },
+  { id: 'pocket', slot: 'mod_mix', label: 'ভোকাল পকেট (মিউজিকে গলার জায়গা)', min: 0, max: 100, step: 5, def: 60, fmt: pctFmt, kind: 'live', color: '#f472b6' },
   { id: 'padLevel', slot: 'mod_mix', label: 'আবহ হামিং প্যাড', min: 0, max: 80, step: 1, def: 0, fmt: v => v > 0 ? v + '%' : 'বন্ধ', kind: 'live', color: '#f472b6' },
   { id: 'liveGain', slot: 'slot_liveGain', label: 'মাইকের জোর', min: 0, max: 200, step: 5, def: 100, fmt: pctFmt, kind: 'none', color: '#f43f5e' },
   { id: 'mobAmt', slot: 'slot_mob', label: 'মাত্রা', min: 0, max: 100, step: 5, def: 60, fmt: pctFmt, kind: 'live', color: '#34d399' },
@@ -970,20 +970,25 @@ const PSPEC = Object.fromEntries(PARAMS.map(p => [p.id, p]));
 
 /* ---------------- Presets ---------------- */
 const PK = ['hpFreq','warmth','mud','presence','deEss','air','compThresh','compRatio','makeup','delayTime','delayFb','delayMix','width','revDecay','preDelay','revMix','duck','pocket','padLevel','musicVol'];
+/* Tuned on the owner's own voice (MY VOICE SAMPLE): a low male voice (median ~147 Hz) that is boxy at
+   300-500 Hz (+6 dB) and short on clarity at 1-2 kHz (-10 dB) and air at 9-14 kHz (-12 dB), next to the
+   original singer's vocal. So every preset cuts 350 Hz deeper (-8..-10), lifts clarity at 1.8-2.1 kHz
+   (presF), adds more air, de-esses lightly (little "স/শ" in this voice), and sits the voice 2-2.6 dB
+   over the music for songs and 4-5 dB for speech. */
 const PRESETS = {
-  romantic: { name: 'রোমান্টিক গান', sub: 'উষ্ণ গলা, মিষ্টি ইকো', v: [95,2.5,-3,2,-3.5,4,-22,4,3,400,32,24,28,3.2,40,34,3,55,0,85] },
-  glue:     { name: 'মিউজিকে মিশে যাওয়া', sub: 'মিউজিকের সাথে নিখুঁত মিল', v: [105,2,-4,3.5,-4.5,4.5,-26,5.5,4,380,28,22,36,2.9,45,32,4,85,0,80] },
-  alaap:    { name: 'হামিং ও আলাপ', sub: 'গভীর সিনেমাটিক হল', v: [105,3,-3.5,1.5,-4,5.5,-24,4.5,3,460,44,34,48,4.6,55,50,3,50,25,80] },
-  airy:     { name: 'সফট পপ', sub: 'সিল্কি, ব্রাইট গলা', v: [100,1.5,-4,3,-4.5,7,-25,5,3.5,380,28,20,35,2.8,35,30,3,60,0,85] },
-  waz:      { name: 'ওয়াজ ও মাহফিল', sub: 'গম্ভীর গলা + ময়দান ইকো', v: [85,4.5,-3.5,3.5,-4,3,-26,5.5,4.5,330,46,36,32,3.8,35,42,5,70,28,60], speech: true },
-  naat:     { name: 'নাশিদ ও গজল', sub: 'মসজিদ-হল রিভার্ব', v: [95,3,-3.5,2.5,-4,5,-24,4.5,4,420,38,30,42,4.2,45,46,4,60,32,75], speech: true },
-  seminar:  { name: 'সেমিনার ও আবৃত্তি', sub: 'অডিটোরিয়াম, স্পষ্ট কথা', v: [90,3.5,-4,4,-4.5,2.5,-25,5,4,240,22,18,20,2.4,30,28,6,75,22,65], speech: true },
-  dry:      { name: 'পডকাস্ট / ড্রাই', sub: 'ক্রিস্প রেডিও ভয়েস', v: [80,3.5,-3,3,-4,2.5,-24,5,3.5,250,10,6,10,1.2,20,10,6,65,0,75], speech: true },
+  romantic: { name: 'রোমান্টিক গান', sub: 'উষ্ণ গলা, মিষ্টি ইকো', v: [100,0.5,-9,4,-2,8.5,-24,4,6,400,32,24,28,3.2,40,32,3,60,0,85], presF: 1800 },
+  glue:     { name: 'মিউজিকে মিশে যাওয়া', sub: 'মিউজিকের সাথে নিখুঁত মিল', v: [100,0,-9.5,4.5,-2.5,9,-26,5,6.5,380,28,22,36,2.9,45,30,4,85,0,80], presF: 1800 },
+  alaap:    { name: 'হামিং ও আলাপ', sub: 'গভীর সিনেমাটিক হল', v: [100,1,-9,3.5,-2,9,-25,4.5,6,460,44,34,48,4.6,55,46,3,55,25,80], presF: 1800 },
+  airy:     { name: 'সফট পপ', sub: 'সিল্কি, ব্রাইট গলা', v: [100,-1,-10,5,-2.5,10,-26,5,7.5,380,28,20,35,2.8,35,28,3,65,0,85], presF: 1900 },
+  waz:      { name: 'ওয়াজ ও মাহফিল', sub: 'গম্ভীর গলা + ময়দান ইকো', v: [90,1.5,-8,5,-2.5,6,-27,5.5,6,330,46,36,32,3.8,35,40,5,70,28,60], presF: 2000, speech: true },
+  naat:     { name: 'নাশিদ ও গজল', sub: 'মসজিদ-হল রিভার্ব', v: [100,0.5,-9,4.5,-2,8,-25,4.5,5.5,420,38,30,42,4.2,45,42,4,65,32,75], presF: 1800, speech: true },
+  seminar:  { name: 'সেমিনার ও আবৃত্তি', sub: 'অডিটোরিয়াম, স্পষ্ট কথা', v: [95,0.5,-9,5.5,-2.5,6,-26,5,5.5,240,22,18,20,2.4,30,26,6,75,22,65], presF: 2100, speech: true },
+  dry:      { name: 'পডকাস্ট / ড্রাই', sub: 'ক্রিস্প রেডিও ভয়েস', v: [95,0.5,-8.5,5,-2.5,6.5,-25,5,5.5,250,10,6,10,1.2,20,10,6,65,0,75], presF: 2000, speech: true },
   // Signature: Auto-Tune Ghazal / Nasheed chain. Besides the rack values it switches on the pitch engine
-  // (pitch correction 100% + auto-tune sheen 55%) with key AND scale detected from the singer's own voice
-  // and tuning, sets presence to 3.8 kHz and the vocal fader to 115%. Glides between notes, never hard jumps.
-  nasheed:  { name: '🕌 অটো-টিউন গজল (Auto-Tune Nasheed)', sub: 'Auto-Key Pitch-Correction (যেকোনো সুরে) + Lush Hall', v: [110,1.5,-3.5,3.5,-4,5,-24,4.5,3,360,26,20,35,3.6,35,40,4,60,0,75], sig: true,
-              tune: { fx: { tune: 100, robot: 55 }, key: 'auto', scale: 'auto', vocalVol: 115, presF: 3800 } },
+  // (pitch correction 100% + auto-tune sheen 75%) with key AND scale detected from the singer's own voice
+  // and tuning, sets presence to 1.9 kHz and the vocal fader to 115%. Glides between notes, never hard jumps.
+  nasheed:  { name: '🕌 অটো-টিউন গজল (Auto-Tune Nasheed)', sub: 'Auto-Key Pitch-Correction (যেকোনো সুরে) + Lush Hall', v: [100,-1,-10,4.5,-2.5,9,-25,4.5,4.5,360,26,20,35,3.6,35,38,4,65,0,75], sig: true,
+              tune: { fx: { tune: 100, robot: 75 }, key: 'auto', scale: 'auto', vocalVol: 115, presF: 1900 } },
 };
 
 /* ---------------- State ---------------- */
@@ -1923,9 +1928,9 @@ function synthPitch(A, p) {
       // fast ornaments / slides: let them through naturally instead of chopping them into steps
       const a = Math.max(0, i - 2), b = Math.min(L - 1, i + 2);
       const vel = Math.abs(m[k + b] - m[k + a]) / Math.max(1, b - a);   // semitones per 10 ms
-      const keep = clamp(1 - (vel - 0.06) / 0.12, 0, 1);
+      const keep = clamp(1 - (vel - 0.06) / 0.12, 0, 1), keepS = clamp(1 - (vel - 0.09) / 0.12, 0, 1);
       let v = (g[i] - sm[i]) * str;                                 // pull the note centre in tune
-      v += (sm[i] - m[k + i]) * aR * 0.8 * keep;                    // auto-tune sheen: steadier held notes
+      v += (sm[i] - m[k + i]) * aR * 0.92 * keepS;                 // auto-tune sheen: steadier held notes (tuned on the owner's wobbly long notes: 74 -> 79% within 20 cents)
       v = clamp(v, -1, 1) * (0.35 + 0.65 * keep);
       const edge = Math.min(1, (i + 1) / 6, (L - i) / 6);           // fade in/out at note edges
       c[i] = v * edge * edge * (3 - 2 * edge);
@@ -4598,7 +4603,7 @@ function updStrip() {
    • glue compression on the whole song, and on download the loudness is
      set to streaming level (~ -14 LUFS) with peaks under -1 dB.
    ===================================================================== */
-S.mm = false;
+S.mm = true;                 // on by default: the presets are tuned for the voice with master mix on
 const VM_BANDS = [[80, 160], [160, 300], [300, 500], [500, 1000], [1000, 2000], [2000, 3500], [3500, 6000], [6000, 10000], [10000, 16000]];
 const VM_TARGET = [-22.7, -8.5, -8.9, -3.2, -7.1, -15.4, -21.8, -20.1, -30.4];
 let mmCache = { key: null }, vmCache = { key: null };
@@ -4780,7 +4785,7 @@ function saveSettings() {
   clearTimeout(setT);
   setT = setTimeout(() => {
     const params = {}; PARAMS.forEach(s => { params[s.id] = +$('p_' + s.id).value; });
-    lsSet(SET_KEY, JSON.stringify({ pmix: S.pmix, pInt: S.pInt, params, fx: S.fx, dirty: S.presetDirty, mm: S.mm,
+    lsSet(SET_KEY, JSON.stringify({ ver: 2, pmix: S.pmix, pInt: S.pInt, params, fx: S.fx, dirty: S.presetDirty, mm: S.mm,
       padKey: $('p_padKey').value, tune: [$('tuneKey').value, $('tuneScale').value, $('harmMode').value] }));
   }, 300);
 }
@@ -4794,6 +4799,14 @@ function restoreSettings() {
     if (o.tune) { $('tuneKey').value = o.tune[0]; $('tuneScale').value = o.tune[1]; $('harmMode').value = o.tune[2]; }
     if (o.padKey) $('p_padKey').value = o.padKey;
     S.mm = !!o.mm; S.presetDirty = !!o.dirty;
+    // settings saved before the presets were tuned to the owner's voice: switch master mix on once
+    // (the presets were measured with it), the user can turn it off again
+    if (!(o.ver >= 2)) S.mm = true;
+    // presets that were not changed by hand always use the current preset values (so updates reach the phone)
+    if (!S.presetDirty) {
+      blendValues().forEach((v, i) => setParam(PK[i], v));
+      Object.keys(PRESETS).forEach(k => { const T = PRESETS[k].tune; if (T && S.pmix[k].on) Object.keys(T.fx).forEach(id => { if (S.fx[id]) S.fx[id] = { on: true, amt: T.fx[id] }; }); });
+    }
   }
   restoring = false;
   const sw = $('mmOn'); if (sw) sw.checked = S.mm;
