@@ -54,7 +54,7 @@ writeFileSync(join(www, 'index.html'), html);
 // app files
 for (const f of ['native-bridge.js']) copyFileSync(join(here, f), join(www, f));
 copyFileSync(join(here, 'logo.png'), join(www, 'logo-mark.png'));
-for (const f of ['manifest.webmanifest']) if (existsSync(join(root, f))) copyFileSync(join(root, f), join(www, f));
+for (const f of ['manifest.webmanifest', 'favicon.ico']) if (existsSync(join(root, f))) copyFileSync(join(root, f), join(www, f));
 mkdirSync(join(www, 'icons'), { recursive: true });
 for (const f of readdirSync(join(root, 'icons'))) copyFileSync(join(root, 'icons', f), join(www, 'icons', f));
 

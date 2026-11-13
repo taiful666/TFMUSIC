@@ -6,8 +6,10 @@
 <meta name="theme-color" content="#15161A">
 <meta name="description" content="গান গাওয়া, রেকর্ড, লিরিক্স ও মাল্টি-ট্র্যাক মিক্সিং — মোবাইল ও কম্পিউটারে চলে">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=2">
+<link rel="alternate icon" href="favicon.ico?v=2">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -367,6 +369,13 @@ details.sub[open] summary::after{transform:rotate(225deg)}
 .tune-set .ts-h{grid-column:1/-1;font-weight:600}
 .tune-set .fld:last-of-type{grid-column:1/-1}
 .keyinfo{grid-column:1/-1;font-size:12.5px;color:var(--muted);line-height:1.6}
+.at-box{display:grid;gap:10px;transition:border-color .12s}
+.at-box.on{border-color:var(--accent)}
+.at-t{display:flex;flex-direction:column;gap:2px;font-weight:600}
+.at-t small{font-size:12px;font-weight:400;color:var(--muted)}
+.at-seg button{flex:1;justify-content:center;height:32px}
+.at-desc{margin:0;font-size:12.5px;line-height:1.55;color:var(--muted);min-height:2.6em}
+.at-box:not(.on) .at-desc,.at-box:not(.on) .prm{opacity:.55}
 .mobm.on{border-color:var(--ok)}
 #btnPhonePrev.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 
@@ -748,11 +757,17 @@ html.m .countin{font-size:100px}
       <!-- EFFECTS -->
       <section class="pane" data-tab="fx" data-title="ইফেক্ট">
         <div class="pane-tags"><span class="tag off" id="fxCount">কোনো ইফেক্ট চালু নেই</span></div>
+        <div class="box at-box" id="atBox">
+          <div class="box-h"><span class="at-t">অটো-টিউন<small>যেকোনো প্রিসেটের সাথে চলে</small></span><label class="switch"><input type="checkbox" id="atOn" aria-label="অটো-টিউন চালু/বন্ধ"><span></span></label></div>
+          <div class="seg at-seg" id="atSeg" role="group" aria-label="অটো-টিউনের ধরন"></div>
+          <p class="at-desc" id="atDesc"></p>
+          <div class="prm"><div class="prm-top"><span>সুর ঠিক করার মাত্রা</span><b class="mono" id="atAmtV"></b></div><input type="range" id="atAmt" min="10" max="100" step="5" value="100" aria-label="সুর ঠিক করার মাত্রা"></div>
+        </div>
         <div class="fxgrid" id="fxGrid"></div>
         <div class="box tune-set">
           <div class="ts-h">সুরের সেটিংস</div>
           <label class="fld"><span>গানের কী</span><select id="tuneKey"><option value="auto" selected>অটো শনাক্ত</option><option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option></select></label>
-          <label class="fld"><span>স্কেল</span><select id="tuneScale"><option value="auto">অটো — গলা থেকে</option><option value="chromatic" selected>সব নোট (নিরাপদ)</option><option value="major">মেজর</option><option value="minor">মাইনর</option></select></label>
+          <label class="fld"><span>স্কেল</span><select id="tuneScale"><option value="auto" selected>অটো — গলা থেকে</option><option value="chromatic">সব নোট (নিরাপদ)</option><option value="major">মেজর</option><option value="minor">মাইনর</option></select></label>
           <label class="fld"><span>হারমোনি কণ্ঠের সুর</span><select id="harmMode"><option value="third" selected>ওপরে মিষ্টি তৃতীয় সুর</option><option value="fifth">ওপরে পঞ্চম সুর</option><option value="octdown">এক অষ্টক নিচে (গম্ভীর)</option></select></label>
           <div class="keyinfo" id="keyInfo">শনাক্ত কী: প্লে চাপলে বের হবে</div>
         </div>
@@ -984,11 +999,10 @@ const PRESETS = {
   naat:     { name: 'নাশিদ ও গজল', sub: 'মসজিদ-হল রিভার্ব', v: [100,0.5,-9,4.5,-2,8,-25,4.5,5.5,420,38,30,42,4.2,45,42,4,65,32,75], presF: 1800, speech: true },
   seminar:  { name: 'সেমিনার ও আবৃত্তি', sub: 'অডিটোরিয়াম, স্পষ্ট কথা', v: [95,0.5,-9,5.5,-2.5,6,-26,5,5.5,240,22,18,20,2.4,30,26,6,75,22,65], presF: 2100, speech: true },
   dry:      { name: 'পডকাস্ট / ড্রাই', sub: 'ক্রিস্প রেডিও ভয়েস', v: [95,0.5,-8.5,5,-2.5,6.5,-25,5,5.5,250,10,6,10,1.2,20,10,6,65,0,75], presF: 2000, speech: true },
-  // Signature: Auto-Tune Ghazal / Nasheed chain. Besides the rack values it switches on the pitch engine
-  // (pitch correction 100% + auto-tune sheen 75%) with key AND scale detected from the singer's own voice
-  // and tuning, sets presence to 1.9 kHz and the vocal fader to 115%. Glides between notes, never hard jumps.
-  nasheed:  { name: '🕌 অটো-টিউন গজল (Auto-Tune Nasheed)', sub: 'Auto-Key Pitch-Correction (যেকোনো সুরে) + Lush Hall', v: [100,-1,-10,4.5,-2.5,9,-25,4.5,4.5,360,26,20,35,3.6,35,38,4,65,0,75], sig: true,
-              tune: { fx: { tune: 100, robot: 75 }, key: 'auto', scale: 'auto', vocalVol: 115, presF: 1900 } },
+  // Signature: Auto-Tune Ghazal / Nasheed sound (lush hall, clear top). Picking it also switches Auto-Tune
+  // on in the "গজল" style if it is off. Auto-Tune itself is a separate switch (see AUTO-TUNE below):
+  // picking another preset never turns it off.
+  nasheed:  { name: '🕌 অটো-টিউন গজল (Auto-Tune Nasheed)', sub: 'গজল হল + অটো-টিউন চালু করে', v: [100,-1,-10,4.5,-2.5,9,-25,4.5,4.5,360,26,20,35,3.6,35,38,4,65,0,75], sig: true, presF: 1900, at: 'gojol' },
 };
 
 /* ---------------- State ---------------- */
@@ -1104,7 +1118,7 @@ function getParams() {
   p.padKey = $('p_padKey').value;
   p.fx = JSON.parse(JSON.stringify(S.fx));
   p.presF = 3200;
-  if (S.pmix) for (const k in PRESETS) if (S.pmix[k] && S.pmix[k].on) { const P = PRESETS[k]; if (P.presF) p.presF = P.presF; else if (P.tune && P.tune.presF) p.presF = P.tune.presF; }
+  if (S.pmix) for (const k in PRESETS) if (S.pmix[k] && S.pmix[k].on) { const P = PRESETS[k]; if (P.presF) p.presF = P.presF; }
   p.tuneKey = $('tuneKey').value; p.tuneScale = $('tuneScale').value; p.harmMode = $('harmMode').value;
   return p;
 }
@@ -1139,7 +1153,7 @@ function renderPresets() {
 }
 function setPresetAmt(k, v) {
   S.pmix[k].amt = v;
-  if (!S.pmix[k].on) { S.pmix[k].on = true; syncTunePreset(k); }
+  if (!S.pmix[k].on) { S.pmix[k].on = true; presetAutoTune(k); }
   applyBlend(false, true);
 }
 function blendValues() {
@@ -1183,39 +1197,16 @@ function applyBlend(announce, live) {
 }
 // switch to just one preset at 100% (used for new project / demo)
 function applyPreset(key, announce) {
-  const wasOn = Object.keys(PRESETS).filter(k => S.pmix[k].on);
   Object.keys(PRESETS).forEach(k => { S.pmix[k] = { on: k === key, amt: 100 }; });
-  new Set([...wasOn, key]).forEach(k => syncTunePreset(k));
   S.pInt = 100; $('presetInt').value = 100; $('presetIntV').textContent = '১০০%'; setFill($('presetInt'));
   S.preset = key;
+  presetAutoTune(key);
   applyBlend(announce);
 }
-/* Presets with a "tune" block (🕌 Auto-Tune Nasheed) also drive the pitch engine:
-   on  -> robotic auto-tune at full strength (instant hard snap), fixed key + scale, fader + presence
-   off -> put back whatever the user had before */
-function syncTunePreset(k) {
-  const P = PRESETS[k], T = P && P.tune;
-  if (!T) return;
-  const ids = Object.keys(T.fx).filter(id => S.fx[id]);
-  const on = S.pmix[k].on;
-  if (on && !P._saved) {
-    P._saved = { fx: Object.fromEntries(ids.map(id => [id, { ...S.fx[id] }])), key: $('tuneKey').value, scale: $('tuneScale').value, vocalVol: +$('p_vocalVol').value };
-    ids.forEach(id => { S.fx[id] = { on: true, amt: T.fx[id] }; });
-    $('tuneKey').value = T.key; $('tuneScale').value = T.scale;
-    setParam('vocalVol', T.vocalVol);
-  } else if (!on && P._saved) {
-    const b = P._saved; P._saved = null;
-    ids.forEach(id => { S.fx[id] = b.fx[id]; });
-    $('tuneKey').value = b.key; $('tuneScale').value = b.scale;
-    setParam('vocalVol', b.vocalVol);
-  } else return;
-  ids.forEach(id => {
-    const card = $('fx_' + id); if (!card) return;
-    const sl = card.querySelector('input'); sl.value = S.fx[id].amt; setFill(sl);
-    card.querySelector('.fx-amt b').textContent = S.fx[id].amt + '%';
-  });
-  updFxUI(); updKeyInfo();
-  fxChanged({ pitch: true });
+// a preset with "at" (🕌 Auto-Tune Nasheed) switches Auto-Tune on when it is picked; nothing ever switches it off
+function presetAutoTune(k) {
+  const P = PRESETS[k];
+  if (P && P.at && S.pmix[k].on && !atOn()) setAutoTune({ on: true, style: P.at }, true);
 }
 function markCustom() {
   if (S.presetDirty) return;
@@ -1557,8 +1548,8 @@ function gated(buf) { return buf; }
    Effects rack (multi-select) + pitch correction engine
    ===================================================================== */
 const FX = [
-  { id: 'tune', ico: '🎯', name: 'সুর সংশোধন', tag: 'প্রস্তাবিত', sub: 'বেসুরো বা কাঁপা সুর স্বাভাবিকভাবে ঠিক নোটে বসিয়ে দেয় — গলার আসল ভাব থাকে', def: 60, pitch: true },
-  { id: 'robot', ico: '🤖', name: 'রোবটিক অটো-টিউন', sub: 'জনপ্রিয় পপ/র‍্যাপ গানের মতো যান্ত্রিক, ঝকঝকে অটো-টিউন কণ্ঠ', def: 80, pitch: true },
+  { id: 'tune', name: 'অটো-টিউন', def: 100, pitch: true, at: true },      // shown as the Auto-Tune box, not a card
+  { id: 'robot', name: 'অটো-টিউন স্টাইল', def: 75, pitch: true, at: true },
   { id: 'harm', ico: '🎶', name: 'হারমোনি কণ্ঠ', sub: 'আপনার সাথে আরেকটা সুরে দ্বিতীয় কণ্ঠ গায় — গান ভরাট শোনায়', def: 35, pitch: true },
   { id: 'smooth', ico: '✨', name: 'কণ্ঠ মসৃণ', sub: 'খসখসে, ভাঙা বা কর্কশ কণ্ঠ নরম ও মিষ্টি করে', def: 50 },
   { id: 'chorus', ico: '🌊', name: 'কোরাস', sub: 'কয়েকজন একসাথে গাইছে এমন চওড়া, ভাসমান ভাব', def: 40 },
@@ -1573,6 +1564,7 @@ const fxA = (p, id) => (p.fx[id] && p.fx[id].on) ? p.fx[id].amt / 100 : 0;
 function renderFx() {
   const g = $('fxGrid');
   FX.forEach(f => {
+    if (f.at) return;
     const d = document.createElement('div');
     d.className = 'fx' + (f.pitch ? ' pitch' : '');
     d.id = 'fx_' + f.id;
@@ -1588,7 +1580,57 @@ function renderFx() {
     sl.addEventListener('change', () => { if (f.pitch) fxChanged(f); });
   });
   ['tuneKey', 'tuneScale', 'harmMode'].forEach(id => $(id).addEventListener('change', () => { updKeyInfo(); fxChanged({ pitch: true }); }));
+  initAutoTune();
   updFxUI(); updKeyInfo();
+}
+/* ---------------- AUTO-TUNE ----------------
+   One switch that works together with any preset (presets never turn it off).
+   Styles: প্রাকৃতিক = pitch correction only; গজল = + steadier held notes (tuned on the owner's voice:
+   79% of held notes within 20 cents); রোবটিক = hard, instant pop/rap snap.
+   Stored in S.fx.tune (on + amount) and S.fx.robot (style), which the pitch engine reads. */
+const AT_STYLES = {
+  natural: { name: 'প্রাকৃতিক', robot: 0, desc: 'গলার আসল ভাব রেখে বেসুরো নোট আলতো করে ঠিক নোটে বসায়' },
+  gojol:   { name: 'গজল', robot: 75, desc: 'আপনার গলায় মেপে ঠিক করা — লম্বা নোট স্থির, সুর পরিষ্কার, কাঁপুনি কম' },
+  robot:   { name: 'রোবটিক', robot: 100, desc: 'পপ/র‍্যাপ গানের মতো যান্ত্রিক, ঝকঝকে অটো-টিউন' },
+};
+S.atStyle = 'gojol';
+const atOn = () => !!(S.fx.tune.on || S.fx.robot.on);
+function atStyleNow() {
+  if (!atOn()) return S.atStyle;
+  if (!S.fx.robot.on) return 'natural';
+  return S.fx.robot.amt >= 90 ? 'robot' : 'gojol';
+}
+function setAutoTune(o, quiet) {
+  const on = o.on != null ? !!o.on : atOn();
+  const st = AT_STYLES[o.style] ? o.style : atStyleNow();
+  const amt = o.amt != null ? o.amt : S.fx.tune.amt;
+  S.atStyle = st;
+  S.fx.tune = { on, amt };
+  const r = AT_STYLES[st].robot;
+  S.fx.robot = { on: on && r > 0, amt: r || S.fx.robot.amt };
+  updFxUI(); updKeyInfo();
+  fxChanged({ pitch: true });
+  if (!quiet) toast(on ? `অটো-টিউন চালু — ${AT_STYLES[st].name}` : 'অটো-টিউন বন্ধ', on ? 'success' : 'info');
+}
+function initAutoTune() {
+  $('atSeg').innerHTML = Object.entries(AT_STYLES).map(([k, v]) => `<button type="button" data-st="${k}" aria-pressed="false">${v.name}</button>`).join('');
+  $('atOn').addEventListener('change', e => setAutoTune({ on: e.target.checked }));
+  $('atSeg').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (b) setAutoTune({ on: true, style: b.dataset.st }); });
+  const sl = $('atAmt'); setFill(sl);
+  sl.addEventListener('input', () => { S.fx.tune.amt = +sl.value; updAtUI(); });
+  sl.addEventListener('change', () => setAutoTune({ on: true, amt: +sl.value }, true));
+}
+function updAtUI() {
+  const box = $('atBox'); if (!box) return;
+  const on = atOn(), st = atStyleNow();
+  box.classList.toggle('on', on);
+  $('atOn').checked = on;
+  $('atSeg').querySelectorAll('[data-st]').forEach(b => { const x = b.dataset.st === st; b.classList.toggle('on', x); b.setAttribute('aria-pressed', x); });
+  $('atDesc').textContent = AT_STYLES[st].desc;
+  const sl = $('atAmt'); if (+sl.value !== S.fx.tune.amt) { sl.value = S.fx.tune.amt; setFill(sl); }
+  $('atAmtV').textContent = bnNum(S.fx.tune.amt) + '%';
+  const pop = $('chipPop');
+  if (pop && pop.dataset.key === 'at' && !pop.classList.contains('hidden')) updAtPop();
 }
 function toggleFxId(id) {
   const f = FX.find(x => x.id === id);
@@ -1606,7 +1648,9 @@ function setFxAmt(id, v) {
 }
 function updFxUI() {
   let n = 0;
+  if (atOn()) n++;
   FX.forEach(f => {
+    if (f.at) return;
     const on = S.fx[f.id].on; if (on) n++;
     const d = $('fx_' + f.id);
     d.classList.toggle('on', on);
@@ -1615,7 +1659,7 @@ function updFxUI() {
     if (+sl.value !== S.fx[f.id].amt) { sl.value = S.fx[f.id].amt; setFill(sl); }
     d.querySelector('.fx-amt b').textContent = S.fx[f.id].amt + '%';
   });
-  updStrip(); saveSettings();
+  updAtUI(); updStrip(); saveSettings();
   const tag = $('fxCount');
   if (tag.classList.contains('busy')) return;
   tag.textContent = n ? `${bnNum(n)}টি ইফেক্ট চালু` : 'কোনো ইফেক্ট চালু নেই';
@@ -4537,10 +4581,10 @@ function placeSelChip() {
 const presetLabel = k => PRESETS[k].name.replace(/\s*\(.*\)\s*/, '').replace(/^\S*🕌\s*/, '');
 function buildStrip() {
   const row = $('stripRow');
-  row.innerHTML = '<button class="chip" type="button" data-mm="1" aria-pressed="false" title="মাস্টার মিক্স — কণ্ঠ মিউজিকের সাথে মিশে যাবে">মাস্টার মিক্স</button><button class="chip" type="button" data-ee="1" aria-pressed="false" title="শ্রাবণের মেঘ ডিলে — পুরো গান একটু পরে পেছনে আবার বাজে। যেকোনো প্রিসেটের সাথে চলে। রাইট-ক্লিক: কোথায় হবে">শ্রাবণের মেঘ</button><span class="strip-sep" aria-hidden="true"></span>'
+  row.innerHTML = '<button class="chip" type="button" data-mm="1" aria-pressed="false" title="মাস্টার মিক্স — কণ্ঠ মিউজিকের সাথে মিশে যাবে">মাস্টার মিক্স</button><button class="chip" type="button" data-at="1" aria-pressed="false" title="অটো-টিউন — যেকোনো প্রিসেটের সাথে চলে। রাইট-ক্লিক বা চেপে ধরুন: ধরন ও মাত্রা">অটো-টিউন</button><button class="chip" type="button" data-ee="1" aria-pressed="false" title="শ্রাবণের মেঘ ডিলে — পুরো গান একটু পরে পেছনে আবার বাজে। যেকোনো প্রিসেটের সাথে চলে। রাইট-ক্লিক: কোথায় হবে">শ্রাবণের মেঘ</button><span class="strip-sep" aria-hidden="true"></span>'
     + Object.keys(PRESETS).map(k => `<button class="chip" type="button" data-pre="${k}" aria-pressed="false" title="${escHtml(PRESETS[k].sub)}">${escHtml(presetLabel(k))}</button>`).join('');
   let hold = 0, held = false;
-  const act = b => b.dataset.pre ? pickPreset(b.dataset.pre) : b.dataset.mm ? setMM(!S.mm) : setEcho(!S.ee.on);
+  const act = b => b.dataset.pre ? pickPreset(b.dataset.pre) : b.dataset.mm ? setMM(!S.mm) : b.dataset.at ? setAutoTune({ on: !atOn() }) : setEcho(!S.ee.on);
   row.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; if (held) { held = false; return; } act(b); });
   row.addEventListener('contextmenu', e => { const b = e.target.closest('.chip'); if (!b) return; e.preventDefault(); if (!b.dataset.mm) openChipPop(b); });
   row.addEventListener('pointerdown', e => {
@@ -4555,13 +4599,23 @@ function buildStrip() {
 }
 function pickPreset(k) {
   const only = S.pmix[k].on && Object.keys(PRESETS).every(x => x === k || !S.pmix[x].on);
-  if (only) { S.pmix[k].on = false; syncTunePreset(k); applyBlend(); toast(`"${presetLabel(k)}" বন্ধ — পরিষ্কার গলা`, 'info'); }
+  if (only) { S.pmix[k].on = false; applyBlend(); toast(`"${presetLabel(k)}" বন্ধ — পরিষ্কার গলা`, 'info'); }
   else { applyPreset(k); toast(`"${presetLabel(k)}" চালু`, 'success'); }
 }
 function openChipPop(b) {
   const pop = $('chipPop'), body = $('cpBody');
-  pop.dataset.key = b.dataset.pre || 'ee';
-  if (b.dataset.pre) {
+  pop.dataset.key = b.dataset.pre || (b.dataset.at ? 'at' : 'ee');
+  if (b.dataset.at) {
+    $('cpName').textContent = 'অটো-টিউন'; $('cpSub').textContent = 'যেকোনো প্রিসেটের সাথে চলে';
+    body.innerHTML = `<div class="seg" role="group" aria-label="অটো-টিউনের ধরন">${Object.entries(AT_STYLES).map(([k, v]) => `<button type="button" data-st="${k}">${v.name}</button>`).join('')}</div>
+      <div class="cp-s"><input type="range" name="atAmt" min="10" max="100" step="5" aria-label="সুর ঠিক করার মাত্রা"><b></b></div>`;
+    body.querySelectorAll('[data-st]').forEach(x => x.onclick = () => setAutoTune({ on: true, style: x.dataset.st }));
+    const amt = body.querySelector('input');
+    amt.addEventListener('input', () => { S.fx.tune.amt = +amt.value; updAtUI(); });
+    amt.addEventListener('change', () => setAutoTune({ on: true, amt: +amt.value }, true));
+    $('cpMore').onclick = () => { closeChipPop(); goTab('fx'); };
+    updAtPop();
+  } else if (b.dataset.pre) {
     const k = b.dataset.pre;
     $('cpName').textContent = presetLabel(k); $('cpSub').textContent = PRESETS[k].sub;
     body.innerHTML = `<div class="cp-s"><input type="range" name="presetAmt" min="0" max="100" step="5" value="${S.pmix[k].on ? S.pmix[k].amt : 100}" aria-label="মাত্রা"><b>${bnNum(S.pmix[k].on ? S.pmix[k].amt : 100)}%</b></div>`;
@@ -4584,12 +4638,21 @@ function openChipPop(b) {
   pop.style.top = (r.top - pr.height - 8 > 8 ? r.top - pr.height - 8 : r.bottom + 8) + 'px';
   const f = body.querySelector('input,button'); if (f) f.focus();
 }
+function updAtPop() {
+  const body = $('cpBody'), st = atStyleNow(), on = atOn();
+  body.querySelectorAll('[data-st]').forEach(x => { const y = on && x.dataset.st === st; x.classList.toggle('on', y); x.setAttribute('aria-pressed', y); });
+  const amt = body.querySelector('input'); if (!amt) return;
+  if (+amt.value !== S.fx.tune.amt) amt.value = S.fx.tune.amt;
+  setFill(amt); amt.nextElementSibling.textContent = bnNum(S.fx.tune.amt) + '%';
+}
 function closeChipPop() { const p = $('chipPop'); if (p && !p.classList.contains('hidden')) { p.classList.add('hidden'); $('cpBody').innerHTML = ''; } }
 function updStrip() {
   const row = $('stripRow'); if (!row || !row.firstChild) return;
   row.querySelectorAll('[data-pre]').forEach(b => { const on = S.pmix[b.dataset.pre].on; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   const ee = row.querySelector('[data-ee]'); if (ee) { ee.classList.toggle('on', S.ee.on); ee.setAttribute('aria-pressed', S.ee.on); }
   const mm = row.querySelector('[data-mm]'); if (mm) { mm.classList.toggle('on', S.mm); mm.setAttribute('aria-pressed', S.mm); }
+  const at = row.querySelector('[data-at]');
+  if (at) { const on = atOn(); at.classList.toggle('on', on); at.setAttribute('aria-pressed', on); at.textContent = on ? `অটো-টিউন · ${AT_STYLES[atStyleNow()].name}` : 'অটো-টিউন'; }
 }
 
 /* =====================================================================
@@ -4785,7 +4848,7 @@ function saveSettings() {
   clearTimeout(setT);
   setT = setTimeout(() => {
     const params = {}; PARAMS.forEach(s => { params[s.id] = +$('p_' + s.id).value; });
-    lsSet(SET_KEY, JSON.stringify({ ver: 2, pmix: S.pmix, pInt: S.pInt, params, fx: S.fx, dirty: S.presetDirty, mm: S.mm,
+    lsSet(SET_KEY, JSON.stringify({ ver: 3, at: S.atStyle, pmix: S.pmix, pInt: S.pInt, params, fx: S.fx, dirty: S.presetDirty, mm: S.mm,
       padKey: $('p_padKey').value, tune: [$('tuneKey').value, $('tuneScale').value, $('harmMode').value] }));
   }, 300);
 }
@@ -4802,10 +4865,12 @@ function restoreSettings() {
     // settings saved before the presets were tuned to the owner's voice: switch master mix on once
     // (the presets were measured with it), the user can turn it off again
     if (!(o.ver >= 2)) S.mm = true;
+    if (AT_STYLES[o.at]) S.atStyle = o.at;
+    // before v3 the scale defaulted to "all notes"; Auto-Tune now follows the key found in the voice
+    if (!(o.ver >= 3) && $('tuneScale').value === 'chromatic') $('tuneScale').value = 'auto';
     // presets that were not changed by hand always use the current preset values (so updates reach the phone)
     if (!S.presetDirty) {
       blendValues().forEach((v, i) => setParam(PK[i], v));
-      Object.keys(PRESETS).forEach(k => { const T = PRESETS[k].tune; if (T && S.pmix[k].on) Object.keys(T.fx).forEach(id => { if (S.fx[id]) S.fx[id] = { on: true, amt: T.fx[id] }; }); });
     }
   }
   restoring = false;
@@ -4833,6 +4898,7 @@ function initResets() {
   });
   // effect cards: amount back to its start
   FX.forEach(f => {
+    if (f.at) return;
     const row = $('fx_' + f.id).querySelector('.fx-amt'); row.insertAdjacentHTML('beforeend', rstBtn(f.name));
     row.querySelector('.rst').onclick = () => { S.fx[f.id].amt = f.def; updFxUI(); fxChanged(f); if (f.pitch && S.playing) restartSoon(); };
   });
